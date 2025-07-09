@@ -9,7 +9,7 @@ A fully functional Snake game with dual interface, designed for both human play 
 
 - 🎮 **Human Playable**: Use arrow keys to control the snake
 - 🤖 **Gymnasium API**: Standard RL environment interface
-- 🐍 **Classic Gameplay**: Food eating, snake growth, collision detection  
+- 🐍 **Classic Gameplay**: Food eating, snake growth, collision detection
 - 🎨 **Visual Rendering**: Real-time graphics with pygame
 - 📱 **Text Mode**: Play in terminal without GUI
 - 📦 **UV Support**: Modern Python packaging with UV
@@ -92,7 +92,7 @@ pip install -e ".[dev]"  # With dev dependencies
 
 ### Text Mode (No GUI Required)
 Play snake game in terminal - perfect for headless environments:
-- **W/A/S/D** - Move snake (up/left/down/right)  
+- **W/A/S/D** - Move snake (up/left/down/right)
 - **H/J/K/L** - Vim-style movement
 - **Space** - Move up
 - **R** - Restart game
@@ -111,10 +111,10 @@ snake-game text
 ### Human Mode (GUI)
 Play snake game with graphics:
 - **Arrow Keys** - Move snake (up/down/left/right)
-- **R** - Restart game  
+- **R** - Restart game
 - **Q** - Quit game
 
-```bash  
+```bash
 snake-human [OPTIONS]
 snake-game human [OPTIONS]
 
@@ -126,7 +126,7 @@ Options:
 Watch AI play with random actions:
 
 ```bash
-snake-ai [OPTIONS]  
+snake-ai [OPTIONS]
 snake-game ai [OPTIONS]
 
 Options:
@@ -143,9 +143,9 @@ snake-game COMMAND [OPTIONS]
 
 Commands:
   text     Play text-based game (terminal only)
-  human    Play GUI-based game  
+  human    Play GUI-based game
   ai       Run AI demo mode
-  play     Alias for human command  
+  play     Alias for human command
   demo     Alias for ai command with 3 episodes
 ```
 
@@ -157,7 +157,7 @@ Commands:
 
 **Action Space:**
 - 0: UP
-- 1: RIGHT  
+- 1: RIGHT
 - 2: DOWN
 - 3: LEFT
 
@@ -182,7 +182,7 @@ while True:
     action = env.action_space.sample()  # Your RL policy here
     observation, reward, terminated, truncated, info = env.step(action)
     total_reward += reward
-    
+
     if terminated or truncated:
         break
 

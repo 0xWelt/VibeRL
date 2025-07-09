@@ -24,14 +24,14 @@ The codebase follows a simple 3-layer structure:
 
 ### Development Setup
 ```bash
-# Install dependencies  
+# Install dependencies
 uv pip install -e ".[dev]"
 
-# Format code
-uv run black src/
+# Format code with ruff
+uv run ruff format src/
 
-# Type checking
-uv run mypy src/snake_game/
+# Lint code with ruff
+uv run ruff check src/ --fix
 
 # Run tests
 uv run pytest
