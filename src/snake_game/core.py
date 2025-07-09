@@ -1,12 +1,10 @@
 import random
-
 from enum import Enum
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, ClassVar
 
 import gymnasium as gym
 import numpy as np
 import pygame
-
 from gymnasium import spaces
 
 
@@ -18,9 +16,9 @@ class Direction(Enum):
 
 
 class SnakeGameEnv(gym.Env):
-    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 10}
+    metadata: ClassVar[dict[str, Any]] = {'render_modes': ['human', 'rgb_array'], 'render_fps': 10}
 
-    def __init__(self, render_mode: Optional[str] = None, grid_size: int = 20):
+    def __init__(self, render_mode: str | None = None, grid_size: int = 20):
         super().__init__()
 
         self.grid_size = grid_size
@@ -44,8 +42,8 @@ class SnakeGameEnv(gym.Env):
         self.window_size = self.grid_size * self.cell_size
 
     def reset(
-        self, seed: Optional[int] = None, options: Optional[dict] = None
-    ) -> Tuple[np.ndarray, Dict[str, Any]]:
+        self, seed: int | None = None, options: dict | None = None
+    ) -> tuple[np.ndarray, dict[str, Any]]:
         super().reset(seed=seed)
 
         if seed is not None:
@@ -68,13 +66,14 @@ class SnakeGameEnv(gym.Env):
 
         return self._get_observation(), self._get_info()
 
-    def _place_food(self) -> Tuple[int, int]:
+    def _place_food(self) -> tuple[int, int]:
         """Place food at a random empty location."""
-        empty_cells = []
-        for i in range(self.grid_size):
-            for j in range(self.grid_size):
-                if (i, j) not in self.snake:
-                    empty_cells.append((i, j))
+        empty_cells = [
+            (i, j)
+            for i in range(self.grid_size)
+            for j in range(self.grid_size)
+            if (i, j) not in self.snake
+        ]
 
         if not empty_cells:
             return (0, 0)  # Should not happen in normal gameplay
@@ -100,16 +99,16 @@ class SnakeGameEnv(gym.Env):
 
         return grid
 
-    def _get_info(self) -> Dict[str, Any]:
+    def _get_info(self) -> dict[str, Any]:
         """Get additional info about the current state."""
         return {
-            "score": self.score,
-            "steps": self.steps,
-            "snake_length": len(self.snake),
-            "game_over": self.game_over,
+            'score': self.score,
+            'steps': self.steps,
+            'snake_length': len(self.snake),
+            'game_over': self.game_over,
         }
 
-    def step(self, action: int) -> Tuple[np.ndarray, float, bool, bool, Dict[str, Any]]:
+    def step(self, action: int) -> tuple[np.ndarray, float, bool, bool, dict[str, Any]]:
         if self.game_over:
             return self._get_observation(), 0.0, True, False, self._get_info()
 
@@ -177,23 +176,23 @@ class SnakeGameEnv(gym.Env):
 
         return self._get_observation(), reward, False, False, self._get_info()
 
-    def render(self):
+    def render(self) -> None | np.ndarray:
         if self.render_mode is None:
             return None
 
-        if self.render_mode == "rgb_array":
+        if self.render_mode == 'rgb_array':
             return self._render_frame()
-        if self.render_mode == "human":
+        if self.render_mode == 'human':
             self._render_frame()
 
-    def _render_frame(self):
-        if self.window is None and self.render_mode == "human":
+    def _render_frame(self) -> None | np.ndarray:
+        if self.window is None and self.render_mode == 'human':
             pygame.init()
             pygame.display.init()
             self.window = pygame.display.set_mode((self.window_size, self.window_size))
-            pygame.display.set_caption("Snake Game")
+            pygame.display.set_caption('Snake Game')
 
-        if self.clock is None and self.render_mode == "human":
+        if self.clock is None and self.render_mode == 'human':
             self.clock = pygame.time.Clock()
 
         canvas = pygame.Surface((self.window_size, self.window_size))
@@ -249,27 +248,23 @@ class SnakeGameEnv(gym.Env):
 
         # Draw score
         font = pygame.font.Font(None, 36)
-        score_text = font.render(f"Score: {self.score}", True, (255, 255, 255))
+        score_text = font.render(f'Score: {self.score}', True, (255, 255, 255))
         canvas.blit(score_text, (10, 10))
 
         if self.game_over:
-            game_over_text = font.render(
-                "Game Over! Press R to restart", True, (255, 255, 0)
-            )
+            game_over_text = font.render('Game Over! Press R to restart', True, (255, 255, 0))
             text_rect = game_over_text.get_rect(
                 center=(self.window_size // 2, self.window_size // 2)
             )
             canvas.blit(game_over_text, text_rect)
 
-        if self.render_mode == "human":
+        if self.render_mode == 'human':
             self.window.blit(canvas, (0, 0))
             pygame.event.pump()
             pygame.display.update()
-            self.clock.tick(self.metadata["render_fps"])
+            self.clock.tick(self.metadata['render_fps'])
         else:
-            return np.transpose(
-                np.array(pygame.surfarray.pixels3d(canvas)), axes=(1, 0, 2)
-            )
+            return np.transpose(np.array(pygame.surfarray.pixels3d(canvas)), axes=(1, 0, 2))
 
     def close(self):
         if self.window is not None:

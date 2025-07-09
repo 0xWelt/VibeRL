@@ -17,20 +17,17 @@ classifiers = [
     "Intended Audience :: Education",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Games/Entertainment",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 keywords = ["snake", "game", "gymnasium", "reinforcement-learning", "pygame"]
-requires-python = ">=3.8.1"
+requires-python = ">=3.12"
 dependencies = [
     "gymnasium>=0.28.0",
-    "numpy>=1.21.0",
-    "pygame>=2.1.0",
+    "numpy>=1.26.0",
+    "pygame>=2.5.0",
 ]
 
 [project.optional-dependencies]
@@ -40,7 +37,7 @@ dev = [
     "ruff>=0.12.0",
 ]
 examples = [
-    "matplotlib>=3.5.0",
+    "matplotlib>=3.8.0",
     "jupyter>=1.0.0",
 ]
 
@@ -66,88 +63,140 @@ include = [
     "/LICENSE",
 ]
 
+# Linter tools #################################################################
+
+[tool.codespell]
+ignore-words = "docs/spelling_wordlist.txt"
+
 [tool.ruff]
-# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default plus import sorting.
-select = ["E", "F", "W", "C90", "I", "N", "UP", "YTT", "S", "BLE", "B", "A", "COM", "C4", "DTZ", "T10", "EM", "EXE", "FA", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SLF", "SLOT", "SIM", "TID", "TCH", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "TRY", "NPY", "RUF"]
-ignore = ["E501", "COM812", "ISC001", "T201"]
+target-version = "py312"
+line-length = 100
+output-format = "full"
+src = ["snake_game", "examples"]
 
-# Allow autofix for all enabled rules (when `--fix`) is provided.
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude a variety of commonly ignored directories.
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".git-rewrite",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
-]
-
-# Same as Black.
-line-length = 88
-
-# Allow unused variables when underscore-prefixed.
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$$"
-
-# Assume Python 3.8
-target-version = "py38"
+[tool.ruff.format]
+quote-style = "single"
+docstring-code-format = false
+skip-magic-trailing-comma = false
 
 [tool.ruff.lint]
-# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default plus import sorting.
-select = ["E", "F", "W", "C90", "I", "N", "UP", "YTT", "S", "BLE", "B", "A", "COM", "C4", "DTZ", "T10", "EM", "EXE", "FA", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SLF", "SLOT", "SIM", "TID", "TCH", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "TRY", "NPY", "RUF"]
-ignore = ["E501", "COM812", "ISC001", "T201"]
-
-# Allow autofix for all enabled rules (when `--fix`) is provided.
-fixable = ["ALL"]
-unfixable = []
-
-# Allow unused variables when underscore-prefixed.
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$$"
-
-[tool.ruff.lint.mccabe]
-# Unlike Flake8, default to a complexity level of 10.
-max-complexity = 10
+select = [
+    "E", "W",  # pycodestyle
+    "F",       # pyflakes
+    "I",       # isort
+    "N",       # pep8-naming
+    "UP",      # pyupgrade
+    "ANN",     # flake8-annotations
+    "S",       # flake8-bandit
+    "BLE",     # flake8-blind-except
+    "B",       # flake8-bugbear
+    "COM",     # flake8-commas
+    "C4",      # flake8-comprehensions
+    "EXE",     # flake8-executable
+    "FA",      # flake8-future-annotations
+    "ISC",     # flake8-implicit-str-concat
+    "LOG",     # flake8-logging
+    "PIE",     # flake8-pie
+    "PYI",     # flake8-pyi
+    "Q",       # flake8-quotes
+    "RSE",     # flake8-raise
+    "SIM",     # flake8-simplify
+    "TID",     # flake8-tidy-imports
+    "TC",      # flake8-type-checking
+    "PERF",    # perflint
+    "FURB",    # refurb
+    "TRY",     # tryceratops
+    "RUF",     # ruff
+    "ASYNC",   # flake8-async
+]
+ignore = [
+    # E501: line too long
+    # W505: doc line too long
+    # too long docstring due to long example blocks
+    "E501",
+    "W505",
+    "ANN002",
+    "ANN003",
+    "ANN204", # return type for special methods
+    # ANN401: dynamically typed expressions (typing.Any) are disallowed
+    "ANN401",
+    "B027",  # empty method https://github.com/PyCQA/flake8-bugbear/issues/301
+    "C416",  # unnecessary comprehensions
+    "COM812",  # conflict with formatter
+    "RUF005",
+    # S101: use of `assert` detected
+    # internal use and may never raise at runtime
+    "S101",
+    "S105",   # hardcoded password string
+    "S107",   # hardcoded password default
+    "S110",   # try-except-pass in tests - acceptable for test code
+    # S311: random number generator not cryptographically secure
+    # not a security-sensitive application
+    "S301",  # pickle
+    "S311",
+    # SIM105: use `contextlib.suppress(...)` instead of try-except-pass
+    # reduce unnecessary function call
+    "SIM105",
+    "TID252", # relative imports
+    # TRY003: avoid specifying long messages outside the exception class
+    # long messages are necessary for clarity
+    "TRY003",
+    "TRY400",
+    "N802",   # naming
+]
+typing-modules = ["snake_game.typing"]
+unfixable = ["S110"]
+allowed-confusables = ["，", "。", "：", "？", "！", "、", "（", "）", "；", "“", "”"]
+extend-safe-fixes = [
+    "C408",
+    "E711",
+    "FURB129",
+    "PERF102",
+    "PIE810",
+    "SIM102",
+    "TC001",  # typing-only-first-party-import
+    "TC002",  # typing-only-third-party-import
+    "TC003",  # typing-only-standard-library-import
+    "TC004",  # runtime-import-in-type-checking-block
+    "TRY201",
+    "UP004",  # useless-object-inheritance
+    "UP008",  # super-call-with-parameters
+    "UP038",  # non-pep604-isinstance
+    "UP039",  # unnecessary-class-parentheses
+]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101", "PLR2004", "PLR0913", "PLR0917"]
+"__init__.py" = [
+    "F401",    # unused-import
+]
+"examples/**/*.py" = [
+    "TID252",  # relative-imports
+]
+
+"test/**/*.py" = [
+    "ANN",
+    "S108",
+]
 
 [tool.ruff.lint.isort]
-# Use a single line after imports.
+known-first-party = ["snake_game"]
+known-local-folder = ["snake_game", "examples", "tests"]
 lines-after-imports = 2
-# Use a single line between import sections.
-lines-between-types = 1
-# Use a consistent ordering for imports.
-order-by-type = true
-# Group imports by type (standard library, third-party, first-party).
-section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py", "*_test.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = [
-    "--strict-markers",
-    "--strict-config",
-    "--cov=snake_game",
-    "--cov-report=term-missing",
-    "--cov-report=html",
-    "--cov-report=xml",
-]
+[tool.ruff.lint.flake8-annotations]
+allow-star-arg-any = true
+suppress-dummy-args = true
+suppress-none-returning = true
+
+
+[tool.ruff.lint.flake8-type-checking]
+runtime-evaluated-base-classes = ["pydantic.BaseModel"]
+runtime-evaluated-decorators = ["pydantic.validate_call"]
+
+[tool.ruff.lint.flake8-quotes]
+docstring-quotes = "double"
+multiline-quotes = "double"
+inline-quotes = "single"
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"

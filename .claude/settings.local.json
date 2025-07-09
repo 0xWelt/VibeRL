@@ -16,7 +16,9 @@
       "Bash(pre-commit:*)",
       "Bash(ruff check:*)",
       "Bash(ruff format:*)",
-      "Bash(pip uninstall:*)"
+      "Bash(pip uninstall:*)",
+      "Bash(rg:*)",
+      "Bash(sed:*)"
     ],
     "deny": []
   }

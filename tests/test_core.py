@@ -4,7 +4,7 @@ import sys
 import numpy as np
 
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from snake_game.core import Direction, SnakeGameEnv
 
@@ -42,12 +42,12 @@ class TestSnakeGameEnvInitialization:
         assert len(env.snake) == 3
 
     def test_render_mode_human(self):
-        env = SnakeGameEnv(render_mode="human")
-        assert env.render_mode == "human"
+        env = SnakeGameEnv(render_mode='human')
+        assert env.render_mode == 'human'
 
     def test_render_mode_rgb_array(self):
-        env = SnakeGameEnv(render_mode="rgb_array")
-        assert env.render_mode == "rgb_array"
+        env = SnakeGameEnv(render_mode='rgb_array')
+        assert env.render_mode == 'rgb_array'
 
 
 class TestSnakeGameEnvReset:
@@ -60,14 +60,14 @@ class TestSnakeGameEnvReset:
         assert obs.shape == (20, 20)
         assert obs.dtype == np.uint8
         assert isinstance(info, dict)
-        assert "score" in info
-        assert "steps" in info
-        assert "snake_length" in info
-        assert "game_over" in info
-        assert info["score"] == 0
-        assert info["steps"] == 0
-        assert info["snake_length"] == 3
-        assert info["game_over"] is False
+        assert 'score' in info
+        assert 'steps' in info
+        assert 'snake_length' in info
+        assert 'game_over' in info
+        assert info['score'] == 0
+        assert info['steps'] == 0
+        assert info['snake_length'] == 3
+        assert info['game_over'] is False
 
     def test_reset_with_seed(self):
         env = SnakeGameEnv()
@@ -155,24 +155,24 @@ class TestSnakeGameEnvInfo:
         env.reset()
         info = env._get_info()
 
-        required_keys = ["score", "steps", "snake_length", "game_over"]
+        required_keys = ['score', 'steps', 'snake_length', 'game_over']
         for key in required_keys:
             assert key in info
 
-        assert isinstance(info["score"], int)
-        assert isinstance(info["steps"], int)
-        assert isinstance(info["snake_length"], int)
-        assert isinstance(info["game_over"], bool)
+        assert isinstance(info['score'], int)
+        assert isinstance(info['steps'], int)
+        assert isinstance(info['snake_length'], int)
+        assert isinstance(info['game_over'], bool)
 
     def test_info_values(self):
         env = SnakeGameEnv()
         env.reset()
         info = env._get_info()
 
-        assert info["score"] == env.score
-        assert info["steps"] == env.steps
-        assert info["snake_length"] == len(env.snake)
-        assert info["game_over"] == env.game_over
+        assert info['score'] == env.score
+        assert info['steps'] == env.steps
+        assert info['snake_length'] == len(env.snake)
+        assert info['game_over'] == env.game_over
 
 
 class TestSnakeGameEnvFoodPlacement:
@@ -183,7 +183,7 @@ class TestSnakeGameEnvFoodPlacement:
         env.reset()
 
         # Clear the grid to test food placement
-        initial_snake = env.snake.copy()
+        _ = env.snake.copy()  # Copy to verify it doesn't change
 
         food = env._place_food()
         assert food not in env.snake
@@ -200,9 +200,7 @@ class TestSnakeGameEnvFoodPlacement:
 
         food = env._place_food()
         assert food not in env.snake
-        assert food in [
-            (i, j) for i in range(5) for j in range(5) if (i, j) not in env.snake
-        ]
+        assert food in [(i, j) for i in range(5) for j in range(5) if (i, j) not in env.snake]
 
     def test_place_food_empty_grid_fallback(self):
         env = SnakeGameEnv(grid_size=5)
@@ -395,7 +393,7 @@ class TestSnakeGameEnvRandomScenarios:
         initial_score = env.score
         food_positions = [(5, 6), (5, 7), (5, 8)]
 
-        for i, food_pos in enumerate(food_positions):
+        for i, _food_pos in enumerate(food_positions):
             # Place food in front of snake
             head = env.snake[-1]
             env.food = (head[0], head[1] + 1)
@@ -547,9 +545,9 @@ class TestSnakeGameEnvPerformance:
 
             obs, reward, terminated, truncated, info = env.step(direction.value)
 
-            assert terminated, f"Collision not detected at {direction} boundary"
-            assert reward == -1.0, f"Wrong penalty for {direction} collision"
-            assert env.game_over, f"Game should be over after {direction} collision"
+            assert terminated, f'Collision not detected at {direction} boundary'
+            assert reward == -1.0, f'Wrong penalty for {direction} collision'
+            assert env.game_over, f'Game should be over after {direction} collision'
 
     def test_simultaneous_food_and_collision_placement(self):
         """Test edge case where food placement and collision could be ambiguous."""
