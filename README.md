@@ -1,9 +1,11 @@
-# 🐍 Snake Game with Gymnasium Interface
+# 🚀 VibeRL
 
-A fully functional Snake game with dual interface, designed for both human play and AI training with **UV package management**.
+A Reinforcement Learning framework built essentially through vibe coding. VibeRL provides a simple yet powerful platform for training and evaluating RL agents using modern Python tools.
 
-- **Human mode**: Playable with arrow keys
-- **AI mode**: Standard Gymnasium environment for reinforcement learning
+- **Vibe Coding**: Built through intuitive development practices
+- **Gymnasium Compatible**: Standard RL environment interface
+- **Human Playable**: Interactive gameplay with keyboard controls
+- **Research Ready**: Configurable environments and algorithms
 
 ## Features
 
@@ -26,45 +28,33 @@ uv pip install -e .
 uv pip install -e ".[dev]"
 ```
 
-### 2. Play the Game
+### 2. Get Started with VibeRL
 
-**Text Mode** - Play in terminal (no GUI required):
+**Demo Mode** - Watch random AI play:
 ```bash
-# Text-based CLI game
-snake-game text
+# Run demo with 5 episodes
+viberl-demo --episodes 5
 
-# with custom grid size
-snake-game text --grid-size 15
+# Custom grid size
+viberl-demo --episodes 3 --grid-size 15
 ```
 
-**Human Mode** - Play with GUI:
+**Training Mode** - Train your first agent:
 ```bash
-# GUI-based game
-snake-human
+# Train REINFORCE agent
+viberl-train --episodes 1000 --env snake --agent reinforce
 
-# With custom grid size
-snake-human --grid-size 30
+# With custom parameters
+viberl-train --episodes 500 --grid-size 20 --lr 1e-4
 ```
 
-**AI Mode** - Watch AI play:
+**Evaluation Mode** - Test trained models:
 ```bash
-# Demo with random AI
-snake-ai
+# Evaluate trained model
+viberl-eval --model-path model.pth --render
 
-# Multiple episodes
-snake-ai --episodes 5
-```
-
-**Using the main command**:
-```bash
-# Text-based play (terminal only)
-snake-game text --grid-size 20
-
-# GUI-based play
-snake-game human --grid-size 25
-
-# AI demo mode
-snake-game ai --episodes 3 --grid-size 20
+# Multiple evaluation episodes
+viberl-eval --model-path model.pth --episodes 10 --render
 ```
 
 ## Installation Options
@@ -72,8 +62,8 @@ snake-game ai --episodes 3 --grid-size 20
 ### With UV (Recommended)
 ```bash
 # Clone the repository
-git clone https://github.com/snake-game/snake-game.git
-cd snake-game
+git clone https://github.com/0xWelt/VibeRL.git
+cd VibeRL
 
 # Install in development mode
 uv pip install -e .
@@ -90,63 +80,39 @@ pip install -e ".[dev]"  # With dev dependencies
 
 ## CLI Commands
 
-### Text Mode (No GUI Required)
-Play snake game in terminal - perfect for headless environments:
-- **W/A/S/D** - Move snake (up/left/down/right)
-- **H/J/K/L** - Vim-style movement
-- **Space** - Move up
-- **R** - Restart game
-- **Q** - Quit game
-
+### Demo Mode
+Watch random AI agent play:
 ```bash
-snake-game text [OPTIONS]
+viberl-demo [OPTIONS]
 
 Options:
-  --grid-size INT     Grid size for the game (default: 15, max: 25)
-
-# Quick text mode
-snake-game text
+  --episodes INT      Number of episodes to run (default: 5)
+  --grid-size INT     Grid size for the game (default: 15)
 ```
 
-### Human Mode (GUI)
-Play snake game with graphics:
-- **Arrow Keys** - Move snake (up/down/left/right)
-- **R** - Restart game
-- **Q** - Quit game
-
+### Training Mode
+Train RL agents using various algorithms:
 ```bash
-snake-human [OPTIONS]
-snake-game human [OPTIONS]
+viberl-train [OPTIONS]
 
 Options:
-  --grid-size INT     Grid size for the game (default: 20)
+  --episodes INT      Number of training episodes (default: 1000)
+  --grid-size INT     Grid size for the game (default: 15)
+  --lr FLOAT          Learning rate (default: 1e-3)
+  --gamma FLOAT       Discount factor (default: 0.99)
+  --save-path PATH    Model save path (default: 'trained_model')
 ```
 
-### AI Demo Mode
-Watch AI play with random actions:
-
+### Evaluation Mode
+Evaluate trained RL models:
 ```bash
-snake-ai [OPTIONS]
-snake-game ai [OPTIONS]
+viberl-eval [OPTIONS]
 
 Options:
-  --grid-size INT     Grid size for the game (default: 20)
-  --episodes INT      Number of episodes to run (default: 1)
-  --render/--no-render Enable/disable rendering (default: enabled)
-```
-
-### Unified Interface
-Main command with multiple game modes:
-
-```bash
-snake-game COMMAND [OPTIONS]
-
-Commands:
-  text     Play text-based game (terminal only)
-  human    Play GUI-based game
-  ai       Run AI demo mode
-  play     Alias for human command
-  demo     Alias for ai command with 3 episodes
+  --model-path PATH   Path to trained model (required)
+  --episodes INT      Number of evaluation episodes (default: 10)
+  --grid-size INT     Grid size for the game (default: 15)
+  --render            Enable rendering during evaluation
 ```
 
 ## Environment Details
@@ -254,18 +220,54 @@ uv run flake8 src/
   - **Text Mode**: WASD/HJKL, Space/R/Q
   - **AI Mode**: Zero direct user input
 
+## Development Setup
+
+### Setup Development Environment
+
+```bash
+# Install UV (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Clone and setup
+git clone https://github.com/0xWelt/VibeRL.git
+cd VibeRL
+uv venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+uv pip install -e ".[dev]"
+```
+
+### Development Tools
+
+```bash
+# Format code
+uv run ruff format viberl/
+
+# Type checking
+uv run mypy viberl/
+
+# Run tests
+uv run pytest
+
+# Lint code
+uv run ruff check viberl/ --fix
+```
+
 ## Project Structure
 
 ```
-snake-game/
+VibeRL/
 ├── pyproject.toml          # UV project configuration
 ├── LICENSE                 # MIT license
 ├── README.md              # This file
-├── src/
-│   └── snake_game/
-│       ├── __init__.py    # Package exports
-│       ├── core.py        # Main Snake game environment
-│       └── cli.py         # Command-line interface
+├── viberl/
+│   ├── __init__.py        # Package exports
+│   ├── cli.py             # Command-line interface
+│   ├── envs/              # RL environments
+│   ├── agents/            # RL algorithms
+│   ├── utils/             # Utilities and helpers
+│   └── examples/          # Training examples
+├── tests/                 # Test suite
+└── docs/                  # Documentation
 ```
 
 ## Contributing

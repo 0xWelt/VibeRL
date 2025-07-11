@@ -1,4 +1,4 @@
-"""Tests for Tiny RL CLI functions."""
+"""Tests for VibeRL CLI functions."""
 
 import os
 import sys
@@ -9,15 +9,15 @@ import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from tiny_rl.cli import demo_main, eval_main, train_main
+from viberl.cli import demo_main, eval_main, train_main
 
 
 class TestCLIMainFunctions:
     """Test main CLI functions."""
 
-    @patch('tiny_rl.cli.SnakeGameEnv')
-    @patch('tiny_rl.cli.REINFORCEAgent')
-    @patch('tiny_rl.cli.train_agent')
+    @patch('viberl.cli.SnakeGameEnv')
+    @patch('viberl.cli.REINFORCEAgent')
+    @patch('viberl.cli.train_agent')
     def test_train_main_basic(self, mock_train_agent, mock_agent_class, mock_env_class):  # noqa: ANN001
         """Test train_main function with basic arguments."""
         # Mock environment
@@ -33,7 +33,7 @@ class TestCLIMainFunctions:
         mock_train_agent.return_value = [10.0, 12.0, 15.0]
 
         # Test with minimal arguments
-        test_args = ['tiny-rl-train', '--episodes', '10']
+        test_args = ['viberl-train', '--episodes', '10']
 
         with patch.object(sys, 'argv', test_args):
             train_main()
@@ -47,9 +47,9 @@ class TestCLIMainFunctions:
         # Verify training was called
         mock_train_agent.assert_called_once()
 
-    @patch('tiny_rl.cli.SnakeGameEnv')
-    @patch('tiny_rl.cli.REINFORCEAgent')
-    @patch('tiny_rl.cli.evaluate_agent')
+    @patch('viberl.cli.SnakeGameEnv')
+    @patch('viberl.cli.REINFORCEAgent')
+    @patch('viberl.cli.evaluate_agent')
     def test_eval_main_basic(self, mock_evaluate_agent, mock_agent_class, mock_env_class):  # noqa: ANN001
         """Test eval_main function with basic arguments."""
         # Mock environment
@@ -66,7 +66,7 @@ class TestCLIMainFunctions:
         mock_evaluate_agent.return_value = [8.0, 12.0, 10.0]
 
         # Test with minimal arguments
-        test_args = ['tiny-rl-eval', '--model-path', 'test_model.pth']
+        test_args = ['viberl-eval', '--model-path', 'test_model.pth']
 
         with patch.object(sys, 'argv', test_args):
             eval_main()
@@ -78,7 +78,7 @@ class TestCLIMainFunctions:
         mock_agent_class.assert_called_once()
         mock_agent.load_policy.assert_called_once_with('test_model.pth')
 
-    @patch('tiny_rl.cli.SnakeGameEnv')
+    @patch('viberl.cli.SnakeGameEnv')
     def test_demo_main_basic(self, mock_env_class):  # noqa: ANN001
         """Test demo_main function with basic arguments."""
         # Mock environment
@@ -89,7 +89,7 @@ class TestCLIMainFunctions:
         mock_env.action_space.sample.return_value = 0
 
         # Test with minimal arguments
-        test_args = ['tiny-rl-demo', '--episodes', '2']
+        test_args = ['viberl-demo', '--episodes', '2']
 
         with patch.object(sys, 'argv', test_args):
             demo_main()
@@ -131,11 +131,11 @@ class TestCLIArgumentParsing:
 
     def test_demo_main_default_episodes(self):
         """Test demo_main with default episode count."""
-        test_args = ['tiny-rl-demo']
+        test_args = ['viberl-demo']
 
         with (
             patch.object(sys, 'argv', test_args),
-            patch('tiny_rl.cli.SnakeGameEnv') as mock_env_class,
+            patch('viberl.cli.SnakeGameEnv') as mock_env_class,
         ):
             mock_env = Mock()
             mock_env_class.return_value = mock_env

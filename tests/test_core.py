@@ -6,7 +6,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from tiny_rl.envs import Direction, SnakeGameEnv
+from viberl.envs import Direction, SnakeGameEnv
 
 
 class TestDirection:

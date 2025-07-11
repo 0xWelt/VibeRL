@@ -11,9 +11,9 @@ import time
 
 import numpy as np
 
-from tiny_rl.agents import REINFORCEAgent
-from tiny_rl.envs import SnakeGameEnv
-from tiny_rl.utils import evaluate_agent, get_device, set_seed, train_agent
+from viberl.agents import REINFORCEAgent
+from viberl.envs import SnakeGameEnv
+from viberl.utils import evaluate_agent, get_device, set_seed, train_agent
 
 
 def main():

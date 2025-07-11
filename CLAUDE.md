@@ -13,15 +13,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Tiny RL - A simple reinforcement learning framework for research and education. Built with Python using pygame, numpy, and PyTorch.
+VibeRL - A Reinforcement Learning framework built essentially through vibe coding. Built with Python using pygame, numpy, and PyTorch.
 
 ## Architecture
 
 The codebase follows a simple 3-layer structure:
 
-- **`tiny_rl/envs/`**: Environments including SnakeGameEnv implementing gymnasium.Env interface
-- **`tiny_rl/cli.py`**: Command-line interface with different play modes (train, eval, demo)
-- **`tiny_rl/`**: Main package with agents, utils, and examples
+- **`viberl/envs/`**: Environments including SnakeGameEnv implementing gymnasium.Env interface
+- **`viberl/cli.py`**: Command-line interface with different play modes (train, eval, demo)
+- **`viberl/`**: Main package with agents, utils, and examples
 
 ### Key Classes
 
@@ -52,16 +52,16 @@ uv run flake8 src/
 ### CLI Commands
 ```bash
 # Train an agent
-tiny-rl-train --episodes 1000 --env snake --agent reinforce
+viberl-train --episodes 1000 --env snake --agent reinforce
 
 # Evaluate a trained model
-tiny-rl-eval --model-path model.pth --render
+viberl-eval --model-path model.pth --render
 
 # Run demo with random actions
-tiny-rl-demo --episodes 5
+viberl-demo --episodes 5
 
 # Run example training script
-python -m tiny_rl.examples.train_snake_reinforce --episodes 1000
+python -m viberl.examples.train_snake_reinforce --episodes 1000
 ```
 
 ### Mode-Specific Options

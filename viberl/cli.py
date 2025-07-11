@@ -9,9 +9,9 @@ import sys
 import numpy as np
 import torch
 
-from tiny_rl.agents import REINFORCEAgent
-from tiny_rl.envs import SnakeGameEnv
-from tiny_rl.utils import evaluate_agent, get_device, set_seed, train_agent
+from viberl.agents import REINFORCEAgent
+from viberl.envs import SnakeGameEnv
+from viberl.utils import evaluate_agent, get_device, set_seed, train_agent
 
 
 def train_main():
@@ -214,8 +214,8 @@ if __name__ == '__main__':
         sys.argv.pop(1)
         demo_main()
     else:
-        print('Usage: python -m tiny_rl.cli [train|eval|demo] [options...]')
+        print('Usage: python -m viberl.cli [train|eval|demo] [options...]')
         print('\nExamples:')
-        print('  python -m tiny_rl.cli train --episodes 1000 --env snake')
-        print('  python -m tiny_rl.cli eval --model-path model.pth --render')
-        print('  python -m tiny_rl.cli demo --episodes 5')
+        print('  python -m viberl.cli train --episodes 1000 --env snake')
+        print('  python -m viberl.cli eval --model-path model.pth --render')
+        print('  python -m viberl.cli demo --episodes 5')

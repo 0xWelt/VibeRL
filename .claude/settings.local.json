@@ -20,7 +20,9 @@
       "Bash(rg:*)",
       "Bash(sed:*)",
       "Bash(pytest:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(viberl-demo:*)"
     ],
     "deny": []
   }

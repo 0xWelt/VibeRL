@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "tiny-rl"
+name = "viberl"
 version = "0.2.0"
-description = "A simple reinforcement learning framework for research and education"
+description = "A Reinforcement Learning framework built essentially through vibe coding"
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
@@ -31,6 +31,7 @@ dependencies = [
     "pygame>=2.5.0",
     "torch>=2.0.0",
     "tensorboard>=2.14.0",
+    "pre-commit>=4.2.0",
 ]
 
 [project.optional-dependencies]
@@ -54,22 +55,22 @@ classic = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/tiny-rl/tiny-rl"
-Repository = "https://github.com/tiny-rl/tiny-rl"
-Documentation = "https://github.com/tiny-rl/tiny-rl#readme"
-"Bug Tracker" = "https://github.com/tiny-rl/tiny-rl/issues"
+Homepage = "https://github.com/0xWelt/VibeRL"
+Repository = "https://github.com/0xWelt/VibeRL"
+Documentation = "https://github.com/0xWelt/VibeRL#readme"
+"Bug Tracker" = "https://github.com/0xWelt/VibeRL/issues"
 
 [project.scripts]
-tiny-rl-train = "tiny_rl.cli:train_main"
-tiny-rl-eval = "tiny_rl.cli:eval_main"
-tiny-rl-demo = "tiny_rl.cli:demo_main"
+viberl-train = "viberl.cli:train_main"
+viberl-eval = "viberl.cli:eval_main"
+viberl-demo = "viberl.cli:demo_main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["tiny_rl"]
+packages = ["viberl"]
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "/tiny_rl",
+    "/viberl",
     "/tests",
     "/README.md",
     "/LICENSE",
@@ -123,59 +124,47 @@ select = [
     "ASYNC",   # flake8-async
 ]
 ignore = [
-    # E501: line too long
-    # W505: doc line too long
-    # too long docstring due to long example blocks
-    "E501",
-    "W505",
-    "ANN002",
-    "ANN003",
-    "ANN204", # return type for special methods
-    # ANN401: dynamically typed expressions (typing.Any) are disallowed
-    "ANN401",
-    "B027",  # empty method https://github.com/PyCQA/flake8-bugbear/issues/301
-    "C416",  # unnecessary comprehensions
-    "COM812",  # conflict with formatter
-    "RUF005",
-    # S101: use of `assert` detected
-    # internal use and may never raise at runtime
-    "S101",
-    "S105",   # hardcoded password string
-    "S107",   # hardcoded password default
-    "S110",   # try-except-pass in tests - acceptable for test code
-    # S311: random number generator not cryptographically secure
-    # not a security-sensitive application
-    "S301",  # pickle
-    "S311",
-    # SIM105: use `contextlib.suppress(...)` instead of try-except-pass
-    # reduce unnecessary function call
-    "SIM105",
-    "TID252", # relative imports
-    # TRY003: avoid specifying long messages outside the exception class
-    # long messages are necessary for clarity
-    "TRY003",
-    "TRY400",
-    "N802",   # naming
+    "ANN002",  # missing-type-args
+    "ANN003",  # missing-type-kwargs
+    "ANN204",  # missing-return-type-special-method
+    "ANN401",  # any-type
+    "B027",    # empty-method-without-abstract-decorator
+    "B905",    # zip-without-explicit-strict, we use `zip-strict-fixer` instead
+    "C416",    # unnecessary-comprehension
+    "COM812",  # missing-trailing-comma
+    "E501",    # line-too-long
+    "N802",    # invalid-function-name
+    "RUF005",  # collection-literal-concatenation
+    "S101",    # assert
+    "S105",    # hardcoded-password-string
+    "S106",    # hardcoded-password-func-arg
+    "S107",    # hardcoded-password-default
+    "S301",    # suspicious-pickle-usage
+    "S311",    # suspicious-non-cryptographic-random-usage
+    "SIM105",  # suppressible-exception
+    "SIM108",  # if-else-block-instead-of-if-exp
+    "TID252",  # relative-imports
+    "TRY003",  # raise-vanilla-args
+    "TRY400",  # error-instead-of-exception
+    "W505",    # doc-line-too-long
 ]
-typing-modules = ["tiny_rl.typing"]
-unfixable = ["S110"]
 allowed-confusables = ["，", "。", "：", "？", "！", "、", "（", "）", "；", "“", "”"]
 extend-safe-fixes = [
-    "C408",
-    "E711",
-    "FURB129",
-    "PERF102",
-    "PIE810",
-    "SIM102",
-    "TC001",  # typing-only-first-party-import
-    "TC002",  # typing-only-third-party-import
-    "TC003",  # typing-only-standard-library-import
-    "TC004",  # runtime-import-in-type-checking-block
-    "TRY201",
-    "UP004",  # useless-object-inheritance
-    "UP008",  # super-call-with-parameters
-    "UP038",  # non-pep604-isinstance
-    "UP039",  # unnecessary-class-parentheses
+    "C408",     # unnecessary-collection-call
+    "E711",     # none-comparison
+    "FURB129",  # readlines-in-for
+    "PERF102",  # incorrect-dict-iterator
+    "PIE810",   # multiple-starts-ends-with
+    "SIM102",   # collapsible-if
+    "TC001",    # typing-only-first-party-import
+    "TC002",    # typing-only-third-party-import
+    "TC003",    # typing-only-standard-library-import
+    "TC004",    # runtime-import-in-type-checking-block
+    "TRY201",   # verbose-raise
+    "UP004",    # useless-object-inheritance
+    "UP008",    # super-call-with-parameters
+    "UP038",    # non-pep604-isinstance
+    "UP039",    # unnecessary-class-parentheses
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -192,8 +181,8 @@ extend-safe-fixes = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["tiny_rl"]
-known-local-folder = ["tiny_rl", "examples", "tests"]
+known-first-party = ["viberl"]
+known-local-folder = ["viberl", "examples", "tests"]
 lines-after-imports = 2
 
 [tool.ruff.lint.flake8-annotations]
