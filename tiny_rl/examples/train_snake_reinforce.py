@@ -26,6 +26,7 @@ def main():
     parser.add_argument('--seed', type=int, default=42, help='Random seed')
     parser.add_argument('--eval-episodes', type=int, default=10, help='Evaluation episodes')
     parser.add_argument('--save-path', type=str, default='snake_reinforce', help='Model save path')
+    parser.add_argument('--log-dir', type=str, help='Directory for TensorBoard logs')
 
     args = parser.parse_args()
 
@@ -60,6 +61,8 @@ def main():
     print(f'Grid size: {args.grid_size}')
     print(f'Learning rate: {args.lr}')
     print(f'Gamma: {args.gamma}')
+    if args.log_dir:
+        print(f'TensorBoard logs: {args.log_dir}')
 
     # Train agent
     start_time = time.time()
@@ -72,6 +75,7 @@ def main():
         save_interval=args.episodes // 5,  # Save every 20% of episodes
         save_path=args.save_path,
         verbose=True,
+        log_dir=args.log_dir,
     )
 
     training_time = time.time() - start_time

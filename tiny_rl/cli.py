@@ -31,6 +31,7 @@ def train_main():
     parser.add_argument('--render-interval', type=int, help='Render every N episodes')
     parser.add_argument('--save-interval', type=int, help='Save model every N episodes')
     parser.add_argument('--device', choices=['cpu', 'cuda'], default='auto', help='Device to use')
+    parser.add_argument('--log-dir', type=str, help='Directory for TensorBoard logs')
 
     args = parser.parse_args()
 
@@ -70,6 +71,8 @@ def train_main():
     print(f'Grid size: {args.grid_size}')
     print(f'Learning rate: {args.lr}')
     print(f'Gamma: {args.gamma}')
+    if args.log_dir:
+        print(f'TensorBoard logs: {args.log_dir}')
 
     # Train agent
     train_agent(
@@ -80,6 +83,7 @@ def train_main():
         save_interval=args.save_interval,
         save_path=args.save_path,
         verbose=True,
+        log_dir=args.log_dir,
     )
 
     # Save final model

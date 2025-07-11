@@ -1,7 +1,9 @@
+import os
 from typing import Any
 
 import gymnasium as gym
 import numpy as np
+from torch.utils.tensorboard import SummaryWriter
 
 
 def train_agent(
@@ -13,6 +15,7 @@ def train_agent(
     save_interval: int | None = None,
     save_path: str | None = None,
     verbose: bool = True,
+    log_dir: str | None = None,
 ) -> list[float]:
     """
     Generic training function for RL agents.
@@ -26,11 +29,19 @@ def train_agent(
         save_interval: Save model every N episodes
         save_path: Path to save models
         verbose: Print training progress
+        log_dir: Directory for TensorBoard logs
 
     Returns:
         List of episode rewards
     """
     scores = []
+
+    # Initialize TensorBoard writer
+    writer = None
+    if log_dir is not None:
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir)
+        writer = SummaryWriter(log_dir=log_dir)
 
     for episode in range(num_episodes):
         state, _ = env.reset()
@@ -68,12 +79,25 @@ def train_agent(
 
         scores.append(episode_reward)
 
-        # Print progress
+        # Print progress and log to TensorBoard
         if verbose and (episode + 1) % 100 == 0:
             avg_score = np.mean(scores[-100:])
             print(
                 f'Episode {episode + 1}/{num_episodes}, Average Score (last 100): {avg_score:.2f}'
             )
+
+        # Log metrics to TensorBoard
+        if writer is not None:
+            writer.add_scalar('Episode/Reward', episode_reward, episode)
+            if len(scores) >= 100:
+                avg_score_100 = np.mean(scores[-100:])
+                writer.add_scalar('Training/Average100', avg_score_100, episode)
+
+            # Log additional metrics if agent provides them
+            if hasattr(agent, 'get_metrics'):
+                metrics = agent.get_metrics()
+                for metric_name, metric_value in metrics.items():
+                    writer.add_scalar(f'Agent/{metric_name}', metric_value, episode)
 
         # Save model if specified
         if (
@@ -83,6 +107,10 @@ def train_agent(
             and hasattr(agent, 'save_policy')
         ):
             agent.save_policy(f'{save_path}_episode_{episode + 1}.pth')
+
+    # Close TensorBoard writer
+    if writer is not None:
+        writer.close()
 
     return scores
 
