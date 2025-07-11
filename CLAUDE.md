@@ -61,7 +61,7 @@ viberl-eval --model-path model.pth --render
 viberl-demo --episodes 5
 
 # Run example training script
-python -m viberl.examples.train_snake_reinforce --episodes 1000
+python examples/training/train_snake_reinforce.py --episodes 1000
 ```
 
 ### Mode-Specific Options

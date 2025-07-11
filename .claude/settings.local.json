@@ -22,7 +22,8 @@
       "Bash(pytest:*)",
       "Bash(chmod:*)",
       "WebFetch(domain:github.com)",
-      "Bash(viberl-demo:*)"
+      "Bash(viberl-demo:*)",
+      "Bash(timeout:*)"
     ],
     "deny": []
   }

@@ -14,10 +14,23 @@ def play_human_game(grid_size=15):
     """Play Snake game with human controls."""
     
     # Initialize pygame display
-    pygame.init()
+    try:
+        pygame.init()
+        pygame.display.init()
+    except pygame.error as e:
+        print(f"❌ Display not available: {e}")
+        print("💡 This script requires a display server (X11/Windows/macOS)")
+        print("💡 Solutions:")
+        print("   1. Run locally on your machine (not SSH/remote)")
+        print("   2. Use X11 forwarding: ssh -X user@host")
+        print("   3. Use VNC or similar remote desktop")
+        return
+    
+    print("🎮 Initializing Snake game...")
     
     # Create environment with human rendering
     env = SnakeGameEnv(render_mode='human', grid_size=grid_size)
+    print("✅ Environment created successfully")
     
     print("🎮 Snake Game - Human Mode")
     print("========================")
@@ -32,8 +45,11 @@ def play_human_game(grid_size=15):
     observation, info = env.reset()
     score = 0
     
+    print("🎯 Game started! Use arrow keys to move...")
+    
     # Game loop
     running = True
+    first_move = True
     try:
         while running:
             # Handle events
@@ -46,7 +62,8 @@ def play_human_game(grid_size=15):
                     elif event.key == pygame.K_r:
                         observation, info = env.reset()
                         score = 0
-                        print("Game restarted!")
+                        print("🔄 Game restarted!")
+                        first_move = True
                     elif event.key in [pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT]:
                         # Map arrow keys to actions
                         key_map = {
@@ -62,20 +79,21 @@ def play_human_game(grid_size=15):
                         score = info['score']
                         
                         if terminated or truncated:
-                            print(f"Game Over! Final Score: {score}")
-                            print("Press R to restart or Q to quit")
+                            print(f"💀 Game Over! Final Score: {score}")
+                            print("🔄 Press R to restart or Q to quit")
                         else:
-                            print(f"Score: {score}")
+                            print(f"📊 Score: {score}")
+                        first_move = False
             
             # Control frame rate
-            pygame.time.delay(150)  # ~6-7 FPS for human playability
+            pygame.time.delay(100)  # ~10 FPS for better responsiveness
             
     except KeyboardInterrupt:
-        print("\nGame interrupted by user")
+        print("\n🛑 Game interrupted by user")
     finally:
         env.close()
         pygame.quit()
-        print(f"\nGame ended. Final Score: {score}")
+        print(f"\n🏁 Game ended. Final Score: {score}")
 
 
 if __name__ == "__main__":
@@ -84,11 +102,27 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Play Snake game as human')
     parser.add_argument('--grid-size', type=int, default=15, 
                        help='Grid size for the game (default: 15)')
+    parser.add_argument('--test', action='store_true',
+                       help='Quick test mode (skip actual gameplay)')
     
     args = parser.parse_args()
     
-    try:
-        play_human_game(args.grid_size)
-    except KeyboardInterrupt:
-        print("\nGame interrupted by user")
-        sys.exit(0)
+    if args.test:
+        print("🧪 Running in test mode...")
+        try:
+            pygame.init()
+            env = SnakeGameEnv(render_mode='human', grid_size=args.grid_size)
+            obs, info = env.reset()
+            print("✅ Game initialized successfully!")
+            print(f"Grid size: {args.grid_size}x{args.grid_size}")
+            print("🎯 Game is ready for human play")
+            env.close()
+            pygame.quit()
+        except Exception as e:
+            print(f"❌ Error: {e}")
+    else:
+        try:
+            play_human_game(args.grid_size)
+        except KeyboardInterrupt:
+            print("\nGame interrupted by user")
+            sys.exit(0)

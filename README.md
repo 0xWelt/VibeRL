@@ -30,6 +30,16 @@ uv pip install -e ".[dev]"
 
 ### 2. Get Started with VibeRL
 
+**Human Play Mode** - Play the game yourself:
+```bash
+# Play snake game with keyboard
+python examples/human_play/play_human.py
+
+
+# Custom grid size
+python examples/human_play/play_human.py --grid-size 20
+```
+
 **Demo Mode** - Watch random AI play:
 ```bash
 # Run demo with 5 episodes
@@ -259,13 +269,18 @@ VibeRL/
 ├── pyproject.toml          # UV project configuration
 ├── LICENSE                 # MIT license
 ├── README.md              # This file
-├── viberl/
+├── examples/              # Entry point examples
+│   ├── training/          # Training scripts
+│   │   └── train_snake_reinforce.py  # REINFORCE training example
+│   └── human_play/        # Human playable examples
+│       ├── play_human.py              # Full-featured pygame human game
+│       └── text_play.py               # Text-based version for all environments
+├── viberl/                # Core package
 │   ├── __init__.py        # Package exports
 │   ├── cli.py             # Command-line interface
 │   ├── envs/              # RL environments
 │   ├── agents/            # RL algorithms
-│   ├── utils/             # Utilities and helpers
-│   └── examples/          # Training examples
+│   └── utils/             # Utilities and helpers
 ├── tests/                 # Test suite
 └── docs/                  # Documentation
 ```
