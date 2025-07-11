@@ -9,6 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    2.  Make sure `pytest -n 8` passes. If it doesn't, fix the issues and run again.
    3.  Always keep `CLAUDE.md, README.md, pyproject.toml` up to date.
 2. You should implement tests for each part of the code and try to coverage as much as possible.
+3. When creating a git commit, scan all newly-added and modified files; if any of them shouldn't be committed, update .gitignore to exclude them, then run git add . to stage all changes.
 
 ## Project Overview
 

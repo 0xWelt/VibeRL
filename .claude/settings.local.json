@@ -19,7 +19,8 @@
       "Bash(pip uninstall:*)",
       "Bash(rg:*)",
       "Bash(sed:*)",
-      "Bash(pytest:*)"
+      "Bash(pytest:*)",
+      "Bash(chmod:*)"
     ],
     "deny": []
   }
