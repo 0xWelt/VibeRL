@@ -2,23 +2,31 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Instructions for Claude Code
+
+1. After you have made changes to the code:
+   1.  Make sure `pre-commit run --all` passes. If it doesn't, fix the issues and run again. You should always fix the issues and do not use `noqa` to skip any issues.
+   2.  Make sure `pytest -n 8` passes. If it doesn't, fix the issues and run again.
+   3.  Always keep `CLAUDE.md, README.md, pyproject.toml` up to date.
+2. You should implement tests for each part of the code and try to coverage as much as possible.
+
 ## Project Overview
 
-A Snake game with Gymnasium interface for both human play and AI training. Supports GUI and text-based play modes, built with Python using pygame and numpy.
+Tiny RL - A simple reinforcement learning framework for research and education. Built with Python using pygame, numpy, and PyTorch.
 
 ## Architecture
 
 The codebase follows a simple 3-layer structure:
 
-- **`core.py`**: Main SnakeGameEnv class implementing gymnasium.Env interface
-- **`cli.py`**: Command-line interface with different play modes (human, AI, text)
-- **`__init__.py`**: Package exports
+- **`tiny_rl/envs/`**: Environments including SnakeGameEnv implementing gymnasium.Env interface
+- **`tiny_rl/cli.py`**: Command-line interface with different play modes (train, eval, demo)
+- **`tiny_rl/`**: Main package with agents, utils, and examples
 
 ### Key Classes
 
 - `SnakeGameEnv`: Core Gymnasium environment with observation/action spaces
-- `TextPlayableSnake`: Terminal-based gameplay without GUI
-- `HumanPlayableSnake`: GUI-based gameplay with keyboard controls
+- `REINFORCEAgent`: Policy gradient agent for training
+- `PolicyNetwork`: Neural network for policy approximation
 
 ## Common Commands
 
@@ -40,38 +48,36 @@ uv run pytest
 uv run flake8 src/
 ```
 
-### Game Commands
+### CLI Commands
 ```bash
-# Run human mode with GUI
-snake-game human --grid-size 20
-snake-human --grid-size 20
+# Train an agent
+tiny-rl-train --episodes 1000 --env snake --agent reinforce
 
-# Run text mode (no GUI)
-snake-game text --grid-size 15
+# Evaluate a trained model
+tiny-rl-eval --model-path model.pth --render
 
-# Run AI demo
-snake-game ai --episodes 5
-snake-ai --episodes 5
+# Run demo with random actions
+tiny-rl-demo --episodes 5
 
-# Quick aliases
-snake-game play      # Same as human
-snake-game demo      # AI with 3 episodes
+# Run example training script
+python -m tiny_rl.examples.train_snake_reinforce --episodes 1000
 ```
 
 ### Mode-Specific Options
 
-**Human Mode**: Arrow keys to move, R to restart, Q to quit
-**Text Mode**: WASD/HJKL to move, R to restart, Q to quit
-**AI Mode**: Random agent, configurable episodes and rendering
+**Training Mode**: Configure episodes, learning rate, grid size, etc.
+**Evaluation Mode**: Load trained models, set render options
+**Demo Mode**: Random agent with configurable episodes and rendering
 
 ## Key Features
 
 - **Dual Interface**: Human play + AI training via Gymnasium API
-- **Text Mode**: Terminal play without GUI dependencies
+- **Policy Gradient**: REINFORCE algorithm implementation
 - **Flexible**: Configurable grid size, rendering, episode count
 - **Clean API**: Standard gymnasium.Env implementation for RL algorithms
+- **Examples**: Ready-to-run training scripts
 
 ## Dependencies
 
-Core: gymnasium, numpy, pygame
-Dev: pytest, black, mypy, flake8
+Core: gymnasium, numpy, pygame, torch
+Dev: pytest, ruff, mypy

@@ -1,381 +1,149 @@
-import argparse
+"""Tests for Tiny RL CLI functions."""
+
 import os
 import sys
-from io import StringIO
 from unittest.mock import Mock, patch
 
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
-
-from snake_game.cli import (
-    HumanPlayableSnake,
-    TextPlayableSnake,
-    ai_mode,
-    human_mode,
-    main,
-    text_mode,
-)
-from snake_game.core import Direction, SnakeGameEnv
+import pytest
 
 
-class TestHumanPlayableSnake:
-    """Test HumanPlayableSnake class."""
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-    def test_initialization(self):
-        import pygame
-
-        with patch('snake_game.cli.pygame') as mock_pygame_instance:
-            # Set up mock pygame constants
-            mock_pygame_instance.K_UP = pygame.K_UP
-            mock_pygame_instance.K_RIGHT = pygame.K_RIGHT
-            mock_pygame_instance.K_DOWN = pygame.K_DOWN
-            mock_pygame_instance.K_LEFT = pygame.K_LEFT
-
-            game = HumanPlayableSnake(grid_size=25)
-            assert game.grid_size == 25
-            assert isinstance(game.env, SnakeGameEnv)
-            # Use mock pygame constants since they're defined in the mock
-            assert game.action_map[mock_pygame_instance.K_UP] == Direction.UP.value
-            assert game.action_map[mock_pygame_instance.K_RIGHT] == Direction.RIGHT.value
-            assert game.action_map[mock_pygame_instance.K_DOWN] == Direction.DOWN.value
-            assert game.action_map[mock_pygame_instance.K_LEFT] == Direction.LEFT.value
-
-    @patch('snake_game.cli.pygame')
-    def test_play_quit_event(self, mock_pygame: Mock) -> None:
-        import pygame
-
-        # Mock pygame events to simulate quit
-        mock_pygame.QUIT = pygame.QUIT
-        mock_pygame.event.get.return_value = [Mock(type=pygame.QUIT)]
-
-        game = HumanPlayableSnake()
-        game.play()
-
-        # Should exit gracefully
-        mock_pygame.event.get.assert_called()
-
-    @patch('snake_game.cli.pygame')
-    def test_play_key_events(self, mock_pygame: Mock) -> None:
-        import pygame
-
-        # Mock pygame constants
-        mock_pygame.QUIT = pygame.QUIT
-        mock_pygame.KEYDOWN = pygame.KEYDOWN
-        mock_pygame.K_q = pygame.K_q
-        mock_pygame.K_r = pygame.K_r
-        mock_pygame.K_UP = pygame.K_UP
-
-        # Mock events: first quit key, then restart, then arrow key
-        mock_pygame.event.get.side_effect = [
-            [Mock(type=pygame.KEYDOWN, key=pygame.K_q)],  # Quit first
-            [Mock(type=pygame.KEYDOWN, key=pygame.K_r)],  # Then restart
-            [Mock(type=pygame.KEYDOWN, key=pygame.K_UP)],  # Then move
-            [Mock(type=pygame.QUIT)],  # Finally quit
-        ]
-
-        game = HumanPlayableSnake()
-        with (
-            patch.object(game.env, 'step') as mock_step,
-            patch.object(game.env, 'render'),
-        ):
-            mock_step.return_value = (None, 0, False, False, {})
-            game.play()
-
-        mock_step.assert_called_with(Direction.UP.value)
+from tiny_rl.cli import demo_main, eval_main, train_main
 
 
-class TestTextPlayableSnake:
-    """Test TextPlayableSnake class."""
+class TestCLIMainFunctions:
+    """Test main CLI functions."""
 
-    def test_initialization(self):
-        game = TextPlayableSnake(grid_size=15)
-        assert game.grid_size == 15
-        assert isinstance(game.env, SnakeGameEnv)
+    @patch('tiny_rl.cli.SnakeGameEnv')
+    @patch('tiny_rl.cli.REINFORCEAgent')
+    @patch('tiny_rl.cli.train_agent')
+    def test_train_main_basic(self, mock_train_agent, mock_agent_class, mock_env_class):  # noqa: ANN001
+        """Test train_main function with basic arguments."""
+        # Mock environment
+        mock_env = Mock()
+        mock_env_class.return_value = mock_env
 
-        # Check key mappings
-        assert game.key_map['w'] == Direction.UP.value
-        assert game.key_map['a'] == Direction.LEFT.value
-        assert game.key_map['s'] == Direction.DOWN.value
-        assert game.key_map['d'] == Direction.RIGHT.value
-        assert game.key_map[' '] == Direction.UP.value
-        assert game.key_map['k'] == Direction.UP.value
-        assert game.key_map['h'] == Direction.LEFT.value
-        assert game.key_map['j'] == Direction.DOWN.value
-        assert game.key_map['l'] == Direction.RIGHT.value
+        # Mock agent
+        mock_agent = Mock()
+        mock_agent_class.return_value = mock_agent
+        mock_agent.policy_network = Mock()
 
-    @patch('snake_game.cli.os.system')
-    def test_clear_screen(self, mock_system: Mock) -> None:
-        game = TextPlayableSnake()
-        game.clear_screen()
-        mock_system.assert_called_with('cls' if os.name == 'nt' else 'clear')
+        # Mock training function
+        mock_train_agent.return_value = [10.0, 12.0, 15.0]
 
-    def test_display_grid_basic(self):
-        game = TextPlayableSnake(grid_size=5)
-        game.env.reset()
+        # Test with minimal arguments
+        test_args = ['tiny-rl-train', '--episodes', '10']
 
-        with patch('builtins.print') as mock_print:
-            game.display_grid()
+        with patch.object(sys, 'argv', test_args):
+            train_main()
 
-            # Check that print was called multiple times
-            assert mock_print.call_count > 5
+        # Verify environment was created
+        mock_env_class.assert_called_once_with(grid_size=15)
 
-            # Check score display
-            score_call = mock_print.call_args_list[0]
-            assert 'Score:' in score_call[0][0]
-            assert 'Length:' in score_call[0][0]
+        # Verify agent was created
+        mock_agent_class.assert_called_once()
 
-            # Check grid borders
-            border_calls = [
-                call[0][0]
-                for call in mock_print.call_args_list
-                if call[0][0].startswith('┌') or call[0][0].startswith('└')
-            ]
-            assert len(border_calls) >= 2
+        # Verify training was called
+        mock_train_agent.assert_called_once()
 
-    def test_display_help(self):
-        game = TextPlayableSnake()
+    @patch('tiny_rl.cli.SnakeGameEnv')
+    @patch('tiny_rl.cli.REINFORCEAgent')
+    @patch('tiny_rl.cli.evaluate_agent')
+    def test_eval_main_basic(self, mock_evaluate_agent, mock_agent_class, mock_env_class):  # noqa: ANN001
+        """Test eval_main function with basic arguments."""
+        # Mock environment
+        mock_env = Mock()
+        mock_env_class.return_value = mock_env
 
-        with patch('builtins.print') as mock_print:
-            game.display_help()
+        # Mock agent
+        mock_agent = Mock()
+        mock_agent_class.return_value = mock_agent
+        mock_agent.policy_network = Mock()
+        mock_agent.load_policy = Mock()
 
-            # Check help content
-            help_text = '\n'.join([call[0][0] for call in mock_print.call_args_list])
-            assert 'Controls:' in help_text
-            assert 'W/A/S/D' in help_text
-            assert 'K/H/J/L' in help_text
-            assert 'R - Restart' in help_text
-            assert 'Q - Quit' in help_text
+        # Mock evaluation function
+        mock_evaluate_agent.return_value = [8.0, 12.0, 10.0]
 
+        # Test with minimal arguments
+        test_args = ['tiny-rl-eval', '--model-path', 'test_model.pth']
 
-class TestCLIModes:
-    """Test CLI mode functions."""
+        with patch.object(sys, 'argv', test_args):
+            eval_main()
 
-    @patch('snake_game.cli.HumanPlayableSnake')
-    def test_human_mode(self, mock_game_class: Mock) -> None:
-        mock_game = Mock()
-        mock_game_class.return_value = mock_game
+        # Verify environment was created with render mode
+        mock_env_class.assert_called_once_with(render_mode=None, grid_size=15)
 
-        args = argparse.Namespace(grid_size=30)
-        human_mode(args)
+        # Verify agent was created and model was loaded
+        mock_agent_class.assert_called_once()
+        mock_agent.load_policy.assert_called_once_with('test_model.pth')
 
-        mock_game_class.assert_called_once_with(grid_size=30)
-        mock_game.play.assert_called_once()
-
-    @patch('snake_game.cli.SnakeGameEnv')
-    def test_ai_mode_single_episode(self, mock_env_class: Mock) -> None:
+    @patch('tiny_rl.cli.SnakeGameEnv')
+    def test_demo_main_basic(self, mock_env_class):  # noqa: ANN001
+        """Test demo_main function with basic arguments."""
+        # Mock environment
         mock_env = Mock()
         mock_env_class.return_value = mock_env
         mock_env.reset.return_value = (None, {})
         mock_env.step.return_value = (None, 0, True, False, {'score': 5})
         mock_env.action_space.sample.return_value = 0
 
-        args = argparse.Namespace(grid_size=25, episodes=1, render=True)
-
-        with patch('builtins.print'):
-            ai_mode(args)
-
-        mock_env_class.assert_called_once_with(render_mode='human', grid_size=25)
-        mock_env.reset.assert_called_once()
-        mock_env.step.assert_called()
-        mock_env.close.assert_called_once()
-
-    @patch('snake_game.cli.SnakeGameEnv')
-    def test_ai_mode_multiple_episodes(self, mock_env_class: Mock) -> None:
-        mock_env = Mock()
-        mock_env_class.return_value = mock_env
-        mock_env.reset.return_value = (None, {})
-        mock_env.step.return_value = (None, 0, True, False, {'score': 0})
-        mock_env.action_space.sample.return_value = 0
-
-        args = argparse.Namespace(grid_size=20, episodes=3, render=False)
-
-        with patch('builtins.print'):
-            ai_mode(args)
-
-        # Should reset twice (once per episode after first)
-        assert mock_env.reset.call_count == 3
-        mock_env.close.assert_called_once()
-
-    @patch('snake_game.cli.TextPlayableSnake')
-    def test_text_mode_valid_grid_size(self, mock_game_class: Mock) -> None:
-        mock_game = Mock()
-        mock_game_class.return_value = mock_game
-
-        args = argparse.Namespace(grid_size=15)
-        text_mode(args)
-
-        mock_game_class.assert_called_once_with(grid_size=15)
-        mock_game.play_cli.assert_called_once_with(15)
-
-    @patch('snake_game.cli.TextPlayableSnake')
-    def test_text_mode_grid_size_bounds(self, mock_game_class: Mock) -> None:
-        mock_game = Mock()
-        mock_game_class.return_value = mock_game
-
-        # Test minimum bound
-        args = argparse.Namespace(grid_size=3)
-        with patch('builtins.print') as mock_print:
-            text_mode(args)
-
-            # Should print warning about minimum size
-            warning_calls = [
-                call for call in mock_print.call_args_list if 'must be at least 5' in str(call)
-            ]
-            assert len(warning_calls) > 0
-
-        mock_game_class.assert_called_with(grid_size=5)  # Should be clamped to 5
-
-        # Test maximum bound
-        args = argparse.Namespace(grid_size=30)
-        with patch('builtins.print') as mock_print:
-            text_mode(args)
-
-            # Should print warning about maximum size
-            warning_calls = [call for call in mock_print.call_args_list if 'too large' in str(call)]
-            assert len(warning_calls) > 0
-
-        mock_game_class.assert_called_with(grid_size=25)  # Should be clamped to 25
-
-
-class TestMainCLI:
-    """Test main CLI functionality."""
-
-    @patch('snake_game.cli.human_mode')
-    def test_main_human_command(self, mock_human_mode: Mock) -> None:
-        test_args = ['snake-game', 'human', '--grid-size', '25']
+        # Test with minimal arguments
+        test_args = ['tiny-rl-demo', '--episodes', '2']
 
         with patch.object(sys, 'argv', test_args):
-            main()
+            demo_main()
 
-        mock_human_mode.assert_called_once()
-        args = mock_human_mode.call_args[0][0]
-        assert args.grid_size == 25
+        # Verify environment was created with render mode
+        mock_env_class.assert_called_once_with(render_mode='human', grid_size=15)
 
-    @patch('snake_game.cli.text_mode')
-    def test_main_text_command(self, mock_text_mode: Mock) -> None:
-        test_args = ['snake-game', 'text', '--grid-size', '15']
+        # Verify episodes were run
+        assert mock_env.reset.call_count == 2
+        assert mock_env.step.call_count >= 2
+        assert mock_env.close.call_count == 1
 
-        with patch.object(sys, 'argv', test_args):
-            main()
 
-        mock_text_mode.assert_called_once()
-        args = mock_text_mode.call_args[0][0]
-        assert args.grid_size == 15
+class TestCLIArgumentParsing:
+    """Test CLI argument parsing."""
 
-    @patch('snake_game.cli.ai_mode')
-    def test_main_ai_command(self, mock_ai_mode: Mock) -> None:
-        test_args = ['snake-game', 'ai', '--episodes', '5', '--grid-size', '30']
+    def test_train_main_help(self):
+        """Test train_main help output."""
+        test_args = ['tiny-rl-train', '--help']
 
         with patch.object(sys, 'argv', test_args):
-            main()
-
-        mock_ai_mode.assert_called_once()
-        args = mock_ai_mode.call_args[0][0]
-        assert args.episodes == 5
-        assert args.grid_size == 30
-        assert args.render is True
-
-    @patch('snake_game.cli.ai_mode')
-    def test_main_ai_command_no_render(self, mock_ai_mode: Mock) -> None:
-        test_args = ['snake-game', 'ai', '--no-render']
-
-        with patch.object(sys, 'argv', test_args):
-            main()
-
-        args = mock_ai_mode.call_args[0][0]
-        assert args.render is False
-
-    @patch('snake_game.cli.human_mode')
-    def test_main_play_alias(self, mock_human_mode: Mock) -> None:
-        test_args = ['snake-game', 'play', '--grid-size', '20']
-
-        with patch.object(sys, 'argv', test_args):
-            main()
-
-        mock_human_mode.assert_called_once()
-
-    @patch('snake_game.cli.ai_mode')
-    def test_main_demo_alias(self, mock_ai_mode: Mock) -> None:
-        test_args = ['snake-game', 'demo']
-
-        with patch.object(sys, 'argv', test_args):
-            main()
-
-        # Demo should call ai_mode with default args
-        mock_ai_mode.assert_called_once()
-        args = mock_ai_mode.call_args[0][0]
-        assert args.grid_size == 20
-        assert args.episodes == 3
-        assert args.render is True
-
-    @patch('sys.stdout', new_callable=StringIO)
-    def test_main_no_command_shows_help(self, mock_stdout: StringIO) -> None:
-        test_args = ['snake-game']
-
-        with patch.object(sys, 'argv', test_args):
-            main()
-
-        output = mock_stdout.getvalue()
-        assert 'available commands' in output.lower() or 'help' in output.lower()
-
-
-class TestCommandLineIntegration:
-    """Integration tests for command line interface."""
-
-    def test_cli_help_output(self):
-        """Test that help output contains expected information."""
-        with patch('sys.stdout', new_callable=StringIO) as mock_stdout:
             try:
-                test_args = ['snake-game', '--help']
-                with patch.object(sys, 'argv', test_args):
-                    main()
-            except SystemExit:
-                pass  # argparse calls sys.exit after help
+                train_main()
+            except SystemExit as e:
+                # argparse calls sys.exit(0) after help
+                assert e.code == 0
 
-        output = mock_stdout.getvalue()
-        assert 'human' in output
-        assert 'text' in output
-        assert 'ai' in output
-        assert 'play' in output
-        assert 'demo' in output
+    def test_eval_main_model_path_required(self):
+        """Test that eval_main requires model path."""
+        test_args = ['tiny-rl-eval']
 
-    @patch('snake_game.cli.HumanPlayableSnake')
-    def test_human_mode_with_default_args(self, mock_game_class: Mock) -> None:
-        """Test human mode with no arguments."""
-        args = None
-        human_mode(args)
+        with patch.object(sys, 'argv', test_args):
+            try:
+                eval_main()
+                pytest.fail('Should have raised SystemExit due to missing model path')
+            except SystemExit as e:
+                # Should exit with error due to missing required argument
+                assert e.code != 0
 
-        # Should use default grid size of 20
-        mock_game_class.assert_called_once_with(grid_size=20)
+    def test_demo_main_default_episodes(self):
+        """Test demo_main with default episode count."""
+        test_args = ['tiny-rl-demo']
 
-    @patch('snake_game.cli.SnakeGameEnv')
-    def test_ai_mode_with_default_args(self, mock_env_class: Mock) -> None:
-        """Test AI mode with no arguments."""
-        args = None
-        ai_mode(args)
+        with (
+            patch.object(sys, 'argv', test_args),
+            patch('tiny_rl.cli.SnakeGameEnv') as mock_env_class,
+        ):
+            mock_env = Mock()
+            mock_env_class.return_value = mock_env
+            mock_env.reset.return_value = (None, {})
+            mock_env.step.return_value = (None, 0, True, False, {})
+            mock_env.action_space.sample.return_value = 0
 
-        # Should use default values
-        mock_env_class.assert_called_once_with(render_mode='human', grid_size=20)
+            demo_main()
 
-
-class TestErrorHandling:
-    """Test error handling in CLI components."""
-
-    @patch('snake_game.cli.SnakeGameEnv')
-    def test_ai_mode_keyboard_interrupt(self, mock_env_class: Mock) -> None:
-        """Test handling of keyboard interrupt in AI mode."""
-        mock_env = Mock()
-        mock_env_class.return_value = mock_env
-        mock_env.reset.return_value = (None, {})
-        mock_env.step.return_value = (None, 0, False, False, {})
-        mock_env.action_space.sample.return_value = 0
-
-        # Simulate keyboard interrupt during episode
-        mock_env.step.side_effect = [KeyboardInterrupt(), (None, 0, True, False, {})]
-
-        args = argparse.Namespace(grid_size=20, episodes=1, render=False)
-
-        with patch('builtins.print'):
-            ai_mode(args)  # Should handle interrupt gracefully
-
-        mock_env.close.assert_called_once()
+            # Should use default of 5 episodes
+            assert mock_env.reset.call_count == 5

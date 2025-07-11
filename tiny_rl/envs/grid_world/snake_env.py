@@ -1,4 +1,3 @@
-import random
 from enum import Enum
 from typing import Any, ClassVar
 
@@ -29,7 +28,7 @@ class SnakeGameEnv(gym.Env):
 
         # Observation space: grid with snake body, food, and empty spaces
         self.observation_space = spaces.Box(
-            low=0, high=2, shape=(grid_size, grid_size), dtype=np.uint8
+            low=0, high=3, shape=(grid_size, grid_size), dtype=np.uint8
         )
 
         # Initialize game state
@@ -47,7 +46,6 @@ class SnakeGameEnv(gym.Env):
         super().reset(seed=seed)
 
         if seed is not None:
-            random.seed(seed)
             np.random.seed(seed)
 
         # Initialize snake at center of grid
@@ -78,7 +76,7 @@ class SnakeGameEnv(gym.Env):
         if not empty_cells:
             return (0, 0)  # Should not happen in normal gameplay
 
-        return random.choice(empty_cells)
+        return empty_cells[np.random.randint(len(empty_cells))]
 
     def _get_observation(self) -> np.ndarray:
         """Get current state as a grid."""
@@ -148,12 +146,12 @@ class SnakeGameEnv(gym.Env):
             or new_head[1] >= self.grid_size
         ):
             self.game_over = True
-            return self._get_observation(), -1.0, True, False, self._get_info()
+            return self._get_observation(), -10.0, True, False, self._get_info()
 
         # Check collision with self
         if new_head in self.snake[:-1]:
             self.game_over = True
-            return self._get_observation(), -1.0, True, False, self._get_info()
+            return self._get_observation(), -10.0, True, False, self._get_info()
 
         # Move snake
         self.snake.append(new_head)
@@ -163,11 +161,14 @@ class SnakeGameEnv(gym.Env):
         # Check if food eaten
         if new_head == self.food:
             self.score += 1
-            reward = 1.0
+            reward = 10.0
             self.food = self._place_food()
         else:
             # Remove tail if no food eaten
             self.snake.pop(0)
+
+        # Give small negative reward to encourage faster completion
+        reward += -0.01
 
         # Check if maximum steps reached
         if self.steps >= self.max_steps:

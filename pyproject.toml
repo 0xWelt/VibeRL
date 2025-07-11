@@ -3,31 +3,33 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "snake-game"
-version = "0.1.0"
-description = "A Snake game with Gymnasium interface for human play and AI training"
+name = "tiny-rl"
+version = "0.2.0"
+description = "A simple reinforcement learning framework for research and education"
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
-    {name = "snake-game", email = "snake@example.com"},
+    {name = "Tiny RL Team", email = "tiny-rl@example.com"},
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",
-    "Topic :: Games/Entertainment",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Education",
 ]
-keywords = ["snake", "game", "gymnasium", "reinforcement-learning", "pygame"]
+keywords = ["reinforcement-learning", "rl", "gymnasium", "pytorch", "framework", "education", "research"]
 requires-python = ">=3.12"
 dependencies = [
     "gymnasium>=0.28.0",
     "numpy>=1.26.0",
     "pygame>=2.5.0",
+    "torch>=2.0.0",
 ]
 
 [project.optional-dependencies]
@@ -35,32 +37,42 @@ dev = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
     "ruff>=0.12.0",
+    "mypy>=1.0.0",
+    "black>=23.0.0",
 ]
 examples = [
     "matplotlib>=3.8.0",
     "jupyter>=1.0.0",
+    "seaborn>=0.12.0",
+    "tqdm>=4.65.0",
+]
+classic = [
+    "ale-py>=0.8.0",
+    "box2d-py>=2.3.5",
+    "swig>=4.0.0",
 ]
 
 [project.urls]
-Homepage = "https://github.com/snake-game/snake-game"
-Repository = "https://github.com/snake-game/snake-game"
-Documentation = "https://github.com/snake-game/snake-game#readme"
-"Bug Tracker" = "https://github.com/snake-game/snake-game/issues"
+Homepage = "https://github.com/tiny-rl/tiny-rl"
+Repository = "https://github.com/tiny-rl/tiny-rl"
+Documentation = "https://github.com/tiny-rl/tiny-rl#readme"
+"Bug Tracker" = "https://github.com/tiny-rl/tiny-rl/issues"
 
 [project.scripts]
-snake-game = "snake_game.cli:main"
-snake-human = "snake_game.cli:human_mode"
-snake-ai = "snake_game.cli:ai_mode"
+tiny-rl-train = "tiny_rl.cli:train_main"
+tiny-rl-eval = "tiny_rl.cli:eval_main"
+tiny-rl-demo = "tiny_rl.cli:demo_main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/snake_game"]
+packages = ["tiny_rl"]
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "/src",
+    "/tiny_rl",
     "/tests",
     "/README.md",
     "/LICENSE",
+    "/examples",
 ]
 
 # Linter tools #################################################################
@@ -72,7 +84,7 @@ ignore-words = "docs/spelling_wordlist.txt"
 target-version = "py312"
 line-length = 100
 output-format = "full"
-src = ["snake_game", "examples"]
+src = ["tiny_rl", "examples"]
 
 [tool.ruff.format]
 quote-style = "single"
@@ -144,7 +156,7 @@ ignore = [
     "TRY400",
     "N802",   # naming
 ]
-typing-modules = ["snake_game.typing"]
+typing-modules = ["tiny_rl.typing"]
 unfixable = ["S110"]
 allowed-confusables = ["，", "。", "：", "？", "！", "、", "（", "）", "；", "“", "”"]
 extend-safe-fixes = [
@@ -179,8 +191,8 @@ extend-safe-fixes = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["snake_game"]
-known-local-folder = ["snake_game", "examples", "tests"]
+known-first-party = ["tiny_rl"]
+known-local-folder = ["tiny_rl", "examples", "tests"]
 lines-after-imports = 2
 
 [tool.ruff.lint.flake8-annotations]

@@ -18,7 +18,8 @@
       "Bash(ruff format:*)",
       "Bash(pip uninstall:*)",
       "Bash(rg:*)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "Bash(pytest:*)"
     ],
     "deny": []
   }
