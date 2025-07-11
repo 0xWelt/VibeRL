@@ -43,6 +43,7 @@ def play_human_game(grid_size=15):
     
     # Reset environment
     observation, info = env.reset()
+    env.render()
     score = 0
     
     print("🎯 Game started! Use arrow keys to move...")
@@ -61,6 +62,7 @@ def play_human_game(grid_size=15):
                         running = False
                     elif event.key == pygame.K_r:
                         observation, info = env.reset()
+                        env.render()
                         score = 0
                         print("🔄 Game restarted!")
                         first_move = True
@@ -76,6 +78,7 @@ def play_human_game(grid_size=15):
                         
                         # Take action
                         observation, reward, terminated, truncated, info = env.step(action)
+                        env.render()
                         score = info['score']
                         
                         if terminated or truncated:
@@ -113,6 +116,7 @@ if __name__ == "__main__":
             pygame.init()
             env = SnakeGameEnv(render_mode='human', grid_size=args.grid_size)
             obs, info = env.reset()
+            env.render()
             print("✅ Game initialized successfully!")
             print(f"Grid size: {args.grid_size}x{args.grid_size}")
             print("🎯 Game is ready for human play")
