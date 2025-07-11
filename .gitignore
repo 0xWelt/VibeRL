@@ -159,3 +159,9 @@ htmlcov/
 build/
 dist/
 *.egg-info/
+
+# Model files
+*.pth
+*.pt
+*.onnx
+*.ckpt
