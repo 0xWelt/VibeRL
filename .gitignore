@@ -165,3 +165,5 @@ dist/
 *.pt
 *.onnx
 *.ckpt
+test_logs/
+test_logs/
