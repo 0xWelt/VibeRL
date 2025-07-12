@@ -14,6 +14,9 @@ This directory contains convenient shell scripts for running VibeRL experiments.
 
 # Train REINFORCE with custom parameters
 ./train.sh reinforce snake 2000 --lr 0.001 --grid-size 20
+
+# Train PPO (Proximal Policy Optimization)
+./train.sh ppo snake 1000 --lr 0.0003 --clip-epsilon 0.2
 ```
 
 ### Evaluation
@@ -58,6 +61,7 @@ experiments/
 
 - **reinforce**: Policy gradient method
 - **dqn**: Deep Q-Network with experience replay
+- **ppo**: Proximal Policy Optimization with clipped objective
 
 ## Available Environments
 
@@ -90,4 +94,7 @@ experiments/
 
 # REINFORCE with larger network
 ./train.sh reinforce snake 2000 --hidden-size 256 --num-hidden-layers 4
+
+# PPO with custom hyperparameters
+./train.sh ppo snake 1000 --lr 0.0003 --clip-epsilon 0.2 --ppo-epochs 4 --gae-lambda 0.95
 ```

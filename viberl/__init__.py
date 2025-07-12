@@ -11,7 +11,7 @@ This framework provides:
 __version__ = '0.2.0'
 __author__ = 'Tiny RL Team'
 
-from .agents import DQNAgent, REINFORCEAgent
+from .agents import DQNAgent, PPOAgent, REINFORCEAgent
 from .envs import Direction, SnakeGameEnv
 from .utils import evaluate_agent, train_agent
 
@@ -19,6 +19,7 @@ from .utils import evaluate_agent, train_agent
 __all__ = [
     'DQNAgent',
     'Direction',
+    'PPOAgent',
     'REINFORCEAgent',
     'SnakeGameEnv',
     'evaluate_agent',

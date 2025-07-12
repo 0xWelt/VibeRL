@@ -48,10 +48,14 @@ def train_agent(
         state = state.flatten()  # Flatten 2D grid to 1D vector
         episode_reward = 0
 
-        for _step in range(max_steps):
-            # Select action
+        # Handle PPO agent's experience collection
+        if hasattr(agent, 'act'):  # PPO agent
+            action, log_prob, value = agent.act(state)
+        else:  # REINFORCE/DQN agent
             action = agent.select_action(state)
+            log_prob, value = 0.0, 0.0
 
+        for _step in range(max_steps):
             # Take action in environment
             next_state, reward, terminated, truncated, _ = env.step(action)
             done = terminated or truncated
@@ -59,8 +63,10 @@ def train_agent(
             # Flatten next state
             next_state = next_state.flatten()
 
-            # Store transition (if agent supports it)
-            if hasattr(agent, 'store_transition'):
+            # Handle different agent types
+            if hasattr(agent, 'store_experience'):  # PPO agent
+                agent.store_experience(state, action, reward, done, log_prob, value)
+            elif hasattr(agent, 'store_transition'):  # DQN/REINFORCE agents
                 # Handle different agent interfaces
                 if hasattr(agent, 'memory'):  # DQN agent
                     agent.store_transition(state, action, reward, next_state, done)
@@ -70,6 +76,14 @@ def train_agent(
             episode_reward += reward
             state = next_state
 
+            # Handle PPO's next action
+            if hasattr(agent, 'act'):  # PPO agent
+                if not done:
+                    action, log_prob, value = agent.act(state)
+                else:
+                    # Store final state with value 0
+                    agent.store_experience(state, action, 0.0, done, 0.0, 0.0)
+
             # Render if specified
             if render_interval and episode % render_interval == 0:
                 env.render()
@@ -77,12 +91,18 @@ def train_agent(
             if done:
                 break
 
-        # Update policy (if agent supports it)
-        if hasattr(agent, 'update_policy'):
+        # Update policy based on agent type
+        if hasattr(agent, 'update'):  # PPO agent
+            if (episode + 1) % 10 == 0:  # Update every 10 episodes
+                metrics = agent.update()
+                if verbose and metrics:
+                    print(
+                        f'PPO Update - Policy Loss: {metrics.get("policy_loss", 0):.4f}, '
+                        f'Value Loss: {metrics.get("value_loss", 0):.4f}'
+                    )
+        elif hasattr(agent, 'update_policy'):  # REINFORCE agent
             agent.update_policy()
-
-        # Update target network for DQN
-        if hasattr(agent, 'update_target_network') and (episode + 1) % 10 == 0:
+        elif hasattr(agent, 'update_target_network') and (episode + 1) % 10 == 0:  # DQN agent
             agent.update_target_network()
 
         scores.append(episode_reward)

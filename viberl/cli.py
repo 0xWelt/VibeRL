@@ -9,7 +9,7 @@ import sys
 import numpy as np
 import torch
 
-from viberl.agents import DQNAgent, REINFORCEAgent
+from viberl.agents import DQNAgent, PPOAgent, REINFORCEAgent
 from viberl.envs import SnakeGameEnv
 from viberl.utils import evaluate_agent, get_device, set_seed, train_agent
 from viberl.utils.experiment_manager import create_experiment
@@ -21,7 +21,7 @@ def train_main():
     parser.add_argument('--env', choices=['snake'], default='snake', help='Environment to train on')
     parser.add_argument(
         '--alg',
-        choices=['reinforce', 'dqn'],
+        choices=['reinforce', 'dqn', 'ppo'],
         default='reinforce',
         help='Reinforcement learning algorithm',
     )
@@ -46,10 +46,20 @@ def train_main():
         '--epsilon-decay', type=float, default=0.995, help='Exploration decay rate (DQN)'
     )
     parser.add_argument('--memory-size', type=int, default=10000, help='Replay memory size (DQN)')
-    parser.add_argument('--batch-size', type=int, default=64, help='Batch size for training (DQN)')
+    parser.add_argument('--batch-size', type=int, default=64, help='Batch size for training')
     parser.add_argument(
         '--target-update', type=int, default=10, help='Target network update frequency (DQN)'
     )
+    parser.add_argument('--clip-epsilon', type=float, default=0.2, help='PPO clipping parameter')
+    parser.add_argument('--ppo-epochs', type=int, default=4, help='PPO epochs per update')
+    parser.add_argument('--gae-lambda', type=float, default=0.95, help='GAE lambda parameter (PPO)')
+    parser.add_argument(
+        '--value-loss-coef', type=float, default=0.5, help='Value loss coefficient (PPO)'
+    )
+    parser.add_argument(
+        '--entropy-coef', type=float, default=0.01, help='Entropy coefficient (PPO)'
+    )
+    parser.add_argument('--max-grad-norm', type=float, default=0.5, help='Max gradient norm (PPO)')
     parser.add_argument('--eval-episodes', type=int, default=10, help='Evaluation episodes')
     parser.add_argument('--no-eval', action='store_true', help='Skip evaluation after training')
     parser.add_argument('--quiet', action='store_true', help='Suppress training progress output')
@@ -94,6 +104,17 @@ def train_main():
             batch_size=args.batch_size,
             target_update=args.target_update,
         )
+    elif args.alg == 'ppo':
+        agent = PPOAgent(
+            **base_params,
+            clip_epsilon=args.clip_epsilon,
+            ppo_epochs=args.ppo_epochs,
+            lam=args.gae_lambda,
+            value_loss_coef=args.value_loss_coef,
+            entropy_coef=args.entropy_coef,
+            max_grad_norm=args.max_grad_norm,
+            batch_size=args.batch_size,
+        )
     else:
         raise ValueError(f'Unknown algorithm: {args.alg}')
 
@@ -103,6 +124,8 @@ def train_main():
     if hasattr(agent, 'q_network'):
         agent.q_network.to(device)
         agent.target_network.to(device)
+    if hasattr(agent, 'value_network'):
+        agent.value_network.to(device)
 
     print(f'Training {args.alg} agent on {args.env} environment...')
     print(f'Episodes: {args.episodes}')

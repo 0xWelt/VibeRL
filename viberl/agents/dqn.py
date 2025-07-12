@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from viberl.networks.value_network import ValueNetwork
+from viberl.networks.value_network import QNetwork
 
 
 class DQNAgent:
@@ -40,8 +40,8 @@ class DQNAgent:
         self.epsilon = epsilon_start
 
         # Neural networks
-        self.q_network = ValueNetwork(state_size, action_size, hidden_size, num_hidden_layers)
-        self.target_network = ValueNetwork(state_size, action_size, hidden_size, num_hidden_layers)
+        self.q_network = QNetwork(state_size, action_size, hidden_size, num_hidden_layers)
+        self.target_network = QNetwork(state_size, action_size, hidden_size, num_hidden_layers)
         self.optimizer = optim.Adam(self.q_network.parameters(), lr=learning_rate)
 
         # Copy weights to target network

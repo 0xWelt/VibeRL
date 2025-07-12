@@ -8,9 +8,9 @@ ENV=${2:-snake}
 EPISODES=${3:-1000}
 
 # Check if algorithm is valid
-if [[ "$ALG" != "reinforce" && "$ALG" != "dqn" ]]; then
-    echo "Error: Algorithm must be 'reinforce' or 'dqn'"
-    echo "Usage: $0 [reinforce|dqn] [env] [episodes] [additional_args...]"
+if [[ "$ALG" != "reinforce" && "$ALG" != "dqn" && "$ALG" != "ppo" ]]; then
+    echo "Error: Algorithm must be 'reinforce', 'dqn', or 'ppo'"
+    echo "Usage: $0 [reinforce|dqn|ppo] [env] [episodes] [additional_args...]"
     exit 1
 fi
 
