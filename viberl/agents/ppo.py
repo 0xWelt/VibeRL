@@ -10,11 +10,12 @@ import torch
 import torch.nn as nn
 from torch.distributions import Categorical
 
+from viberl.agents.base import Agent
 from viberl.networks.policy_network import PolicyNetwork
 from viberl.networks.value_network import VNetwork
 
 
-class PPOAgent:
+class PPOAgent(Agent):
     """Proximal Policy Optimization (PPO) agent."""
 
     def __init__(
@@ -34,27 +35,7 @@ class PPOAgent:
         num_hidden_layers: int = 2,
         device: str = 'auto',
     ):
-        """
-        Initialize PPO agent.
-
-        Args:
-            state_size: Size of the state space
-            action_size: Size of the action space
-            learning_rate: Learning rate for optimizer
-            gamma: Discount factor
-            lam: GAE lambda parameter
-            clip_epsilon: PPO clipping parameter
-            value_loss_coef: Value loss coefficient
-            entropy_coef: Entropy coefficient
-            max_grad_norm: Maximum gradient norm for clipping
-            ppo_epochs: Number of PPO epochs per update
-            batch_size: Batch size for training
-            hidden_size: Hidden layer size
-            num_hidden_layers: Number of hidden layers
-            device: Device to use for training
-        """
-        self.state_size = state_size
-        self.action_size = action_size
+        super().__init__(state_size, action_size)
         self.gamma = gamma
         self.lam = lam
         self.clip_epsilon = clip_epsilon
@@ -90,122 +71,67 @@ class PPOAgent:
             lr=learning_rate,
         )
 
-        # Storage for experiences
-        self.states = []
-        self.actions = []
-        self.log_probs = []
-        self.rewards = []
-        self.values = []
-        self.dones = []
-
-    def act(self, state: np.ndarray) -> tuple[int, float, float]:
-        """
-        Select action using current policy.
-
-        Args:
-            state: Current state
-
-        Returns:
-            Tuple of (action, log_prob, value)
-        """
+    def act(self, state: np.ndarray, training: bool = True) -> int:
+        """Select action using current policy."""
         state_tensor = torch.FloatTensor(state).unsqueeze(0).to(self.device)
 
         with torch.no_grad():
             action_probs = self.policy_network(state_tensor)
-            value = self.value_network(state_tensor).squeeze(-1)  # Remove last dimension
-
             dist = Categorical(action_probs)
             action = dist.sample()
-            log_prob = dist.log_prob(action)
 
-        return action.item(), log_prob.item(), value.item()
+        return action.item()
 
-    def store_experience(
+    def learn(
         self,
-        state: np.ndarray,
-        action: int,
-        reward: float,
-        done: bool,
-        log_prob: float,
-        value: float,
-    ):
-        """Store experience for PPO training."""
-        self.states.append(state)
-        self.actions.append(action)
-        self.rewards.append(reward)
-        self.dones.append(done)
-        self.log_probs.append(log_prob)
-        self.values.append(value)
-
-    def clear_experiences(self):
-        """Clear stored experiences."""
-        self.states.clear()
-        self.actions.clear()
-        self.rewards.clear()
-        self.dones.clear()
-        self.log_probs.clear()
-        self.values.clear()
-
-    def compute_gae(self, rewards: list, values: list, dones: list) -> tuple[list, list]:
-        """
-        Compute Generalized Advantage Estimation (GAE).
+        states: list[np.ndarray],
+        actions: list[int],
+        rewards: list[float],
+        log_probs: list[float],
+        values: list[float],
+        dones: list[bool],
+        **kwargs,
+    ) -> dict[str, float]:
+        """Update policy and value networks using PPO.
 
         Args:
-            rewards: List of rewards
-            values: List of value estimates
-            dones: List of done flags
-
-        Returns:
-            Tuple of (advantages, returns)
+            states: List of states from rollout
+            actions: List of actions from rollout
+            rewards: List of rewards from rollout
+            log_probs: List of log probabilities from rollout
+            values: List of state values from rollout
+            dones: List of done flags from rollout
         """
-        advantages = []
-        returns = []
-        gae = 0
-
-        # Ensure values has one more element than rewards for bootstrap
-        if len(values) == len(rewards):
-            values = values + [0.0]  # Bootstrap with 0
-
-        for step in reversed(range(len(rewards))):
-            delta = rewards[step] + self.gamma * values[step + 1] * (1 - dones[step]) - values[step]
-            gae = delta + self.gamma * self.lam * (1 - dones[step]) * gae
-            advantages.insert(0, gae)
-            returns.insert(0, gae + values[step])
-
-        return advantages, returns
-
-    def update(self) -> dict[str, float]:
-        """
-        Update policy and value networks using PPO.
-
-        Returns:
-            Dictionary of training metrics
-        """
-        if not self.states:
+        if not rewards:
             return {}
 
         # Convert to tensors
-        states = torch.FloatTensor(np.array(self.states)).to(self.device)
-        actions = torch.LongTensor(self.actions).to(self.device)
-        old_log_probs = torch.FloatTensor(self.log_probs).to(self.device)
+        states_tensor = torch.FloatTensor(np.array(states)).to(self.device)
+        actions_tensor = torch.LongTensor(actions).to(self.device)
+        old_log_probs_tensor = torch.FloatTensor(log_probs).to(self.device)
 
         # Compute advantages and returns
-        advantages, returns = self.compute_gae(self.rewards, self.values, self.dones)
-        advantages = torch.FloatTensor(advantages).to(self.device)
-        returns = torch.FloatTensor(returns).to(self.device)
+        advantages, returns = self._compute_gae(rewards, values, dones)
+        advantages_tensor = torch.FloatTensor(advantages).to(self.device)
+        returns_tensor = torch.FloatTensor(returns).to(self.device)
 
-        # Normalize advantages
-        advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
+        # Normalize advantages (handle small sample sizes)
+        if len(advantages_tensor) > 1:
+            advantages_tensor = (advantages_tensor - advantages_tensor.mean()) / (
+                advantages_tensor.std() + 1e-8
+            )
+        else:
+            advantages_tensor = advantages_tensor - advantages_tensor.mean()
 
         # Create dataset
         dataset_size = len(states)
         indices = np.arange(dataset_size)
 
         metrics = {
-            'policy_loss': 0.0,
-            'value_loss': 0.0,
-            'entropy_loss': 0.0,
-            'total_loss': 0.0,
+            'ppo/policy_loss': 0.0,
+            'ppo/value_loss': 0.0,
+            'ppo/entropy_loss': 0.0,
+            'ppo/total_loss': 0.0,
         }
 
         # PPO epochs
@@ -216,14 +142,18 @@ class PPOAgent:
                 end = start + self.batch_size
                 batch_indices = indices[start:end]
 
-                batch_states = states[batch_indices]
-                batch_actions = actions[batch_indices]
-                batch_old_log_probs = old_log_probs[batch_indices]
-                batch_advantages = advantages[batch_indices]
-                batch_returns = returns[batch_indices]
+                batch_states = states_tensor[batch_indices]
+                batch_actions = actions_tensor[batch_indices]
+                batch_old_log_probs = old_log_probs_tensor[batch_indices]
+                batch_advantages = advantages_tensor[batch_indices]
+                batch_returns = returns_tensor[batch_indices]
 
                 # Forward pass
                 action_probs = self.policy_network(batch_states)
+                # Ensure action_probs are valid probabilities
+                action_probs = torch.clamp(action_probs, 1e-8, 1 - 1e-8)
+                action_probs = action_probs / action_probs.sum(dim=1, keepdim=True)
+
                 values = self.value_network(batch_states).squeeze(-1)
 
                 dist = Categorical(action_probs)
@@ -242,7 +172,7 @@ class PPOAgent:
                 policy_loss = -torch.min(surr1, surr2).mean()
 
                 # Value loss
-                value_loss = nn.MSELoss()(values, batch_returns)
+                value_loss = nn.MSELoss()(values.squeeze(), batch_returns.squeeze())
 
                 # Entropy loss
                 entropy_loss = -entropy.mean()
@@ -264,49 +194,32 @@ class PPOAgent:
                 self.optimizer.step()
 
                 # Accumulate metrics
-                metrics['policy_loss'] += policy_loss.item()
-                metrics['value_loss'] += value_loss.item()
-                metrics['entropy_loss'] += entropy_loss.item()
-                metrics['total_loss'] += total_loss.item()
+                metrics['ppo/policy_loss'] += policy_loss.item()
+                metrics['ppo/value_loss'] += value_loss.item()
+                metrics['ppo/entropy_loss'] += entropy_loss.item()
+                metrics['ppo/total_loss'] += total_loss.item()
 
         # Average metrics over all batches and epochs
         num_batches = (dataset_size + self.batch_size - 1) // self.batch_size
         for key in metrics:
             metrics[key] /= num_batches * self.ppo_epochs
 
-        # Clear experiences after update
-        self.clear_experiences()
-
         return metrics
 
-    def save_policy(self, filepath: str) -> None:
-        """Save policy and value networks."""
-        torch.save(
-            {
-                'policy_network_state_dict': self.policy_network.state_dict(),
-                'value_network_state_dict': self.value_network.state_dict(),
-                'policy_network_config': {
-                    'state_size': self.state_size,
-                    'action_size': self.action_size,
-                },
-            },
-            filepath,
-        )
+    def _compute_gae(self, rewards: list, values: list, dones: list) -> tuple[list, list]:
+        """Compute Generalized Advantage Estimation (GAE)."""
+        advantages = []
+        returns = []
+        gae = 0
 
-    def load_policy(self, filepath: str) -> None:
-        """Load policy and value networks."""
-        checkpoint = torch.load(filepath, map_location=self.device)
-        self.policy_network.load_state_dict(checkpoint['policy_network_state_dict'])
-        self.value_network.load_state_dict(checkpoint['value_network_state_dict'])
+        # Ensure values has one more element than rewards for bootstrap
+        if len(values) == len(rewards):
+            values = values + [0.0]  # Bootstrap with 0
 
-    def get_action(self, state: np.ndarray, deterministic: bool = False) -> int:
-        """Get action for evaluation."""
-        state_tensor = torch.FloatTensor(state).unsqueeze(0).to(self.device)
+        for step in reversed(range(len(rewards))):
+            delta = rewards[step] + self.gamma * values[step + 1] * (1 - dones[step]) - values[step]
+            gae = delta + self.gamma * self.lam * (1 - dones[step]) * gae
+            advantages.insert(0, gae)
+            returns.insert(0, gae + values[step])
 
-        with torch.no_grad():
-            action_probs = self.policy_network(state_tensor)
-            if deterministic:
-                return action_probs.argmax().item()
-            else:
-                dist = Categorical(action_probs)
-                return dist.sample().item()
+        return advantages, returns

@@ -1,14 +1,16 @@
 import os
-from typing import Any
 
 import gymnasium as gym
 import numpy as np
+import torch
 from torch.utils.tensorboard import SummaryWriter
+
+from viberl.agents.base import Agent
 
 
 def train_agent(
     env: gym.Env,
-    agent: Any,
+    agent: Agent,
     num_episodes: int = 1000,
     max_steps: int = 1000,
     render_interval: int | None = None,
@@ -62,14 +64,32 @@ def train_agent(
         state = state.flatten()  # Flatten 2D grid to 1D vector
         episode_reward = 0
 
-        # Handle PPO agent's experience collection
-        if hasattr(agent, 'act'):  # PPO agent
-            action, log_prob, value = agent.act(state)
-        else:  # REINFORCE/DQN agent
-            action = agent.select_action(state)
-            log_prob, value = 0.0, 0.0
+        # Collect trajectories for this episode
+        states = []
+        actions = []
+        rewards = []
+        next_states = []
+        dones = []
+        log_probs = []
+        values = []
+
+        from viberl.agents.ppo import PPOAgent
 
         for _step in range(max_steps):
+            # Select action using unified Agent interface
+            action = agent.act(state)
+
+            # For PPO, collect additional information
+            if isinstance(agent, PPOAgent):
+                state_tensor = torch.FloatTensor(state).unsqueeze(0).to(agent.device)
+                with torch.no_grad():
+                    action_probs = agent.policy_network(state_tensor)
+                    dist = torch.distributions.Categorical(action_probs)
+                    log_prob = dist.log_prob(torch.tensor(action)).item()
+                    value = agent.value_network(state_tensor).squeeze(-1).item()
+                    log_probs.append(log_prob)
+                    values.append(value)
+
             # Take action in environment
             next_state, reward, terminated, truncated, _ = env.step(action)
             done = terminated or truncated
@@ -77,26 +97,15 @@ def train_agent(
             # Flatten next state
             next_state = next_state.flatten()
 
-            # Handle different agent types
-            if hasattr(agent, 'store_experience'):  # PPO agent
-                agent.store_experience(state, action, reward, done, log_prob, value)
-            elif hasattr(agent, 'store_transition'):  # DQN/REINFORCE agents
-                # Handle different agent interfaces
-                if hasattr(agent, 'memory'):  # DQN agent
-                    agent.store_transition(state, action, reward, next_state, done)
-                else:  # REINFORCE agent
-                    agent.store_transition(state, action, reward)
+            # Store trajectory data
+            states.append(state)
+            actions.append(action)
+            rewards.append(reward)
+            next_states.append(next_state)
+            dones.append(done)
 
             episode_reward += reward
             state = next_state
-
-            # Handle PPO's next action
-            if hasattr(agent, 'act'):  # PPO agent
-                if not done:
-                    action, log_prob, value = agent.act(state)
-                else:
-                    # Store final state with value 0
-                    agent.store_experience(state, action, 0.0, done, 0.0, 0.0)
 
             # Render if specified
             if render_interval and episode % render_interval == 0:
@@ -105,26 +114,32 @@ def train_agent(
             if done:
                 break
 
-        # Update policy based on agent type and log learn/ metrics
+        # Update policy using unified Agent interface with collected trajectories
         learn_metrics = {}
-        if hasattr(agent, 'update'):  # PPO agent
-            if (episode + 1) % 10 == 0:  # Update every 10 episodes
-                learn_metrics = agent.update()
-                if verbose and learn_metrics:
-                    print(
-                        f'PPO Update - Policy Loss: {learn_metrics.get("policy_loss", 0):.4f}, '
-                        f'Value Loss: {learn_metrics.get("value_loss", 0):.4f}'
-                    )
-        elif hasattr(agent, 'update_target_network'):  # DQN agent
-            agent.update_policy()
-            if (episode + 1) % 10 == 0:  # Update target network every 10 episodes
-                agent.update_target_network()
-            learn_metrics = agent.get_metrics() if hasattr(agent, 'get_metrics') else {}
-        elif hasattr(agent, 'update_policy'):  # REINFORCE agent
-            agent.update_policy()
-            learn_metrics = (
-                agent.get_metrics() if hasattr(agent, 'get_metrics') else {'policy_loss': 0.0}
-            )
+        if (episode + 1) % 10 == 0:  # Update every 10 episodes
+            # Prepare arguments based on agent type
+            learn_kwargs = {
+                'states': states,
+                'actions': actions,
+                'rewards': rewards,
+                'next_states': next_states,
+                'dones': dones,
+            }
+
+            # Add PPO-specific arguments
+            if isinstance(agent, PPOAgent) and log_probs and values:
+                learn_kwargs.update(
+                    {
+                        'log_probs': log_probs,
+                        'values': values,
+                    }
+                )
+
+            learn_metrics = agent.learn(**learn_kwargs)
+            if verbose and learn_metrics:
+                # Display returned metrics
+                metrics_str = ', '.join(f'{k}: {v:.4f}' for k, v in learn_metrics.items())
+                print(f'Update - {metrics_str}')
 
         # Log learn/ metrics
         if writer is not None and learn_metrics:
@@ -183,7 +198,7 @@ def train_agent(
 
             # Create proper filename
             filename = os.path.join(save_dir, f'model_episode_{episode + 1}.pth')
-            agent.save_policy(filename)
+            agent.save(filename)
 
     # Close environments
     if writer is not None:
@@ -194,7 +209,7 @@ def train_agent(
 
 
 def evaluate_agent(
-    env: gym.Env, agent: Any, num_episodes: int = 10, render: bool = False, max_steps: int = 1000
+    env: gym.Env, agent: Agent, num_episodes: int = 10, render: bool = False, max_steps: int = 1000
 ) -> tuple[list[float], list[int]]:
     """
     Generic evaluation function for RL agents.
@@ -219,15 +234,8 @@ def evaluate_agent(
         episode_length = 0
 
         for _step in range(max_steps):
-            # Handle different agent interfaces
-            try:
-                if hasattr(agent, 'get_action'):  # PPO agent
-                    action = agent.get_action(state, deterministic=True)
-                else:  # REINFORCE/DQN agents
-                    action = agent.select_action(state, training=False)
-            except TypeError:
-                # Fallback for agents that don't accept training parameter
-                action = agent.select_action(state)
+            # Use unified Agent interface
+            action = agent.act(state, training=False)
 
             next_state, reward, terminated, truncated, _ = env.step(action)
             done = terminated or truncated

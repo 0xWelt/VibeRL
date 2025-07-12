@@ -61,6 +61,9 @@ def train_main():
     )
     parser.add_argument('--max-grad-norm', type=float, default=0.5, help='Max gradient norm (PPO)')
     parser.add_argument('--eval-episodes', type=int, default=10, help='Evaluation episodes')
+    parser.add_argument(
+        '--eval-interval', type=int, default=100, help='Evaluation interval during training'
+    )
     parser.add_argument('--no-eval', action='store_true', help='Skip evaluation after training')
     parser.add_argument('--quiet', action='store_true', help='Suppress training progress output')
 
@@ -153,11 +156,13 @@ def train_main():
         save_path=save_path,
         verbose=True,
         log_dir=tb_logs_dir,
+        eval_interval=args.eval_interval,
+        eval_episodes=args.eval_episodes,
     )
 
     # Save final model
     final_model_path = str(models_dir / 'final_model.pth')
-    agent.save_policy(final_model_path)
+    agent.save(final_model_path)
     print(f'Final model saved to {final_model_path}')
     print(f'All experiment files saved in: {exp_manager.get_experiment_path()}')
 

@@ -31,7 +31,8 @@
       "Bash(viberl-eval:*)",
       "Bash(git rm:*)",
       "Bash(find:*)",
-      "Bash(uv run:*)"
+      "Bash(uv run:*)",
+      "Bash(git push:*)"
     ],
     "deny": []
   }
