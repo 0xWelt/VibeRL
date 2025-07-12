@@ -88,16 +88,9 @@ def train_agent(
 
         # Log metrics to TensorBoard
         if writer is not None:
-            writer.add_scalar('Episode/Reward', episode_reward, episode)
-            if len(scores) >= 100:
-                avg_score_100 = np.mean(scores[-100:])
-                writer.add_scalar('Training/Average100', avg_score_100, episode)
-
-            # Log additional metrics if agent provides them
-            if hasattr(agent, 'get_metrics'):
-                metrics = agent.get_metrics()
-                for metric_name, metric_value in metrics.items():
-                    writer.add_scalar(f'Agent/{metric_name}', metric_value, episode)
+            # Only log final return (episode reward) and episode length
+            writer.add_scalar('final_return', episode_reward, episode)
+            writer.add_scalar('episode_length', _step + 1, episode)
 
         # Save model if specified
         if (
@@ -106,7 +99,14 @@ def train_agent(
             and (episode + 1) % save_interval == 0
             and hasattr(agent, 'save_policy')
         ):
-            agent.save_policy(f'{save_path}_episode_{episode + 1}.pth')
+            # Ensure save_path is a directory path
+            save_dir = os.path.dirname(save_path)
+            if save_dir and not os.path.exists(save_dir):
+                os.makedirs(save_dir, exist_ok=True)
+            
+            # Create proper filename
+            filename = os.path.join(save_dir, f'model_episode_{episode + 1}.pth')
+            agent.save_policy(filename)
 
     # Close TensorBoard writer
     if writer is not None:

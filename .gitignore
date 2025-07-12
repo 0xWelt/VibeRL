@@ -166,4 +166,13 @@ dist/
 *.onnx
 *.ckpt
 test_logs/
-test_logs/
+
+# Experiment directories
+experiments/
+runs/
+logs/
+checkpoints/
+
+# TensorBoard logs
+tb_logs/
+*tfevents*

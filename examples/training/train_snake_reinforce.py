@@ -13,7 +13,7 @@ import numpy as np
 
 from viberl.agents import REINFORCEAgent
 from viberl.envs import SnakeGameEnv
-from viberl.utils import evaluate_agent, get_device, set_seed, train_agent
+from viberl.utils import evaluate_agent, get_device, set_seed, train_agent, create_experiment
 
 
 def main():
@@ -25,8 +25,7 @@ def main():
     parser.add_argument('--hidden-size', type=int, default=128, help='Hidden layer size')
     parser.add_argument('--seed', type=int, default=42, help='Random seed')
     parser.add_argument('--eval-episodes', type=int, default=10, help='Evaluation episodes')
-    parser.add_argument('--save-path', type=str, default='snake_reinforce', help='Model save path')
-    parser.add_argument('--log-dir', type=str, help='Directory for TensorBoard logs')
+    parser.add_argument('--name', type=str, default='snake_reinforce', help='Experiment name for automatic directory creation')
 
     args = parser.parse_args()
 
@@ -56,13 +55,19 @@ def main():
     # Move agent to device
     agent.policy_network.to(device)
 
+    # Create experiment with automatic directory structure
+    exp_manager = create_experiment(args.name)
+    tb_logs_dir = str(exp_manager.get_tb_logs_path())
+    models_dir = exp_manager.get_models_path()
+    save_path = str(models_dir / 'model')
+
     print('Training REINFORCE agent on Snake game...')
     print(f'Episodes: {args.episodes}')
     print(f'Grid size: {args.grid_size}')
     print(f'Learning rate: {args.lr}')
     print(f'Gamma: {args.gamma}')
-    if args.log_dir:
-        print(f'TensorBoard logs: {args.log_dir}')
+    print(f'TensorBoard logs: {tb_logs_dir}')
+    print(f'Experiment directory: {exp_manager.get_experiment_path()}')
 
     # Train agent
     start_time = time.time()
@@ -73,17 +78,19 @@ def main():
         num_episodes=args.episodes,
         render_interval=args.episodes // 10,  # Render every 10% of episodes
         save_interval=args.episodes // 5,  # Save every 20% of episodes
-        save_path=args.save_path,
+        save_path=save_path,
         verbose=True,
-        log_dir=args.log_dir,
+        log_dir=tb_logs_dir,
     )
 
     training_time = time.time() - start_time
     print(f'Training completed in {training_time:.1f} seconds')
 
     # Save final model
-    agent.save_policy(f'{args.save_path}_final.pth')
-    print(f'Final model saved to {args.save_path}_final.pth')
+    final_model_path = str(models_dir / 'final_model.pth')
+    agent.save_policy(final_model_path)
+    print(f'Final model saved to {final_model_path}')
+    print(f'All experiment files saved in: {exp_manager.get_experiment_path()}')
 
     # Evaluate agent
     print(f'\nEvaluating agent over {args.eval_episodes} episodes...')

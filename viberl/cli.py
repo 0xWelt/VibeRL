@@ -12,6 +12,7 @@ import torch
 from viberl.agents import REINFORCEAgent
 from viberl.envs import SnakeGameEnv
 from viberl.utils import evaluate_agent, get_device, set_seed, train_agent
+from viberl.utils.experiment_manager import create_experiment
 
 
 def train_main():
@@ -27,11 +28,13 @@ def train_main():
     parser.add_argument('--gamma', type=float, default=0.99, help='Discount factor')
     parser.add_argument('--hidden-size', type=int, default=128, help='Hidden layer size')
     parser.add_argument('--seed', type=int, default=42, help='Random seed')
-    parser.add_argument('--save-path', type=str, default='trained_model', help='Model save path')
+    parser.add_argument('--save-path', type=str, default='trained_model', help='Model save path (deprecated, use --exp-name)')
     parser.add_argument('--render-interval', type=int, help='Render every N episodes')
     parser.add_argument('--save-interval', type=int, help='Save model every N episodes')
     parser.add_argument('--device', choices=['cpu', 'cuda'], default='auto', help='Device to use')
-    parser.add_argument('--log-dir', type=str, help='Directory for TensorBoard logs')
+    parser.add_argument('--log-dir', type=str, help='Directory for TensorBoard logs (deprecated, use --exp-name)')
+    parser.add_argument('--exp-name', type=str, help='Experiment name for automatic directory creation')
+    parser.add_argument('--exp-base-dir', type=str, default='experiments', help='Base directory for experiments')
 
     args = parser.parse_args()
 
@@ -71,8 +74,21 @@ def train_main():
     print(f'Grid size: {args.grid_size}')
     print(f'Learning rate: {args.lr}')
     print(f'Gamma: {args.gamma}')
-    if args.log_dir:
-        print(f'TensorBoard logs: {args.log_dir}')
+    
+    # Create experiment with automatic directory structure
+    if args.exp_name:
+        exp_manager = create_experiment(args.exp_name, args.exp_base_dir)
+        tb_logs_dir = str(exp_manager.get_tb_logs_path())
+        models_dir = exp_manager.get_models_path()
+        save_path = str(models_dir / 'model')
+    else:
+        # Fallback to old behavior
+        tb_logs_dir = args.log_dir
+        save_path = args.save_path
+        models_dir = None
+    
+    if tb_logs_dir:
+        print(f'TensorBoard logs: {tb_logs_dir}')
 
     # Train agent
     train_agent(
@@ -81,14 +97,18 @@ def train_main():
         num_episodes=args.episodes,
         render_interval=args.render_interval,
         save_interval=args.save_interval,
-        save_path=args.save_path,
+        save_path=save_path,
         verbose=True,
-        log_dir=args.log_dir,
+        log_dir=tb_logs_dir,
     )
 
     # Save final model
-    agent.save_policy(f'{args.save_path}_final.pth')
-    print(f'Final model saved to {args.save_path}_final.pth')
+    final_model_path = save_path + '_final.pth'
+    agent.save_policy(final_model_path)
+    print(f'Final model saved to {final_model_path}')
+    
+    if models_dir:
+        print(f'All experiment files saved in: {exp_manager.get_experiment_path()}')
 
     env.close()
 

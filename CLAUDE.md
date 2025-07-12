@@ -82,3 +82,6 @@ python examples/training/train_snake_reinforce.py --episodes 1000
 
 Core: gymnasium, numpy, pygame, torch
 Dev: pytest, ruff, mypy
+
+## Dependency Management
+- 使用 uv 来管理依赖，当需要添加一个依赖使用 uv add，当需要删除一个依赖使用 uv remove。每次更新后用 uv pip install -e . 来刷新环境。

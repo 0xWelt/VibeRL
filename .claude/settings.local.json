@@ -24,7 +24,13 @@
       "WebFetch(domain:github.com)",
       "Bash(viberl-demo:*)",
       "Bash(timeout:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(viberl-train:*)",
+      "Bash(tensorboard:*)",
+      "Bash(ls:*)",
+      "Bash(viberl-eval:*)",
+      "Bash(git rm:*)",
+      "Bash(find:*)"
     ],
     "deny": []
   }
