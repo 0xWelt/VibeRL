@@ -1,299 +1,117 @@
 # 🚀 VibeRL
 
-A Reinforcement Learning framework built essentially through vibe coding. VibeRL provides a simple yet powerful platform for training and evaluating RL agents using modern Python tools.
+A modern Reinforcement Learning framework for education and research, built with type safety and modern Python practices.
 
-- **Vibe Coding**: Built through intuitive development practices
-- **Gymnasium Compatible**: Standard RL environment interface
-- **Human Playable**: Interactive gameplay with keyboard controls
-- **Research Ready**: Configurable environments and algorithms
+## 🎯 Quick Start
 
-## Features
-
-- 🎮 **Human Playable**: Use arrow keys to control the snake
-- 🤖 **Gymnasium API**: Standard RL environment interface
-- 🐍 **Classic Gameplay**: Food eating, snake growth, collision detection
-- 🎨 **Visual Rendering**: Real-time graphics with pygame
-- 📱 **Text Mode**: Play in terminal without GUI
-- 📦 **UV Support**: Modern Python packaging with UV
-
-## Quick Start
-
-### 1. Install with UV
-
+### Install
 ```bash
-# Install the package
-uv pip install -e .
-
-# Or with development dependencies
+# Using UV (recommended)
 uv pip install -e ".[dev]"
+
+# Using pip
+pip install -e ".[dev]"
 ```
 
-### 2. Get Started with VibeRL
-
-**Human Play Mode** - Play the game yourself:
+### Run Experiments
 ```bash
-# Play snake game with keyboard
-python examples/human_play/play_human.py
+# Train agents
+viberl-train --alg=dqn --episodes 1000 --grid-size 15
+viberl-train --alg=ppo --episodes 500 --lr 3e-4
+viberl-train --alg=reinforce --episodes 1000 --grid-size 10
 
+# Evaluate trained models
+viberl-eval --model-path experiments/*/models/final_model.pth --episodes 10
 
-# Custom grid size
-python examples/human_play/play_human.py --grid-size 20
+# Play as human
+viberl-demo --episodes 5 --grid-size 20
 ```
 
-**Demo Mode** - Watch random AI play:
-```bash
-# Run demo with 5 episodes
-viberl-demo --episodes 5
+## 🏗️ Architecture
 
-# Custom grid size
-viberl-demo --episodes 3 --grid-size 15
-```
+- **Environments**: `viberl.envs.SnakeGameEnv` - gymnasium-compatible snake game
+- **Agents**: REINFORCE, PPO, DQN implementations with unified interface
+- **Types**: Modern pydantic-based type system (`Action`, `Transition`, `Trajectory`)
+- **CLI**: Simple commands for training, evaluation, and demo
 
-**Training Mode** - Train your first agent:
-```bash
-# Train REINFORCE agent
-viberl-train --episodes 1000 --env snake --agent reinforce
+## 🔧 Extend & Contribute
 
-# With custom parameters
-viberl-train --episodes 500 --grid-size 20 --lr 1e-4
-```
-
-**Evaluation Mode** - Test trained models:
-```bash
-# Evaluate trained model
-viberl-eval --model-path model.pth --render
-
-# Multiple evaluation episodes
-viberl-eval --model-path model.pth --episodes 10 --render
-```
-
-## Installation Options
-
-### With UV (Recommended)
-```bash
-# Clone the repository
-git clone https://github.com/0xWelt/VibeRL.git
-cd VibeRL
-
-# Install in development mode
-uv pip install -e .
-
-# Or with development tools
-uv pip install -e ".[dev]"
-```
-
-### With pip
-```bash
-pip install -e .
-pip install -e ".[dev]"  # With dev dependencies
-```
-
-## CLI Commands
-
-### Demo Mode
-Watch random AI agent play:
-```bash
-viberl-demo [OPTIONS]
-
-Options:
-  --episodes INT      Number of episodes to run (default: 5)
-  --grid-size INT     Grid size for the game (default: 15)
-```
-
-### Training Mode
-Train RL agents using various algorithms:
-```bash
-viberl-train [OPTIONS]
-
-Options:
-  --episodes INT      Number of training episodes (default: 1000)
-  --grid-size INT     Grid size for the game (default: 15)
-  --lr FLOAT          Learning rate (default: 1e-3)
-  --gamma FLOAT       Discount factor (default: 0.99)
-  --save-path PATH    Model save path (default: 'trained_model')
-```
-
-### Evaluation Mode
-Evaluate trained RL models:
-```bash
-viberl-eval [OPTIONS]
-
-Options:
-  --model-path PATH   Path to trained model (required)
-  --episodes INT      Number of evaluation episodes (default: 10)
-  --grid-size INT     Grid size for the game (default: 15)
-  --render            Enable rendering during evaluation
-```
-
-## Environment Details
-
-**Observation Space:**
-- Grid: `grid_size × grid_size` (default: 20×20)
-- Values: 0=empty, 1=snake body, 2=snake head, 3=food
-
-**Action Space:**
-- 0: UP
-- 1: RIGHT
-- 2: DOWN
-- 3: LEFT
-
-**Rewards:**
-- +1: Eating food
-- -1: Collision (game over)
-- 0: Regular move
-
-## Integrating with Reinforcement Learning
-
+### Add New Algorithm
 ```python
-from snake_game import SnakeGameEnv, Direction
+from viberl.agents.base import Agent
+from viberl.typing import Action, Trajectory
 
-# Create environment
-env = SnakeGameEnv(render_mode="human")
+class MyAgent(Agent):
+    def act(self, state, training=True) -> Action:
+        return Action(action=self.policy(state))
 
-# Run episode
-observation, info = env.reset()
-total_reward = 0
-
-while True:
-    action = env.action_space.sample()  # Your RL policy here
-    observation, reward, terminated, truncated, info = env.step(action)
-    total_reward += reward
-
-    if terminated or truncated:
-        break
-
-print(f"Score: {info['score']}, Total reward: {total_reward}")
-env.close()
+    def learn(self, trajectory: Trajectory) -> dict[str, float]:
+        # Your algorithm here
+        return {"loss": loss.item()}
 ```
 
-### Custom Environment
-
+### Add New Environment
 ```python
-# Custom grid size
-env = SnakeGameEnv(grid_size=30, render_mode="human")
+from gymnasium import Env, spaces
 
-# Inherit and extend
-class CustomSnakeEnv(SnakeGameEnv):
+class MyEnv(Env):
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        # Add custom features like different rewards, obstacles, etc.
-
-# Use with popular RL frameworks
-import stable_baselines3 as sb3
-from snake_game import SnakeGameEnv
-
-env = SnakeGameEnv()
-model = sb3.PPO("MlpPolicy", env, verbose=1)
-model.learn(total_timesteps=10000)
+        super().__init__()
+        self.action_space = spaces.Discrete(n_actions)
+        self.observation_space = spaces.Box(...)
 ```
 
-## Development Setup
+## 📊 Features
 
-### Setup Development Environment
+| Algorithm | Status | Key Features |
+|-----------|--------|--------------|
+| **REINFORCE** | ✅ | Policy gradient, simple implementation |
+| **PPO** | ✅ | Clipped objective, stable training |
+| **DQN** | ✅ | Experience replay, target networks |
 
+## 📦 Project Structure
+```
+viberl/
+├── cli.py              # Command-line interface
+├── typing.py           # Modern type system (Action, Transition, Trajectory)
+├── agents/             # RL algorithms
+├── envs/               # Environments
+└── utils/              # Training utilities
+```
+
+## 🛠️ Development
 ```bash
-# Install UV (if not already installed)
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Clone and setup
-git clone <your-repo-url>
-cd snake-game
-uv venv
-source .venv/bin/activate  # On Windows: .venv\\Scripts\\activate
+# Setup
+uv venv && source .venv/bin/activate
 uv pip install -e ".[dev]"
-```
 
-### Development Tools
-
-```bash
-# Format code
-uv run black src/
-
-# Type checking
-uv run mypy src/snake_game/
-
-# Run tests
-uv run pytest
-
-# Lint code
-uv run flake8 src/
-```
-
-## Game Logic
-
-- 🐍 **Snake**: Green segments (body and head)
-- 🍎 **Food**: Red squares
-- 🎯 **Objective**: Eat food to grow and increase score
-- 💀 **Game Over**: Collision with walls, own body, or max steps reached
-- ⚡ **Controls**: Various options available
-  - **GUI Mode**: Arrow keys, R/Q for restart/quit
-  - **Text Mode**: WASD/HJKL, Space/R/Q
-  - **AI Mode**: Zero direct user input
-
-## Development Setup
-
-### Setup Development Environment
-
-```bash
-# Install UV (if not already installed)
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Clone and setup
-git clone https://github.com/0xWelt/VibeRL.git
-cd VibeRL
-uv venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-uv pip install -e ".[dev]"
-```
-
-### Development Tools
-
-```bash
-# Format code
-uv run ruff format viberl/
-
-# Type checking
-uv run mypy viberl/
-
-# Run tests
-uv run pytest
-
-# Lint code
+# Quality checks
+uv run pytest tests/
 uv run ruff check viberl/ --fix
+uv run ruff format viberl/
 ```
 
-## Project Structure
+## 📈 Quick Metrics
+- **Python**: 3.12+
+- **Dependencies**: gymnasium, pytorch, pygame, pydantic
+- **Test Coverage**: 49 tests passing
+- **CLI Commands**: train, eval, demo
 
-```
-VibeRL/
-├── pyproject.toml          # UV project configuration
-├── LICENSE                 # MIT license
-├── README.md              # This file
-├── examples/              # Entry point examples
-│   ├── training/          # Training scripts
-│   │   └── train_snake_reinforce.py  # REINFORCE training example
-│   └── human_play/        # Human playable examples
-│       ├── play_human.py              # Full-featured pygame human game
-│       └── text_play.py               # Text-based version for all environments
-├── viberl/                # Core package
-│   ├── __init__.py        # Package exports
-│   ├── cli.py             # Command-line interface
-│   ├── envs/              # RL environments
-│   ├── agents/            # RL algorithms
-│   └── utils/             # Utilities and helpers
-├── tests/                 # Test suite
-└── docs/                  # Documentation
-```
+## 🤝 Contributors
 
-## Contributing
+Thanks to all the contributors who have helped make VibeRL better!
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Install development dependencies: `uv pip install -e ".[dev]"`
-4. Make your changes and add tests
-5. Run tests: `uv run pytest`
-6. Submit a pull request
+<a href="https://github.com/0xWelt/VibeRL/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=0xWelt/VibeRL" />
+</a>
 
-## License
+## ⭐ Star History
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+[![Star History Chart](https://api.star-history.com/svg?repos=0xWelt/VibeRL&type=Date)](https://star-history.com/#0xWelt/VibeRL&Date)
+
+## 🙏 Acknowledgments
+
+- Built with [PyTorch](https://pytorch.org/) for deep learning
+- [Gymnasium](https://gymnasium.farama.org/) for RL environment interface
+- [Pydantic](https://docs.pydantic.dev/) for type safety
+- [UV](https://docs.astral.sh/uv/) for modern Python packaging

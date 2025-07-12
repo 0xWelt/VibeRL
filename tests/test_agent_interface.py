@@ -2,11 +2,13 @@
 
 import numpy as np
 import pytest
+import torch
 
 from viberl.agents.base import Agent
 from viberl.agents.dqn import DQNAgent
 from viberl.agents.ppo import PPOAgent
 from viberl.agents.reinforce import REINFORCEAgent
+from viberl.typing import Action, Trajectory, Transition
 
 
 class TestAgentInterface:
@@ -23,19 +25,34 @@ class TestAgentInterface:
 
         # Test act method
         state = np.array([1, 2, 3, 4])
-        action = agent.act(state)
-        assert isinstance(action, int)
-        assert 0 <= action < 2
+        action_obj = agent.act(state)
+        assert isinstance(action_obj, Action)
+        assert isinstance(action_obj.action, int)
+        assert 0 <= action_obj.action < 2
 
         # Test act with training parameter
         action_training = agent.act(state, training=False)
-        assert isinstance(action_training, int)
+        assert isinstance(action_training, Action)
 
-        # Test learn method with trajectories
-        states = [np.array([1, 2, 3, 4]), np.array([2, 3, 4, 5])]
-        actions = [0, 1]
-        rewards = [1.0, 2.0]
-        metrics = agent.learn(states=states, actions=actions, rewards=rewards)
+        # Test learn method with trajectory
+        transitions = [
+            Transition(
+                state=np.array([1, 2, 3, 4]),
+                action=Action(action=0),
+                reward=1.0,
+                next_state=np.array([2, 3, 4, 5]),
+                done=False,
+            ),
+            Transition(
+                state=np.array([2, 3, 4, 5]),
+                action=Action(action=1),
+                reward=2.0,
+                next_state=np.array([3, 4, 5, 6]),
+                done=True,
+            ),
+        ]
+        trajectory = Trajectory.from_transitions(transitions)
+        metrics = agent.learn(trajectory=trajectory)
         assert isinstance(metrics, dict)
 
     def test_dqn_agent_interface(self):
@@ -44,23 +61,27 @@ class TestAgentInterface:
 
         # Test act method
         state = np.array([1, 2, 3, 4])
-        action = agent.act(state)
-        assert isinstance(action, int)
-        assert 0 <= action < 2
+        action_obj = agent.act(state)
+        assert isinstance(action_obj, Action)
+        assert isinstance(action_obj.action, int)
+        assert 0 <= action_obj.action < 2
 
         # Test act with training parameter
         action_training = agent.act(state, training=False)
-        assert isinstance(action_training, int)
+        assert isinstance(action_training, Action)
 
-        # Test learn method with trajectories
-        states = [np.array([1, 2, 3, 4])] * 100
-        actions = [0] * 100
-        rewards = [1.0] * 100
-        next_states = [np.array([2, 3, 4, 5])] * 100
-        dones = [False] * 100
-        metrics = agent.learn(
-            states=states, actions=actions, rewards=rewards, next_states=next_states, dones=dones
-        )
+        # Test learn method with trajectory
+        transitions = [
+            Transition(
+                state=np.array([1, 2, 3, 4]),
+                action=Action(action=0),
+                reward=1.0,
+                next_state=np.array([2, 3, 4, 5]),
+                done=False,
+            )
+        ] * 100
+        trajectory = Trajectory.from_transitions(transitions)
+        metrics = agent.learn(trajectory=trajectory)
         assert isinstance(metrics, dict)
 
     def test_ppo_agent_interface(self):
@@ -69,29 +90,34 @@ class TestAgentInterface:
 
         # Test act method
         state = np.array([1, 2, 3, 4])
-        action = agent.act(state)
-        assert isinstance(action, int)
-        assert 0 <= action < 2
+        action_obj = agent.act(state)
+        assert isinstance(action_obj, Action)
+        assert isinstance(action_obj.action, int)
+        assert 0 <= action_obj.action < 2
 
         # Test act with training parameter
         action_training = agent.act(state, training=False)
-        assert isinstance(action_training, int)
+        assert isinstance(action_training, Action)
 
-        # Test learn method with trajectories
-        states = [np.array([1, 2, 3, 4]), np.array([2, 3, 4, 5])]
-        actions = [0, 1]
-        rewards = [1.0, 2.0]
-        log_probs = [-0.1, -0.2]
-        values = [0.5, 0.6]
-        dones = [False, True]
-        metrics = agent.learn(
-            states=states,
-            actions=actions,
-            rewards=rewards,
-            log_probs=log_probs,
-            values=values,
-            dones=dones,
-        )
+        # Test learn method with trajectory
+        transitions = [
+            Transition(
+                state=np.array([1, 2, 3, 4]),
+                action=Action(action=0, logprobs=torch.tensor(-0.1)),
+                reward=1.0,
+                next_state=np.array([2, 3, 4, 5]),
+                done=False,
+            ),
+            Transition(
+                state=np.array([2, 3, 4, 5]),
+                action=Action(action=1, logprobs=torch.tensor(-0.2)),
+                reward=2.0,
+                next_state=np.array([3, 4, 5, 6]),
+                done=True,
+            ),
+        ]
+        trajectory = Trajectory.from_transitions(transitions)
+        metrics = agent.learn(trajectory=trajectory)
         assert isinstance(metrics, dict)
 
     def test_agent_save_load(self):

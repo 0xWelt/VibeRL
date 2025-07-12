@@ -32,6 +32,7 @@ dependencies = [
     "torch>=2.0.0",
     "tensorboard>=2.14.0",
     "pre-commit>=4.2.0",
+    "pydantic>=2.11.7",
 ]
 
 [project.optional-dependencies]

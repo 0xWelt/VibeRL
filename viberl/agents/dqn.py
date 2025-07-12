@@ -8,6 +8,7 @@ import torch.optim as optim
 
 from viberl.agents.base import Agent
 from viberl.networks.value_network import QNetwork
+from viberl.typing import Action, Trajectory
 
 
 class DQNAgent(Agent):
@@ -54,41 +55,39 @@ class DQNAgent(Agent):
         self.last_loss = 0.0
         self.steps = 0
 
-    def act(self, state: np.ndarray, training: bool = True) -> int:
+    def act(self, state: np.ndarray, training: bool = True) -> Action:
         """Select action using epsilon-greedy policy."""
         if training and np.random.rand() <= self.epsilon:
-            return random.choice(range(self.action_size))
+            return Action(action=random.choice(range(self.action_size)))
 
         with torch.no_grad():
             q_values = self.q_network.get_q_values(state)
-            return q_values.argmax(dim=1).item()
+            return Action(action=q_values.argmax(dim=1).item())
 
     def learn(
         self,
-        states: list[np.ndarray],
-        actions: list[int],
-        rewards: list[float],
-        next_states: list[np.ndarray],
-        dones: list[bool],
+        trajectory: Trajectory,
         **kwargs,
     ) -> dict[str, float]:
         """Perform one learning step using a batch from replay memory.
 
         Args:
-            states: List of states from rollout
-            actions: List of actions from rollout
-            rewards: List of rewards from rollout
-            next_states: List of next states from rollout
-            dones: List of done flags from rollout
+            trajectory: A complete trajectory containing transitions
         """
         self.steps += 1
         metrics = {}
 
         # Store transitions in memory
-        for state, action, reward, next_state, done in zip(
-            states, actions, rewards, next_states, dones
-        ):
-            self.memory.append((state, action, reward, next_state, done))
+        for transition in trajectory.transitions:
+            self.memory.append(
+                (
+                    transition.state,
+                    transition.action.action,
+                    transition.reward,
+                    transition.next_state,
+                    transition.done,
+                )
+            )
 
         if len(self.memory) < self.batch_size:
             return metrics

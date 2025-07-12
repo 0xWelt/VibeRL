@@ -5,6 +5,7 @@ from torch.distributions import Categorical
 
 from viberl.agents.base import Agent
 from viberl.networks.policy_network import PolicyNetwork
+from viberl.typing import Action, Trajectory
 
 
 class REINFORCEAgent(Agent):
@@ -24,26 +25,28 @@ class REINFORCEAgent(Agent):
         self.policy_network = PolicyNetwork(state_size, action_size, hidden_size, num_hidden_layers)
         self.optimizer = optim.Adam(self.policy_network.parameters(), lr=learning_rate)
 
-    def act(self, state: np.ndarray, training: bool = True) -> int:
+    def act(self, state: np.ndarray, training: bool = True) -> Action:
         """Select action using current policy."""
-        return self.policy_network.act(state)
+        action = self.policy_network.act(state)
+        return Action(action=action)
 
     def learn(
         self,
-        states: list[np.ndarray],
-        actions: list[int],
-        rewards: list[float],
+        trajectory: Trajectory,
         **kwargs,
     ) -> dict[str, float]:
         """Perform one learning step using REINFORCE algorithm.
 
         Args:
-            states: List of states from rollout
-            actions: List of actions from rollout
-            rewards: List of rewards from rollout
+            trajectory: A complete trajectory containing transitions
         """
-        if not rewards:
+        if not trajectory.transitions:
             return {}
+
+        # Extract data from trajectory
+        states = [t.state for t in trajectory.transitions]
+        actions = [t.action.action for t in trajectory.transitions]
+        rewards = [t.reward for t in trajectory.transitions]
 
         # Compute returns
         returns = self._compute_returns(rewards)

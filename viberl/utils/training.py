@@ -1,11 +1,19 @@
-import os
+from __future__ import annotations
 
-import gymnasium as gym
+import os
+from typing import TYPE_CHECKING
+
 import numpy as np
 import torch
 from torch.utils.tensorboard import SummaryWriter
 
-from viberl.agents.base import Agent
+from viberl.typing import Trajectory, Transition
+
+
+if TYPE_CHECKING:
+    import gymnasium as gym
+
+    from viberl.agents.base import Agent
 
 
 def train_agent(
@@ -64,45 +72,43 @@ def train_agent(
         state = state.flatten()  # Flatten 2D grid to 1D vector
         episode_reward = 0
 
-        # Collect trajectories for this episode
-        states = []
-        actions = []
-        rewards = []
-        next_states = []
-        dones = []
-        log_probs = []
-        values = []
+        # Collect transitions for this episode
+        transitions = []
 
         from viberl.agents.ppo import PPOAgent
 
         for _step in range(max_steps):
             # Select action using unified Agent interface
-            action = agent.act(state)
+            action_obj = agent.act(state)
+            action = action_obj.action
 
             # For PPO, collect additional information
+            log_prob = None
             if isinstance(agent, PPOAgent):
                 state_tensor = torch.FloatTensor(state).unsqueeze(0).to(agent.device)
                 with torch.no_grad():
                     action_probs = agent.policy_network(state_tensor)
                     dist = torch.distributions.Categorical(action_probs)
-                    log_prob = dist.log_prob(torch.tensor(action)).item()
-                    value = agent.value_network(state_tensor).squeeze(-1).item()
-                    log_probs.append(log_prob)
-                    values.append(value)
+                    log_prob = dist.log_prob(torch.tensor(action))
+                    action_obj.logprobs = log_prob
 
             # Take action in environment
-            next_state, reward, terminated, truncated, _ = env.step(action)
+            next_state, reward, terminated, truncated, info = env.step(action)
             done = terminated or truncated
 
             # Flatten next state
             next_state = next_state.flatten()
 
-            # Store trajectory data
-            states.append(state)
-            actions.append(action)
-            rewards.append(reward)
-            next_states.append(next_state)
-            dones.append(done)
+            # Create transition
+            transition = Transition(
+                state=state,
+                action=action_obj,
+                reward=reward,
+                next_state=next_state,
+                done=done,
+                info=info,
+            )
+            transitions.append(transition)
 
             episode_reward += reward
             state = next_state
@@ -114,28 +120,11 @@ def train_agent(
             if done:
                 break
 
-        # Update policy using unified Agent interface with collected trajectories
+        # Create trajectory and update policy
+        trajectory = Trajectory.from_transitions(transitions)
         learn_metrics = {}
         if (episode + 1) % 10 == 0:  # Update every 10 episodes
-            # Prepare arguments based on agent type
-            learn_kwargs = {
-                'states': states,
-                'actions': actions,
-                'rewards': rewards,
-                'next_states': next_states,
-                'dones': dones,
-            }
-
-            # Add PPO-specific arguments
-            if isinstance(agent, PPOAgent) and log_probs and values:
-                learn_kwargs.update(
-                    {
-                        'log_probs': log_probs,
-                        'values': values,
-                    }
-                )
-
-            learn_metrics = agent.learn(**learn_kwargs)
+            learn_metrics = agent.learn(trajectory=trajectory)
             if verbose and learn_metrics:
                 # Display returned metrics
                 metrics_str = ', '.join(f'{k}: {v:.4f}' for k, v in learn_metrics.items())
@@ -235,7 +224,8 @@ def evaluate_agent(
 
         for _step in range(max_steps):
             # Use unified Agent interface
-            action = agent.act(state, training=False)
+            action_obj = agent.act(state, training=False)
+            action = action_obj.action
 
             next_state, reward, terminated, truncated, _ = env.step(action)
             done = terminated or truncated

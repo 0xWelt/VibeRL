@@ -1,9 +1,16 @@
 """Base Agent class for all RL agents."""
 
-from abc import ABC, abstractmethod
+from __future__ import annotations
 
-import gymnasium as gym
-import numpy as np
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
+
+
+if TYPE_CHECKING:
+    import gymnasium as gym
+    import numpy as np
+
+    from viberl.typing import Action
 
 
 class Agent(ABC):
@@ -21,7 +28,7 @@ class Agent(ABC):
         self.action_size = action_size
 
     @abstractmethod
-    def act(self, state: np.ndarray, training: bool = True) -> int:
+    def act(self, state: np.ndarray, training: bool = True) -> Action:
         """Select an action given the current state.
 
         Args:
@@ -29,7 +36,7 @@ class Agent(ABC):
             training: Whether in training mode (affects exploration)
 
         Returns:
-            Selected action
+            Action object containing the selected action and optional metadata
         """
 
     @abstractmethod

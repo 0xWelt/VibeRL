@@ -32,7 +32,8 @@
       "Bash(git rm:*)",
       "Bash(find:*)",
       "Bash(uv run:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(uv add:*)"
     ],
     "deny": []
   }
