@@ -167,8 +167,8 @@ class SnakeGameEnv(gym.Env):
             # Remove tail if no food eaten
             self.snake.pop(0)
 
-        # Give small negative reward to encourage faster completion
-        reward += -0.01
+        # Give negative reward to encourage faster completion
+        reward += -0.1
 
         # Check if maximum steps reached
         if self.steps >= self.max_steps:
