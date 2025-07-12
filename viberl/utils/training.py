@@ -16,9 +16,11 @@ def train_agent(
     save_path: str | None = None,
     verbose: bool = True,
     log_dir: str | None = None,
+    eval_interval: int = 100,
+    eval_episodes: int = 10,
 ) -> list[float]:
     """
-    Generic training function for RL agents.
+    Generic training function for RL agents with periodic evaluation.
 
     Args:
         env: Gymnasium environment
@@ -30,11 +32,14 @@ def train_agent(
         save_path: Path to save models
         verbose: Print training progress
         log_dir: Directory for TensorBoard logs
+        eval_interval: Evaluate every N episodes
+        eval_episodes: Number of evaluation episodes
 
     Returns:
         List of episode rewards
     """
     scores = []
+    eval_scores = []
 
     # Initialize TensorBoard writer
     writer = None
@@ -42,6 +47,15 @@ def train_agent(
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
         writer = SummaryWriter(log_dir=log_dir)
+
+    # Create evaluation environment
+    # Handle both gym.make() environments and custom environments
+    from viberl.envs import SnakeGameEnv
+
+    if hasattr(env, 'grid_size'):
+        eval_env = SnakeGameEnv(render_mode=None, grid_size=env.grid_size)
+    else:
+        eval_env = SnakeGameEnv(render_mode=None)
 
     for episode in range(num_episodes):
         state, _ = env.reset()
@@ -91,34 +105,69 @@ def train_agent(
             if done:
                 break
 
-        # Update policy based on agent type
+        # Update policy based on agent type and log learn/ metrics
+        learn_metrics = {}
         if hasattr(agent, 'update'):  # PPO agent
             if (episode + 1) % 10 == 0:  # Update every 10 episodes
-                metrics = agent.update()
-                if verbose and metrics:
+                learn_metrics = agent.update()
+                if verbose and learn_metrics:
                     print(
-                        f'PPO Update - Policy Loss: {metrics.get("policy_loss", 0):.4f}, '
-                        f'Value Loss: {metrics.get("value_loss", 0):.4f}'
+                        f'PPO Update - Policy Loss: {learn_metrics.get("policy_loss", 0):.4f}, '
+                        f'Value Loss: {learn_metrics.get("value_loss", 0):.4f}'
                     )
+        elif hasattr(agent, 'update_target_network'):  # DQN agent
+            agent.update_policy()
+            if (episode + 1) % 10 == 0:  # Update target network every 10 episodes
+                agent.update_target_network()
+            learn_metrics = agent.get_metrics() if hasattr(agent, 'get_metrics') else {}
         elif hasattr(agent, 'update_policy'):  # REINFORCE agent
             agent.update_policy()
-        elif hasattr(agent, 'update_target_network') and (episode + 1) % 10 == 0:  # DQN agent
-            agent.update_target_network()
+            learn_metrics = (
+                agent.get_metrics() if hasattr(agent, 'get_metrics') else {'policy_loss': 0.0}
+            )
+
+        # Log learn/ metrics
+        if writer is not None and learn_metrics:
+            for metric_name, metric_value in learn_metrics.items():
+                writer.add_scalar(f'learn/{metric_name}', metric_value, episode)
 
         scores.append(episode_reward)
 
-        # Print progress and log to TensorBoard
+        # Log training metrics to TensorBoard
+        if writer is not None:
+            # rollout_train/ metrics - training environment metrics
+            writer.add_scalar('rollout_train/average_return', episode_reward, episode)
+            writer.add_scalar('rollout_train/episode_length', _step + 1, episode)
+
+        # Print progress
         if verbose and (episode + 1) % 100 == 0:
             avg_score = np.mean(scores[-100:])
             print(
                 f'Episode {episode + 1}/{num_episodes}, Average Score (last 100): {avg_score:.2f}'
             )
 
-        # Log metrics to TensorBoard
-        if writer is not None:
-            # Only log final return (episode reward) and episode length
-            writer.add_scalar('final_return', episode_reward, episode)
-            writer.add_scalar('episode_length', _step + 1, episode)
+        # Periodic evaluation
+        if (episode + 1) % eval_interval == 0:
+            eval_rewards, eval_lengths = evaluate_agent(
+                eval_env, agent, num_episodes=eval_episodes, render=False, max_steps=max_steps
+            )
+            eval_mean = np.mean(eval_rewards)
+            eval_std = np.std(eval_rewards)
+            eval_scores.extend(eval_rewards)
+
+            if writer is not None:
+                # rollout_eval/ metrics - evaluation environment metrics
+                writer.add_scalar('rollout_eval/average_return', eval_mean, episode)
+                writer.add_scalar(
+                    'rollout_eval/episode_length',
+                    np.mean(eval_lengths) if eval_lengths else 0,
+                    episode,
+                )
+
+            if verbose:
+                print(
+                    f'Evaluation at episode {episode + 1}: Mean={eval_mean:.2f}, Std={eval_std:.2f}'
+                )
 
         # Save model if specified
         if (
@@ -136,16 +185,17 @@ def train_agent(
             filename = os.path.join(save_dir, f'model_episode_{episode + 1}.pth')
             agent.save_policy(filename)
 
-    # Close TensorBoard writer
+    # Close environments
     if writer is not None:
         writer.close()
+    eval_env.close()
 
     return scores
 
 
 def evaluate_agent(
     env: gym.Env, agent: Any, num_episodes: int = 10, render: bool = False, max_steps: int = 1000
-) -> list[float]:
+) -> tuple[list[float], list[int]]:
     """
     Generic evaluation function for RL agents.
 
@@ -157,17 +207,28 @@ def evaluate_agent(
         max_steps: Maximum steps per episode
 
     Returns:
-        List of episode rewards
+        Tuple of (episode_rewards, episode_lengths)
     """
     scores = []
+    lengths = []
 
     for episode in range(num_episodes):
         state, _ = env.reset()
         state = state.flatten()  # Flatten 2D grid to 1D vector
         episode_reward = 0
+        episode_length = 0
 
         for _step in range(max_steps):
-            action = agent.select_action(state)
+            # Handle different agent interfaces
+            try:
+                if hasattr(agent, 'get_action'):  # PPO agent
+                    action = agent.get_action(state, deterministic=True)
+                else:  # REINFORCE/DQN agents
+                    action = agent.select_action(state, training=False)
+            except TypeError:
+                # Fallback for agents that don't accept training parameter
+                action = agent.select_action(state)
+
             next_state, reward, terminated, truncated, _ = env.step(action)
             done = terminated or truncated
 
@@ -175,6 +236,7 @@ def evaluate_agent(
             next_state = next_state.flatten()
 
             episode_reward += reward
+            episode_length += 1
             state = next_state
 
             if render:
@@ -184,10 +246,15 @@ def evaluate_agent(
                 break
 
         scores.append(episode_reward)
+        lengths.append(episode_length)
 
         agent_name = agent.__class__.__name__ if hasattr(agent, '__class__') else 'Agent'
 
-        print(f'{agent_name} - Evaluation Episode {episode + 1}: Score = {episode_reward}')
+        print(
+            f'{agent_name} - Evaluation Episode {episode + 1}: Score = {episode_reward}, Length = {episode_length}'
+        )
 
-    print(f'Average Score: {np.mean(scores):.2f} ± {np.std(scores):.2f}')
-    return scores
+    print(
+        f'Average Score: {np.mean(scores):.2f} ± {np.std(scores):.2f}, Average Length: {np.mean(lengths):.2f}'
+    )
+    return scores, lengths
