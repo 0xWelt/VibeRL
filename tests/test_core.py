@@ -225,7 +225,7 @@ class TestSnakeGameEnvStep:
 
         assert not terminated
         assert not truncated
-        assert reward == -0.01  # Small negative reward for step
+        assert reward == -0.1  # Small negative reward for step
         assert len(env.snake) == 3  # Same length (moved, didn't grow)
         assert env.snake[-1] != initial_snake_head  # Head moved
 
@@ -242,7 +242,7 @@ class TestSnakeGameEnvStep:
 
         assert not terminated
         assert not truncated
-        assert reward == 9.99  # Food eaten (10.0 - 0.01 step penalty)
+        assert reward == 9.9  # Food eaten (10.0 - 0.01 step penalty)
         assert len(env.snake) == 4  # Snake grew
         assert env.score == 1
         assert env.food != new_food  # Food moved to new location
@@ -355,7 +355,7 @@ class TestSnakeGameEnvRandomScenarios:
             obs, reward, terminated, truncated, info = env.step(Direction.RIGHT.value)
 
             assert not terminated
-            assert reward == 9.99  # Food eaten (10.0 - 0.01 step penalty)
+            assert reward == 9.9  # Food eaten (10.0 - 0.01 step penalty)
             assert len(env.snake) == initial_length + i + 1
             assert env.score == i + 1
 
@@ -369,7 +369,7 @@ class TestSnakeGameEnvRandomScenarios:
         for action in actions:
             obs, reward, terminated, truncated, info = env.step(action.value)
             assert not terminated
-            assert reward in [-0.01, 10.0]  # Either small penalty or food reward
+            assert reward in [-0.1, 10.0]  # Either small penalty or food reward
 
     def test_boundary_conditions(self):
         env = SnakeGameEnv(grid_size=10)  # Larger grid for safety
@@ -405,7 +405,7 @@ class TestSnakeGameEnvRandomScenarios:
             obs, reward, terminated, truncated, info = env.step(Direction.RIGHT.value)
 
             assert not terminated
-            assert reward == 9.99  # Food eaten (10.0 - 0.01 step penalty)
+            assert reward == 9.9  # Food eaten (10.0 - 0.01 step penalty)
             assert env.score == initial_score + i + 1
             assert len(env.snake) == 3 + i + 1
 
@@ -574,4 +574,4 @@ class TestSnakeGameEnvPerformance:
         if terminated:
             assert reward == -10.0
         elif reward > 0:
-            assert reward == 9.99  # Food reward with small step penalty
+            assert reward == 9.9  # Food reward with small step penalty

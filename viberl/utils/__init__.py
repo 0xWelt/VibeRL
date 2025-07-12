@@ -7,4 +7,11 @@ from .experiment_manager import ExperimentManager, create_experiment
 from .training import evaluate_agent, train_agent
 
 
-__all__ = ['evaluate_agent', 'get_device', 'set_seed', 'train_agent', 'ExperimentManager', 'create_experiment']
+__all__ = [
+    'ExperimentManager',
+    'create_experiment',
+    'evaluate_agent',
+    'get_device',
+    'set_seed',
+    'train_agent',
+]

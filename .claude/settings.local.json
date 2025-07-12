@@ -30,7 +30,8 @@
       "Bash(ls:*)",
       "Bash(viberl-eval:*)",
       "Bash(git rm:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(uv run:*)"
     ],
     "deny": []
   }

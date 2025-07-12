@@ -3,39 +3,10 @@ from collections import deque
 import gymnasium as gym
 import numpy as np
 import torch
-import torch.nn as nn
 import torch.optim as optim
 from torch.distributions import Categorical
 
-
-class PolicyNetwork(nn.Module):
-    """Neural network policy for REINFORCE algorithm."""
-
-    def __init__(self, state_size: int, action_size: int, hidden_size: int = 128):
-        super().__init__()
-        self.fc1 = nn.Linear(state_size, hidden_size)
-        self.fc2 = nn.Linear(hidden_size, hidden_size)
-        self.fc3 = nn.Linear(hidden_size, action_size)
-        self.relu = nn.ReLU()
-        self.softmax = nn.Softmax(dim=-1)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Forward pass through the network."""
-        x = self.relu(self.fc1(x))
-        x = self.relu(self.fc2(x))
-        x = self.fc3(x)
-        return self.softmax(x)
-
-    def act(self, state: np.ndarray) -> int:
-        """Select action based on current policy."""
-        state_tensor = torch.FloatTensor(state).unsqueeze(0)
-        action_probs = self.forward(state_tensor)
-
-        # Sample action from probability distribution
-        m = Categorical(action_probs)
-        action = m.sample()
-
-        return action.item()
+from viberl.networks.policy_network import PolicyNetwork
 
 
 class REINFORCEAgent:
@@ -48,9 +19,10 @@ class REINFORCEAgent:
         learning_rate: float = 1e-3,
         gamma: float = 0.99,
         hidden_size: int = 128,
+        num_hidden_layers: int = 2,
     ):
         self.gamma = gamma
-        self.policy_network = PolicyNetwork(state_size, action_size, hidden_size)
+        self.policy_network = PolicyNetwork(state_size, action_size, hidden_size, num_hidden_layers)
         self.optimizer = optim.Adam(self.policy_network.parameters(), lr=learning_rate)
 
         # Storage for episode data

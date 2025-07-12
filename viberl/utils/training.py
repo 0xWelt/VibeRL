@@ -61,7 +61,11 @@ def train_agent(
 
             # Store transition (if agent supports it)
             if hasattr(agent, 'store_transition'):
-                agent.store_transition(state, action, reward)
+                # Handle different agent interfaces
+                if hasattr(agent, 'memory'):  # DQN agent
+                    agent.store_transition(state, action, reward, next_state, done)
+                else:  # REINFORCE agent
+                    agent.store_transition(state, action, reward)
 
             episode_reward += reward
             state = next_state
@@ -76,6 +80,10 @@ def train_agent(
         # Update policy (if agent supports it)
         if hasattr(agent, 'update_policy'):
             agent.update_policy()
+
+        # Update target network for DQN
+        if hasattr(agent, 'update_target_network') and (episode + 1) % 10 == 0:
+            agent.update_target_network()
 
         scores.append(episode_reward)
 
@@ -103,7 +111,7 @@ def train_agent(
             save_dir = os.path.dirname(save_path)
             if save_dir and not os.path.exists(save_dir):
                 os.makedirs(save_dir, exist_ok=True)
-            
+
             # Create proper filename
             filename = os.path.join(save_dir, f'model_episode_{episode + 1}.pth')
             agent.save_policy(filename)

@@ -2,7 +2,8 @@
 Agents module - Collection of reinforcement learning algorithms.
 """
 
-from .policy_gradient.reinforce import PolicyNetwork, REINFORCEAgent
+from .dqn import DQNAgent
+from .policy_gradient.reinforce import REINFORCEAgent
 
 
-__all__ = ['PolicyNetwork', 'REINFORCEAgent']
+__all__ = ['DQNAgent', 'REINFORCEAgent']

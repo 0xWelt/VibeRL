@@ -9,7 +9,7 @@ import sys
 import numpy as np
 import torch
 
-from viberl.agents import REINFORCEAgent
+from viberl.agents import DQNAgent, REINFORCEAgent
 from viberl.envs import SnakeGameEnv
 from viberl.utils import evaluate_agent, get_device, set_seed, train_agent
 from viberl.utils.experiment_manager import create_experiment
@@ -20,21 +20,39 @@ def train_main():
     parser = argparse.ArgumentParser(description='Train RL agents')
     parser.add_argument('--env', choices=['snake'], default='snake', help='Environment to train on')
     parser.add_argument(
-        '--agent', choices=['reinforce'], default='reinforce', help='Agent algorithm'
+        '--alg',
+        choices=['reinforce', 'dqn'],
+        default='reinforce',
+        help='Reinforcement learning algorithm',
     )
     parser.add_argument('--episodes', type=int, default=1000, help='Number of training episodes')
     parser.add_argument('--grid-size', type=int, default=15, help='Grid size for snake environment')
     parser.add_argument('--lr', type=float, default=1e-3, help='Learning rate')
     parser.add_argument('--gamma', type=float, default=0.99, help='Discount factor')
     parser.add_argument('--hidden-size', type=int, default=128, help='Hidden layer size')
+    parser.add_argument('--num-hidden-layers', type=int, default=2, help='Number of hidden layers')
     parser.add_argument('--seed', type=int, default=42, help='Random seed')
-    parser.add_argument('--save-path', type=str, default='trained_model', help='Model save path (deprecated, use --exp-name)')
+    parser.add_argument('--name', type=str, help='Experiment name (auto-generated if not provided)')
     parser.add_argument('--render-interval', type=int, help='Render every N episodes')
     parser.add_argument('--save-interval', type=int, help='Save model every N episodes')
     parser.add_argument('--device', choices=['cpu', 'cuda'], default='auto', help='Device to use')
-    parser.add_argument('--log-dir', type=str, help='Directory for TensorBoard logs (deprecated, use --exp-name)')
-    parser.add_argument('--exp-name', type=str, help='Experiment name for automatic directory creation')
-    parser.add_argument('--exp-base-dir', type=str, default='experiments', help='Base directory for experiments')
+    parser.add_argument(
+        '--epsilon-start', type=float, default=1.0, help='Initial exploration rate (DQN)'
+    )
+    parser.add_argument(
+        '--epsilon-end', type=float, default=0.01, help='Final exploration rate (DQN)'
+    )
+    parser.add_argument(
+        '--epsilon-decay', type=float, default=0.995, help='Exploration decay rate (DQN)'
+    )
+    parser.add_argument('--memory-size', type=int, default=10000, help='Replay memory size (DQN)')
+    parser.add_argument('--batch-size', type=int, default=64, help='Batch size for training (DQN)')
+    parser.add_argument(
+        '--target-update', type=int, default=10, help='Target network update frequency (DQN)'
+    )
+    parser.add_argument('--eval-episodes', type=int, default=10, help='Evaluation episodes')
+    parser.add_argument('--no-eval', action='store_true', help='Skip evaluation after training')
+    parser.add_argument('--quiet', action='store_true', help='Suppress training progress output')
 
     args = parser.parse_args()
 
@@ -55,38 +73,50 @@ def train_main():
         raise ValueError(f'Unknown environment: {args.env}')
 
     # Create agent
-    if args.agent == 'reinforce':
-        agent = REINFORCEAgent(
-            state_size=state_size,
-            action_size=action_size,
-            learning_rate=args.lr,
-            gamma=args.gamma,
-            hidden_size=args.hidden_size,
+    base_params = {
+        'state_size': state_size,
+        'action_size': action_size,
+        'learning_rate': args.lr,
+        'gamma': args.gamma,
+        'hidden_size': args.hidden_size,
+        'num_hidden_layers': args.num_hidden_layers,
+    }
+
+    if args.alg == 'reinforce':
+        agent = REINFORCEAgent(**base_params)
+    elif args.alg == 'dqn':
+        agent = DQNAgent(
+            **base_params,
+            epsilon_start=args.epsilon_start,
+            epsilon_end=args.epsilon_end,
+            epsilon_decay=args.epsilon_decay,
+            memory_size=args.memory_size,
+            batch_size=args.batch_size,
+            target_update=args.target_update,
         )
     else:
-        raise ValueError(f'Unknown agent: {args.agent}')
+        raise ValueError(f'Unknown algorithm: {args.alg}')
 
     # Move agent to device
-    agent.policy_network.to(device)
+    if hasattr(agent, 'policy_network'):
+        agent.policy_network.to(device)
+    if hasattr(agent, 'q_network'):
+        agent.q_network.to(device)
+        agent.target_network.to(device)
 
-    print(f'Training {args.agent} agent on {args.env} environment...')
+    print(f'Training {args.alg} agent on {args.env} environment...')
     print(f'Episodes: {args.episodes}')
     print(f'Grid size: {args.grid_size}')
     print(f'Learning rate: {args.lr}')
     print(f'Gamma: {args.gamma}')
-    
+
     # Create experiment with automatic directory structure
-    if args.exp_name:
-        exp_manager = create_experiment(args.exp_name, args.exp_base_dir)
-        tb_logs_dir = str(exp_manager.get_tb_logs_path())
-        models_dir = exp_manager.get_models_path()
-        save_path = str(models_dir / 'model')
-    else:
-        # Fallback to old behavior
-        tb_logs_dir = args.log_dir
-        save_path = args.save_path
-        models_dir = None
-    
+    experiment_name = args.name or f'{args.alg}_{args.env}'
+    exp_manager = create_experiment(experiment_name)
+    tb_logs_dir = str(exp_manager.get_tb_logs_path())
+    models_dir = exp_manager.get_models_path()
+    save_path = str(models_dir / 'model')
+
     if tb_logs_dir:
         print(f'TensorBoard logs: {tb_logs_dir}')
 
@@ -103,12 +133,10 @@ def train_main():
     )
 
     # Save final model
-    final_model_path = save_path + '_final.pth'
+    final_model_path = str(models_dir / 'final_model.pth')
     agent.save_policy(final_model_path)
     print(f'Final model saved to {final_model_path}')
-    
-    if models_dir:
-        print(f'All experiment files saved in: {exp_manager.get_experiment_path()}')
+    print(f'All experiment files saved in: {exp_manager.get_experiment_path()}')
 
     env.close()
 
