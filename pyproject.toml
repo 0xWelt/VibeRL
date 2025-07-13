@@ -70,7 +70,6 @@ include = [
     "/tests",
     "/README.md",
     "/LICENSE",
-    "/examples",
 ]
 
 # Linter tools #################################################################

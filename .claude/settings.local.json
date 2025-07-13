@@ -44,7 +44,8 @@
       "WebFetch(domain:honorable-payment-890.notion.site)",
       "Bash(git reset:*)",
       "Bash(uv:*)",
-      "Bash(git rebase:*)"
+      "Bash(git rebase:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": []
   }
