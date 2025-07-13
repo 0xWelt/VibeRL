@@ -33,7 +33,16 @@
       "Bash(find:*)",
       "Bash(uv run:*)",
       "Bash(git push:*)",
-      "Bash(uv add:*)"
+      "Bash(uv add:*)",
+      "Bash(git pull:*)",
+      "Bash(git stash:*)",
+      "Bash(true:*)",
+      "Bash(mkdocs serve:*)",
+      "Bash(mkdocs build:*)",
+      "Bash(tree:*)",
+      "WebFetch(domain:dev.msh.team)",
+      "WebFetch(domain:honorable-payment-890.notion.site)",
+      "Bash(git reset:*)"
     ],
     "deny": []
   }

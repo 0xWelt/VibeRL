@@ -41,12 +41,19 @@ dev = [
     "pytest-xdist>=3.8.0",
     "pytest>=7.0.0",
     "ruff>=0.12.0",
+    "mkdocs-gen-files>=0.5.0",
+    "mkdocs-literate-nav>=0.6.2",
+    "mkdocs-material>=9.6.15",
+    "mkdocs-section-index>=0.3.10",
+    "mkdocs>=1.6.1",
+    "mkdocstrings[python]>=0.29.1",
+    "mkdocs-mermaid2-plugin>=1.2.1",
 ]
 
 [project.urls]
 Homepage = "https://github.com/0xWelt/VibeRL"
 Repository = "https://github.com/0xWelt/VibeRL"
-Documentation = "https://github.com/0xWelt/VibeRL#readme"
+Documentation = "https://0xwelt.github.io/VibeRL/"
 "Bug Tracker" = "https://github.com/0xWelt/VibeRL/issues"
 
 [project.scripts]
@@ -75,7 +82,7 @@ ignore-words = "docs/spelling_wordlist.txt"
 target-version = "py312"
 line-length = 100
 output-format = "full"
-src = ["tiny_rl", "examples"]
+src = ["viberl", "examples"]
 
 [tool.ruff.format]
 quote-style = "single"
@@ -160,13 +167,8 @@ extend-safe-fixes = [
 "__init__.py" = [
     "F401",    # unused-import
 ]
-"examples/**/*.py" = [
-    "TID252",  # relative-imports
-]
-
 "test/**/*.py" = [
-    "ANN",
-    "S108",
+    "S108",    # hardcoded-temp-file
 ]
 
 [tool.ruff.lint.isort]

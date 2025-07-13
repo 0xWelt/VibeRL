@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 class Agent(ABC):
     """Abstract base class for all RL agents."""
 
-    def __init__(self, state_size: int, action_size: int, **kwargs):
+    def __init__(self, state_size: int, action_size: int, **kwargs: dict):
         """Initialize the agent.
 
         Args:
@@ -40,7 +40,7 @@ class Agent(ABC):
         """
 
     @abstractmethod
-    def learn(self, **kwargs) -> dict[str, float]:
+    def learn(self, **kwargs: dict) -> dict[str, float]:
         """Perform one learning step.
 
         Args:

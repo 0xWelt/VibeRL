@@ -23,11 +23,23 @@ class BaseNetwork(nn.Module):
         self.backbone = nn.Sequential(*layers)
 
     def forward_backbone(self, x: torch.Tensor) -> torch.Tensor:
-        """Forward pass through the shared backbone."""
+        """Forward pass through the shared backbone.
+
+        Args:
+            x: Input tensor of shape (batch_size, input_size)
+
+        Returns:
+            Processed tensor of shape (batch_size, hidden_size)
+        """
         return self.backbone(x)
 
-    def init_weights(self):
-        """Initialize network weights using Xavier initialization."""
+    def init_weights(self) -> None:
+        """Initialize network weights using Xavier initialization.
+
+        Uses Xavier uniform initialization for linear layers and zeros for biases.
+        This helps with stable gradient flow during training and prevents
+        vanishing/exploding gradients.
+        """
         for module in self.modules():
             if isinstance(module, nn.Linear):
                 nn.init.xavier_uniform_(module.weight)

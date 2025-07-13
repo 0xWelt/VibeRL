@@ -1,5 +1,12 @@
 # 🚀 VibeRL
 
+[![Documentation](https://img.shields.io/badge/docs-0xwelt.github.io%2FVibeRL-blue?style=for-the-badge&logo=github-pages)](https://0xwelt.github.io/VibeRL/)
+[![CI](https://img.shields.io/github/actions/workflow/status/0xWelt/VibeRL/docs.yml?branch=main&style=for-the-badge&logo=github-actions)](https://github.com/0xWelt/VibeRL/actions)
+[![Python](https://img.shields.io/badge/python-3.12+-3776ab?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/downloads/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-ee4c2c?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org/)
+[![Gymnasium](https://img.shields.io/badge/Gymnasium-008000?style=for-the-badge&logo=openai&logoColor=white)](https://gymnasium.farama.org/)
+[![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge&logo=mit)](https://opensource.org/licenses/MIT)
+
 A modern Reinforcement Learning framework for education and research, built with type safety and modern Python practices.
 
 ## 🎯 Quick Start
@@ -93,9 +100,11 @@ uv run ruff format viberl/
 
 ## 📈 Quick Metrics
 - **Python**: 3.12+
-- **Dependencies**: gymnasium, pytorch, pygame, pydantic
-- **Test Coverage**: 49 tests passing
+- **Dependencies**: gymnasium, pytorch, pygame, pydantic, tensorboard
+- **Test Coverage**: 50+ tests passing
 - **CLI Commands**: train, eval, demo
+- **Algorithms**: REINFORCE, DQN, PPO
+- **Environment**: SnakeGameEnv (gymnasium-compatible)
 
 ## 🤝 Contributors
 

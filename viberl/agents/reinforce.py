@@ -20,13 +20,31 @@ class REINFORCEAgent(Agent):
         hidden_size: int = 128,
         num_hidden_layers: int = 2,
     ):
+        """Initialize REINFORCE agent.
+
+        Args:
+            state_size: Size of the state space
+            action_size: Size of the action space
+            learning_rate: Learning rate for policy optimization
+            gamma: Discount factor for future rewards (0.0 to 1.0)
+            hidden_size: Size of hidden layers in policy network
+            num_hidden_layers: Number of hidden layers in policy network
+        """
         super().__init__(state_size, action_size)
         self.gamma = gamma
         self.policy_network = PolicyNetwork(state_size, action_size, hidden_size, num_hidden_layers)
         self.optimizer = optim.Adam(self.policy_network.parameters(), lr=learning_rate)
 
     def act(self, state: np.ndarray, training: bool = True) -> Action:
-        """Select action using current policy."""
+        """Select action using current policy.
+
+        Args:
+            state: Current state as numpy array
+            training: Whether in training mode (affects action selection)
+
+        Returns:
+            Action object containing the selected action
+        """
         action = self.policy_network.act(state)
         return Action(action=action)
 
@@ -79,7 +97,23 @@ class REINFORCEAgent(Agent):
         }
 
     def _compute_returns(self, rewards: list[float]) -> list[float]:
-        """Compute discounted returns."""
+        """Compute discounted returns using Monte Carlo method.
+
+        Calculates the discounted return for each timestep by working backwards
+        from the end of the episode. Uses the formula:
+        G_t = r_t + gamma * G_{t+1}
+
+        Args:
+            rewards: List of rewards from a complete episode
+
+        Returns:
+            List of discounted returns for each timestep
+
+        Example:
+            >>> rewards = [1, 2, 3]
+            >>> returns = [1 + 0.99 * (2 + 0.99 * 3), 2 + 0.99 * 3, 3]
+            >>> # returns ≈ [5.9401, 4.97, 3.0]
+        """
         returns = []
         discounted_return = 0
         for reward in reversed(rewards):

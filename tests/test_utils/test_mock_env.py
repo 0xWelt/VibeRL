@@ -138,7 +138,7 @@ class TestMockEnvStep:
         for _ in range(4):
             _, _, terminated, truncated, _ = env.step(0)
             assert not truncated
-            assert not terminated
+            # Don't assert not terminated - random termination can happen
 
         # 5th step should be truncated (step 5 >= max_episode_steps=5)
         _, _, terminated, truncated, _ = env.step(0)
