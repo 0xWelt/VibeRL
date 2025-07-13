@@ -2,6 +2,8 @@
 
 [![Documentation](https://img.shields.io/badge/docs-0xwelt.github.io%2FVibeRL-blue?style=for-the-badge&logo=github-pages)](https://0xwelt.github.io/VibeRL/)
 [![CI](https://img.shields.io/github/actions/workflow/status/0xWelt/VibeRL/docs.yml?branch=main&style=for-the-badge&logo=github-actions)](https://github.com/0xWelt/VibeRL/actions)
+[![Tests](https://img.shields.io/github/actions/workflow/status/0xWelt/VibeRL/pytest.yml?branch=main&style=for-the-badge&logo=github-actions&label=tests)](https://github.com/0xWelt/VibeRL/actions/workflows/pytest.yml)
+[![Coverage](https://img.shields.io/codecov/c/github/0xWelt/VibeRL?style=for-the-badge&logo=codecov)](https://codecov.io/gh/0xWelt/VibeRL)
 [![Python](https://img.shields.io/badge/python-3.12+-3776ab?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/downloads/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-ee4c2c?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org/)
 [![Gymnasium](https://img.shields.io/badge/Gymnasium-008000?style=for-the-badge&logo=openai&logoColor=white)](https://gymnasium.farama.org/)

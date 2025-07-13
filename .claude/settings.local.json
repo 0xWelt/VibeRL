@@ -42,7 +42,8 @@
       "Bash(tree:*)",
       "WebFetch(domain:dev.msh.team)",
       "WebFetch(domain:honorable-payment-890.notion.site)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(uv:*)"
     ],
     "deny": []
   }
