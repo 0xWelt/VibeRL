@@ -27,7 +27,6 @@ nav:
       - Experiment Manager: api/utils/experiment_manager.md
     - Types: api/typing.md
     - CLI: api/cli.md
-  - Contributing: contributing.md
 
 plugins:
   - search
