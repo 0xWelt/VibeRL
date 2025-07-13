@@ -43,7 +43,8 @@
       "WebFetch(domain:dev.msh.team)",
       "WebFetch(domain:honorable-payment-890.notion.site)",
       "Bash(git reset:*)",
-      "Bash(uv:*)"
+      "Bash(uv:*)",
+      "Bash(git rebase:*)"
     ],
     "deny": []
   }
