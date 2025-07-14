@@ -148,12 +148,14 @@ class TestTrainAgent:
         with tempfile.TemporaryDirectory() as temp_dir:
             save_path = temp_dir + '/test_model.pth'
 
+            # Use eval_interval=2 to match save_interval as required
             _ = train_agent(
                 env,
                 agent,
-                num_episodes=2,
+                num_episodes=4,
                 max_steps=5,
                 save_interval=2,
+                eval_interval=2,  # Set eval_interval to 2 so save_interval is a multiple
                 save_path=save_path,
                 verbose=False,
             )

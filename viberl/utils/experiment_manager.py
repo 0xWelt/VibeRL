@@ -19,7 +19,8 @@ class ExperimentManager:
     Creates experiment directories in the format:
     experiments/{experiment_name}_{timestamp}/
     ├── tb_logs/          # TensorBoard logs
-    └── models/           # Saved model checkpoints
+    ├── models/           # Saved model checkpoints
+    └── training.log      # Training log file
     """
 
     def __init__(
@@ -44,16 +45,19 @@ class ExperimentManager:
         timestamp = datetime.now().strftime(timestamp_format)
         self.experiment_dir = self.base_dir / f'{experiment_name}_{timestamp}'
 
-        # Create subdirectories
-        self.tb_logs_dir = self.experiment_dir / 'tb_logs'
-        self.models_dir = self.experiment_dir / 'models'
+        # Core experiment directory
+        self.exp_dir = self.experiment_dir
+
+        # Standardized subdirectory paths
+        self.tb_logs_dir = self.exp_dir / 'tb_logs'
+        self.models_dir = self.exp_dir / 'models'
 
         # Create directories
         self._create_directories()
 
     def _create_directories(self) -> None:
         """Create experiment directory structure."""
-        self.experiment_dir.mkdir(parents=True, exist_ok=True)
+        self.exp_dir.mkdir(parents=True, exist_ok=True)
         self.tb_logs_dir.mkdir(parents=True, exist_ok=True)
         self.models_dir.mkdir(parents=True, exist_ok=True)
 
@@ -119,7 +123,11 @@ class ExperimentManager:
 
     def get_experiment_path(self) -> Path:
         """Get path to experiment directory."""
-        return self.experiment_dir
+        return self.exp_dir
+
+    def get_exp_dir(self) -> Path:
+        """Get path to experiment directory (alias for get_experiment_path)."""
+        return self.exp_dir
 
     def save_model(self, model_name: str) -> Path:
         """
@@ -154,9 +162,10 @@ class ExperimentManager:
     def print_experiment_info(self) -> None:
         """Print information about the current experiment."""
         logger.info(f'Experiment: {self.experiment_name}')
-        logger.info(f'Directory: {self.experiment_dir}')
+        logger.info(f'Directory: {self.exp_dir}')
         logger.info(f'TensorBoard logs: {self.tb_logs_dir}')
         logger.info(f'Models: {self.models_dir}')
+        logger.info(f'Training log: {self.get_training_log_path()}')
 
     @staticmethod
     def create_from_existing(

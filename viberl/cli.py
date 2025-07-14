@@ -35,7 +35,7 @@ def train_main():
     parser.add_argument('--seed', type=int, default=42, help='Random seed')
     parser.add_argument('--name', type=str, help='Experiment name (auto-generated if not provided)')
     parser.add_argument('--render-interval', type=int, help='Render every N episodes')
-    parser.add_argument('--save-interval', type=int, help='Save model every N episodes')
+    parser.add_argument('--save-interval', type=int, help='Save model every N episodes (optional)')
     parser.add_argument('--device', choices=['cpu', 'cuda'], default='auto', help='Device to use')
     parser.add_argument(
         '--epsilon-start', type=float, default=1.0, help='Initial exploration rate (DQN)'
@@ -64,6 +64,9 @@ def train_main():
     parser.add_argument('--eval-episodes', type=int, default=10, help='Evaluation episodes')
     parser.add_argument(
         '--eval-interval', type=int, default=100, help='Evaluation interval during training'
+    )
+    parser.add_argument(
+        '--log-interval', type=int, default=1000, help='Log summary interval during training'
     )
     parser.add_argument('--no-eval', action='store_true', help='Skip evaluation after training')
     parser.add_argument('--quiet', action='store_true', help='Suppress training progress output')
@@ -141,8 +144,6 @@ def train_main():
     experiment_name = args.name or f'{args.alg}_{args.env}'
     exp_manager = create_experiment(experiment_name)
     tb_logs_dir = str(exp_manager.get_tb_logs_path())
-    models_dir = exp_manager.get_models_path()
-    save_path = str(models_dir / 'model')
 
     # Configure file logging and log command line arguments
     exp_manager.configure_file_logging(log_level='INFO')
@@ -158,14 +159,15 @@ def train_main():
         num_episodes=args.episodes,
         render_interval=args.render_interval,
         save_interval=args.save_interval,
-        save_path=save_path,
         verbose=True,
         log_dir=tb_logs_dir,
         eval_interval=args.eval_interval,
         eval_episodes=args.eval_episodes,
+        log_interval=args.log_interval,
     )
 
     # Save final model
+    models_dir = exp_manager.get_models_path()
     final_model_path = str(models_dir / 'final_model.pth')
     agent.save(final_model_path)
     logger.success(f'Final model saved to {final_model_path}')

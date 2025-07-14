@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -29,6 +30,7 @@ def train_agent(
     log_dir: str | None = None,
     eval_interval: int = 100,
     eval_episodes: int = 10,
+    log_interval: int = 1000,
 ) -> list[float]:
     """
     Generic training function for RL agents with periodic evaluation.
@@ -48,9 +50,22 @@ def train_agent(
 
     Returns:
         List of episode rewards
+
+    Raises:
+        AssertionError: If intervals are not properly aligned
     """
+    # Parameter validation for interval alignment
+    if save_interval is not None:
+        assert save_interval % eval_interval == 0, (
+            f'save_interval ({save_interval}) must be a multiple of eval_interval ({eval_interval})'
+        )
+
+    assert log_interval % eval_interval == 0, (
+        f'log_interval ({log_interval}) must be a multiple of eval_interval ({eval_interval})'
+    )
     scores = []
     eval_scores = []
+    best_eval_score = float('-inf')
 
     # Initialize TensorBoard writer
     writer = None
@@ -63,14 +78,18 @@ def train_agent(
     # Handle both gym.make() environments and custom environments
     from viberl.envs import SnakeGameEnv
 
+    # Check if this is a snake environment
     if hasattr(env, 'grid_size'):
         eval_env = SnakeGameEnv(render_mode=None, grid_size=env.grid_size)
     else:
-        eval_env = SnakeGameEnv(render_mode=None)
+        # For MockEnv and other test environments, use the same instance
+        eval_env = env
 
     for episode in range(num_episodes):
         state, _ = env.reset()
-        state = state.flatten()  # Flatten 2D grid to 1D vector
+        # Only flatten if state is 2D (e.g., from grid environments)
+        if len(state.shape) > 1:
+            state = state.flatten()
         episode_reward = 0
 
         # Collect transitions for this episode
@@ -97,8 +116,9 @@ def train_agent(
             next_state, reward, terminated, truncated, info = env.step(action)
             done = terminated or truncated
 
-            # Flatten next state
-            next_state = next_state.flatten()
+            # Flatten next state if 2D
+            if len(next_state.shape) > 1:
+                next_state = next_state.flatten()
 
             # Create transition
             transition = Transition(
@@ -125,21 +145,17 @@ def train_agent(
         trajectory = Trajectory.from_transitions(transitions)
         learn_metrics = agent.learn(trajectory=trajectory)
 
-        # Always log metrics to TensorBoard regardless of print frequency
-        if writer is not None and learn_metrics:
-            for metric_name, metric_value in learn_metrics.items():
-                writer.add_scalar(f'learn/{metric_name}', metric_value, episode)
-
         scores.append(episode_reward)
 
-        # Log training metrics to TensorBoard
-        if writer is not None:
-            # rollout_train/ metrics - training environment metrics
-            writer.add_scalar('rollout_train/average_return', episode_reward, episode)
-            writer.add_scalar('rollout_train/episode_length', _step + 1, episode)
+        # Independent interval-based operations
+        current_episode = episode + 1
 
-        # Periodic evaluation
-        if (episode + 1) % eval_interval == 0:
+        # 1. Evaluation check: iter % eval_interval == 0
+        eval_rewards = []
+        eval_lengths = []
+        eval_mean = 0.0
+
+        if current_episode % eval_interval == 0:
             eval_rewards, eval_lengths = evaluate_agent(
                 eval_env, agent, num_episodes=eval_episodes, render=False, max_steps=max_steps
             )
@@ -147,17 +163,28 @@ def train_agent(
             eval_std = np.std(eval_rewards)
             eval_scores.extend(eval_rewards)
 
-            if writer is not None:
-                # rollout_eval/ metrics - evaluation environment metrics
-                writer.add_scalar('rollout_eval/average_return', eval_mean, episode)
-                writer.add_scalar(
-                    'rollout_eval/episode_length',
-                    np.mean(eval_lengths) if eval_lengths else 0,
-                    episode,
-                )
+        # 2. Checkpoint saving check: iter % save_interval == 0
+        if save_interval is not None and current_episode % save_interval == 0:
+            # Save checkpoint to experiment directory
+            if log_dir:
+                models_dir = Path(log_dir).parent / 'models'
+            else:
+                models_dir = Path('models')
+            models_dir.mkdir(parents=True, exist_ok=True)
 
-        # Unified logging every 1000 episodes
-        if (episode + 1) % 1000 == 0:
+            checkpoint_path = models_dir / f'model_episode_{current_episode}.pth'
+            agent.save(str(checkpoint_path))
+
+            # Update best model if this is the best so far (reuse eval results)
+            if eval_rewards and eval_mean > best_eval_score:
+                best_eval_score = eval_mean
+                best_path = models_dir / 'best_model.pth'
+                if best_path.exists() or best_path.is_symlink():
+                    best_path.unlink()
+                best_path.symlink_to(checkpoint_path.name)
+
+        # 3. Logging check: iter % log_interval == 0
+        if current_episode % log_interval == 0:
             # Calculate rollout statistics
             recent_scores = scores[-min(1000, len(scores)) :] if scores else [0]
             rollout_stats = {
@@ -172,7 +199,9 @@ def train_agent(
 
             # Log unified statistics
             logger.info('=' * 80)
-            logger.info(f'📊 TRAINING SUMMARY - Episode {episode + 1:,}')
+            logger.info(
+                f'📊 TRAINING SUMMARY - Episode {current_episode:,}/{num_episodes:,} ({current_episode / num_episodes * 100:.1f}%)'
+            )
             logger.info('=' * 80)
 
             # Rollout stats
@@ -185,10 +214,11 @@ def train_agent(
             )
             logger.info(f'  Average Episode Length: {rollout_stats["avg_length"]:.1f}')
 
-            # Evaluation stats
-            logger.info('🔍 EVALUATION:')
-            logger.info(f'  Average Score: {eval_mean:.2f} ± {eval_std:.2f}')
-            logger.info(f'  Average Length: {np.mean(eval_lengths):.1f}')
+            # Evaluation stats (only if we have evaluation data)
+            if eval_rewards:
+                logger.info('🔍 EVALUATION:')
+                logger.info(f'  Average Score: {eval_mean:.2f} ± {eval_std:.2f}')
+                logger.info(f'  Average Length: {np.mean(eval_lengths):.1f}')
 
             # Training stats
             if learn_metrics:
@@ -198,21 +228,16 @@ def train_agent(
 
             logger.info('=' * 80)
 
-        # Save model if specified
-        if (
-            save_interval
-            and save_path
-            and (episode + 1) % save_interval == 0
-            and hasattr(agent, 'save_policy')
-        ):
-            # Ensure save_path is a directory path
-            save_dir = os.path.dirname(save_path)
-            if save_dir and not os.path.exists(save_dir):
-                os.makedirs(save_dir, exist_ok=True)
-
-            # Create proper filename
-            filename = os.path.join(save_dir, f'model_episode_{episode + 1}.pth')
-            agent.save(filename)
+        # TensorBoard logging
+        if writer is not None:
+            writer.add_scalar('rollout_train/average_return', episode_reward, episode)
+            writer.add_scalar('rollout_train/episode_length', _step + 1, episode)
+            if eval_rewards:
+                writer.add_scalar('rollout_eval/average_return', eval_mean, episode)
+                writer.add_scalar('rollout_eval/episode_length', np.mean(eval_lengths), episode)
+            if learn_metrics:
+                for metric_name, metric_value in learn_metrics.items():
+                    writer.add_scalar(f'learn/{metric_name}', metric_value, episode)
 
     # Close environments
     if writer is not None:
@@ -243,7 +268,9 @@ def evaluate_agent(
 
     for _episode in range(num_episodes):
         state, _ = env.reset()
-        state = state.flatten()  # Flatten 2D grid to 1D vector
+        # Only flatten if state is 2D (e.g., from grid environments)
+        if len(state.shape) > 1:
+            state = state.flatten()
         episode_reward = 0
         episode_length = 0
 
@@ -255,8 +282,9 @@ def evaluate_agent(
             next_state, reward, terminated, truncated, _ = env.step(action)
             done = terminated or truncated
 
-            # Flatten next state
-            next_state = next_state.flatten()
+            # Flatten next state if 2D
+            if len(next_state.shape) > 1:
+                next_state = next_state.flatten()
 
             episode_reward += reward
             episode_length += 1
