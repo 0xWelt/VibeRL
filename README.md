@@ -11,6 +11,18 @@
 
 A modern Reinforcement Learning framework for education and research, built with type safety and modern Python practices.
 
+## 🤖 Creation Story
+
+**VibeRL** was generated using **Kimi K2** (Moonshot AI's trillion-parameter open-source MoE model released July 2025) in combination with **Claude Code** for refinement and implementation. This project demonstrates the power of modern AI-assisted development, combining Kimi K2's advanced reasoning capabilities with Claude Code's precision in code generation and project management.
+
+> **[Kimi K2](https://github.com/MoonshotAI/Kimi-K2)**: A 1+ trillion parameter Mixture-of-Experts model focused on long context understanding, code generation, complex reasoning, and agentic behavior. Released under Apache 2.0 license by Moonshot AI in July 2025.
+>
+> **[Claude Code](https://claude.ai/code)**: Anthropic's AI-powered development tool for precise code generation and project refinement.
+>
+> **[Kimi CC](https://github.com/LLM-Red-Team/kimi-cc)**: A shell script tool by LLM-Red-Team that enables using Kimi K2 (kimi-k2-0711-preview) to power Claude Code development workflows.
+
+This framework was built through collaborative AI development, showcasing how next-generation language models can accelerate research and educational tool creation in reinforcement learning.
+
 ## 🎯 Quick Start
 
 ### Install
