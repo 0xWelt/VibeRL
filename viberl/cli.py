@@ -8,6 +8,7 @@ import sys
 
 import numpy as np
 import torch
+from loguru import logger
 
 from viberl.agents import DQNAgent, PPOAgent, REINFORCEAgent
 from viberl.envs import SnakeGameEnv
@@ -75,7 +76,7 @@ def train_main():
     # Get device
     device = get_device() if args.device == 'auto' else torch.device(args.device)
 
-    print(f'Using device: {device}')
+    logger.info(f'Using device: {device}')
 
     # Create environment
     if args.env == 'snake':
@@ -130,11 +131,11 @@ def train_main():
     if hasattr(agent, 'value_network'):
         agent.value_network.to(device)
 
-    print(f'Training {args.alg} agent on {args.env} environment...')
-    print(f'Episodes: {args.episodes}')
-    print(f'Grid size: {args.grid_size}')
-    print(f'Learning rate: {args.lr}')
-    print(f'Gamma: {args.gamma}')
+    logger.info(f'Training {args.alg} agent on {args.env} environment...')
+    logger.info(f'Episodes: {args.episodes}')
+    logger.info(f'Grid size: {args.grid_size}')
+    logger.info(f'Learning rate: {args.lr}')
+    logger.info(f'Gamma: {args.gamma}')
 
     # Create experiment with automatic directory structure
     experiment_name = args.name or f'{args.alg}_{args.env}'
@@ -144,7 +145,7 @@ def train_main():
     save_path = str(models_dir / 'model')
 
     if tb_logs_dir:
-        print(f'TensorBoard logs: {tb_logs_dir}')
+        logger.info(f'TensorBoard logs: {tb_logs_dir}')
 
     # Train agent
     train_agent(
@@ -163,8 +164,8 @@ def train_main():
     # Save final model
     final_model_path = str(models_dir / 'final_model.pth')
     agent.save(final_model_path)
-    print(f'Final model saved to {final_model_path}')
-    print(f'All experiment files saved in: {exp_manager.get_experiment_path()}')
+    logger.success(f'Final model saved to {final_model_path}')
+    logger.success(f'All experiment files saved in: {exp_manager.get_experiment_path()}')
 
     env.close()
 
@@ -193,7 +194,7 @@ def eval_main():
     # Get device
     device = get_device() if args.device == 'auto' else torch.device(args.device)
 
-    print(f'Using device: {device}')
+    logger.info(f'Using device: {device}')
 
     # Create environment
     if args.env == 'snake':
@@ -215,20 +216,20 @@ def eval_main():
     # Load trained model
     try:
         agent.load_policy(args.model_path)
-        print(f'Loaded model from {args.model_path}')
+        logger.success(f'Loaded model from {args.model_path}')
     except OSError as e:
-        print(f'Failed to load model: {e}')
+        logger.error(f'Failed to load model: {e}')
         return
 
     # Evaluate agent
-    print(f'Evaluating {args.agent} agent on {args.env} environment...')
+    logger.info(f'Evaluating {args.agent} agent on {args.env} environment...')
 
     scores = evaluate_agent(env=env, agent=agent, num_episodes=args.episodes, render=args.render)
 
-    print('\nEvaluation Results:')
-    print(f'Average score: {np.mean(scores):.2f} ± {np.std(scores):.2f}')
-    print(f'Min score: {np.min(scores):.2f}')
-    print(f'Max score: {np.max(scores):.2f}')
+    logger.info('\nEvaluation Results:')
+    logger.success(f'Average score: {np.mean(scores):.2f} ± {np.std(scores):.2f}')
+    logger.info(f'Min score: {np.min(scores):.2f}')
+    logger.info(f'Max score: {np.max(scores):.2f}')
 
     env.close()
 
@@ -252,7 +253,7 @@ def demo_main():
     else:
         raise ValueError(f'Unknown environment: {args.env}')
 
-    print(f'Running {args.env} demo for {args.episodes} episodes...')
+    logger.info(f'Running {args.env} demo for {args.episodes} episodes...')
 
     # Run demo with random actions
     for episode in range(args.episodes):
@@ -260,7 +261,7 @@ def demo_main():
         total_reward = 0
         steps = 0
 
-        print(f'\nEpisode {episode + 1}/{args.episodes}')
+        logger.info(f'\nEpisode {episode + 1}/{args.episodes}')
 
         while True:
             action = env.action_space.sample()  # Random action
@@ -269,13 +270,13 @@ def demo_main():
             steps += 1
 
             if terminated or truncated:
-                print(
+                logger.success(
                     f'Episode finished! Score: {info.get("score", 0)}, Steps: {steps}, Total reward: {total_reward}'
                 )
                 break
 
     env.close()
-    print('\nDemo completed!')
+    logger.success('\nDemo completed!')
 
 
 if __name__ == '__main__':
@@ -290,8 +291,8 @@ if __name__ == '__main__':
         sys.argv.pop(1)
         demo_main()
     else:
-        print('Usage: python -m viberl.cli [train|eval|demo] [options...]')
-        print('\nExamples:')
-        print('  python -m viberl.cli train --episodes 1000 --env snake')
-        print('  python -m viberl.cli eval --model-path model.pth --render')
-        print('  python -m viberl.cli demo --episodes 5')
+        logger.info('Usage: python -m viberl.cli [train|eval|demo] [options...]')
+        logger.info('\nExamples:')
+        logger.info('  python -m viberl.cli train --episodes 1000 --env snake')
+        logger.info('  python -m viberl.cli eval --model-path model.pth --render')
+        logger.info('  python -m viberl.cli demo --episodes 5')

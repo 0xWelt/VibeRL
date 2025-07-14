@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import torch
+from loguru import logger
 from torch.utils.tensorboard import SummaryWriter
 
 from viberl.typing import Trajectory, Transition
@@ -128,7 +129,7 @@ def train_agent(
             if verbose and learn_metrics:
                 # Display returned metrics
                 metrics_str = ', '.join(f'{k}: {v:.4f}' for k, v in learn_metrics.items())
-                print(f'Update - {metrics_str}')
+                logger.info(f'Update - {metrics_str}')
 
         # Log learn/ metrics
         if writer is not None and learn_metrics:
@@ -146,7 +147,7 @@ def train_agent(
         # Print progress
         if verbose and (episode + 1) % 100 == 0:
             avg_score = np.mean(scores[-100:])
-            print(
+            logger.info(
                 f'Episode {episode + 1}/{num_episodes}, Average Score (last 100): {avg_score:.2f}'
             )
 
@@ -169,7 +170,7 @@ def train_agent(
                 )
 
             if verbose:
-                print(
+                logger.info(
                     f'Evaluation at episode {episode + 1}: Mean={eval_mean:.2f}, Std={eval_std:.2f}'
                 )
 
@@ -248,11 +249,11 @@ def evaluate_agent(
 
         agent_name = agent.__class__.__name__ if hasattr(agent, '__class__') else 'Agent'
 
-        print(
+        logger.info(
             f'{agent_name} - Evaluation Episode {episode + 1}: Score = {episode_reward}, Length = {episode_length}'
         )
 
-    print(
+    logger.success(
         f'Average Score: {np.mean(scores):.2f} ± {np.std(scores):.2f}, Average Length: {np.mean(lengths):.2f}'
     )
     return scores, lengths

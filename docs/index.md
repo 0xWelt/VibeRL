@@ -128,6 +128,7 @@ train_agent(
 
 ```python
 import numpy as np
+from loguru import logger
 from viberl.typing import Trajectory, Transition
 from viberl.agents.dqn import DQNAgent
 
@@ -155,7 +156,7 @@ for episode in range(1000):
     metrics = agent.learn(trajectory)
 
     if episode % 100 == 0:
-        print(f"Episode {episode}, Reward: {trajectory.total_reward}")
+        logger.info(f"Episode {episode}, Reward: {trajectory.total_reward}")
 ```
 
 ### Experiment Management API
@@ -174,9 +175,9 @@ experiment = ExperimentManager(
 )
 
 # Access experiment paths
-print(f"Model will be saved to: {experiment.model_path}")
-print(f"TensorBoard logs: {experiment.tensorboard_path}")
-print(f"Config file: {experiment.config_path}")
+logger.info(f"Model will be saved to: {experiment.model_path}")
+logger.info(f"TensorBoard logs: {experiment.tensorboard_path}")
+logger.info(f"Config file: {experiment.config_path}")
 
 # Use with training
 env = SnakeGameEnv(grid_size=12)

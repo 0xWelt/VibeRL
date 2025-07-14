@@ -8,6 +8,8 @@ tensorboard logging, and model checkpoints.
 from datetime import datetime
 from pathlib import Path
 
+from loguru import logger
+
 
 class ExperimentManager:
     """
@@ -98,10 +100,10 @@ class ExperimentManager:
 
     def print_experiment_info(self) -> None:
         """Print information about the current experiment."""
-        print(f'Experiment: {self.experiment_name}')
-        print(f'Directory: {self.experiment_dir}')
-        print(f'TensorBoard logs: {self.tb_logs_dir}')
-        print(f'Models: {self.models_dir}')
+        logger.info(f'Experiment: {self.experiment_name}')
+        logger.info(f'Directory: {self.experiment_dir}')
+        logger.info(f'TensorBoard logs: {self.tb_logs_dir}')
+        logger.info(f'Models: {self.models_dir}')
 
     @staticmethod
     def create_from_existing(
