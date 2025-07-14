@@ -123,15 +123,9 @@ def train_agent(
 
         # Create trajectory and update policy
         trajectory = Trajectory.from_transitions(transitions)
-        learn_metrics = {}
-        if (episode + 1) % 10 == 0:  # Update every 10 episodes
-            learn_metrics = agent.learn(trajectory=trajectory)
-            if verbose and learn_metrics:
-                # Display returned metrics
-                metrics_str = ', '.join(f'{k}: {v:.4f}' for k, v in learn_metrics.items())
-                logger.info(f'Update - {metrics_str}')
+        learn_metrics = agent.learn(trajectory=trajectory)
 
-        # Log learn/ metrics
+        # Always log metrics to TensorBoard regardless of print frequency
         if writer is not None and learn_metrics:
             for metric_name, metric_value in learn_metrics.items():
                 writer.add_scalar(f'learn/{metric_name}', metric_value, episode)
@@ -143,13 +137,6 @@ def train_agent(
             # rollout_train/ metrics - training environment metrics
             writer.add_scalar('rollout_train/average_return', episode_reward, episode)
             writer.add_scalar('rollout_train/episode_length', _step + 1, episode)
-
-        # Print progress
-        if verbose and (episode + 1) % 100 == 0:
-            avg_score = np.mean(scores[-100:])
-            logger.info(
-                f'Episode {episode + 1}/{num_episodes}, Average Score (last 100): {avg_score:.2f}'
-            )
 
         # Periodic evaluation
         if (episode + 1) % eval_interval == 0:
@@ -169,10 +156,47 @@ def train_agent(
                     episode,
                 )
 
-            if verbose:
-                logger.info(
-                    f'Evaluation at episode {episode + 1}: Mean={eval_mean:.2f}, Std={eval_std:.2f}'
-                )
+        # Unified logging every 1000 episodes
+        if (episode + 1) % 1000 == 0:
+            # Calculate rollout statistics
+            recent_scores = scores[-min(1000, len(scores)) :] if scores else [0]
+            rollout_stats = {
+                'avg_score': np.mean(recent_scores),
+                'std_score': np.std(recent_scores),
+                'min_score': np.min(recent_scores),
+                'max_score': np.max(recent_scores),
+                'avg_length': np.mean([len(transitions)] * min(1000, len(scores)))
+                if transitions
+                else 0,
+            }
+
+            # Log unified statistics
+            logger.info('=' * 80)
+            logger.info(f'📊 TRAINING SUMMARY - Episode {episode + 1:,}')
+            logger.info('=' * 80)
+
+            # Rollout stats
+            logger.info('🎮 ROLLOUT:')
+            logger.info(
+                f'  Average Score: {rollout_stats["avg_score"]:.2f} ± {rollout_stats["std_score"]:.2f}'
+            )
+            logger.info(
+                f'  Score Range: {rollout_stats["min_score"]:.2f} - {rollout_stats["max_score"]:.2f}'
+            )
+            logger.info(f'  Average Episode Length: {rollout_stats["avg_length"]:.1f}')
+
+            # Evaluation stats
+            logger.info('🔍 EVALUATION:')
+            logger.info(f'  Average Score: {eval_mean:.2f} ± {eval_std:.2f}')
+            logger.info(f'  Average Length: {np.mean(eval_lengths):.1f}')
+
+            # Training stats
+            if learn_metrics:
+                logger.info('🎯 TRAIN:')
+                for metric_name, metric_value in learn_metrics.items():
+                    logger.info(f'  {metric_name}: {metric_value:.6f}')
+
+            logger.info('=' * 80)
 
         # Save model if specified
         if (
@@ -217,7 +241,7 @@ def evaluate_agent(
     scores = []
     lengths = []
 
-    for episode in range(num_episodes):
+    for _episode in range(num_episodes):
         state, _ = env.reset()
         state = state.flatten()  # Flatten 2D grid to 1D vector
         episode_reward = 0
@@ -247,13 +271,4 @@ def evaluate_agent(
         scores.append(episode_reward)
         lengths.append(episode_length)
 
-        agent_name = agent.__class__.__name__ if hasattr(agent, '__class__') else 'Agent'
-
-        logger.info(
-            f'{agent_name} - Evaluation Episode {episode + 1}: Score = {episode_reward}, Length = {episode_length}'
-        )
-
-    logger.success(
-        f'Average Score: {np.mean(scores):.2f} ± {np.std(scores):.2f}, Average Length: {np.mean(lengths):.2f}'
-    )
     return scores, lengths

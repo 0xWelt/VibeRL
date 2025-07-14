@@ -57,10 +57,6 @@ class ExperimentManager:
         self.tb_logs_dir.mkdir(parents=True, exist_ok=True)
         self.models_dir.mkdir(parents=True, exist_ok=True)
 
-        # Create logs directory for training logs
-        self.logs_dir = self.experiment_dir / 'logs'
-        self.logs_dir.mkdir(parents=True, exist_ok=True)
-
     def get_tb_logs_path(self) -> Path:
         """Get path to TensorBoard logs directory."""
         return self.tb_logs_dir
@@ -69,13 +65,9 @@ class ExperimentManager:
         """Get path to models directory."""
         return self.models_dir
 
-    def get_logs_path(self) -> Path:
-        """Get path to logs directory."""
-        return self.logs_dir
-
     def get_training_log_path(self) -> Path:
         """Get path to training log file."""
-        return self.logs_dir / 'training.log'
+        return self.experiment_dir / 'training.log'
 
     def configure_file_logging(self, log_level: str = 'INFO') -> None:
         """
