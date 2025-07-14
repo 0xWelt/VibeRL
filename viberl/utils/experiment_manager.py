@@ -7,6 +7,7 @@ tensorboard logging, and model checkpoints.
 
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 from loguru import logger
 
@@ -56,6 +57,10 @@ class ExperimentManager:
         self.tb_logs_dir.mkdir(parents=True, exist_ok=True)
         self.models_dir.mkdir(parents=True, exist_ok=True)
 
+        # Create logs directory for training logs
+        self.logs_dir = self.experiment_dir / 'logs'
+        self.logs_dir.mkdir(parents=True, exist_ok=True)
+
     def get_tb_logs_path(self) -> Path:
         """Get path to TensorBoard logs directory."""
         return self.tb_logs_dir
@@ -63,6 +68,62 @@ class ExperimentManager:
     def get_models_path(self) -> Path:
         """Get path to models directory."""
         return self.models_dir
+
+    def get_logs_path(self) -> Path:
+        """Get path to logs directory."""
+        return self.logs_dir
+
+    def get_training_log_path(self) -> Path:
+        """Get path to training log file."""
+        return self.logs_dir / 'training.log'
+
+    def configure_file_logging(self, log_level: str = 'INFO') -> None:
+        """
+        Configure loguru to log to training.log file.
+
+        Args:
+            log_level: Logging level (DEBUG, INFO, WARNING, ERROR)
+        """
+        log_file = self.get_training_log_path()
+
+        # Remove any existing file handlers to avoid duplicates
+        logger.remove()
+
+        # Add console handler
+        logger.add(
+            lambda msg: print(msg, end=''),
+            level=log_level,
+            format='<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level:8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>',
+        )
+
+        # Add file handler
+        logger.add(
+            str(log_file),
+            level=log_level,
+            format='{time:YYYY-MM-DD HH:mm:ss} | {level:8} | {name}:{function}:{line} - {message}',
+            rotation='10 MB',  # Rotate at 10MB
+            retention='10 days',  # Keep logs for 10 days
+        )
+
+    def log_command_line_args(self, args: Any) -> None:
+        """
+        Log command line arguments to training.log.
+
+        Args:
+            args: Parsed argparse arguments object
+        """
+        logger.info('=' * 80)
+        logger.info('TRAINING SESSION STARTED')
+        logger.info('=' * 80)
+
+        # Log command line arguments
+        logger.info('Command Line Arguments:')
+        for arg_name, arg_value in vars(args).items():
+            logger.info(f'  {arg_name}: {arg_value}')
+
+        logger.info('=' * 80)
+        logger.info(f'Experiment Directory: {self.experiment_dir}')
+        logger.info('=' * 80)
 
     def get_experiment_path(self) -> Path:
         """Get path to experiment directory."""

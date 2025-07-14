@@ -144,6 +144,10 @@ def train_main():
     models_dir = exp_manager.get_models_path()
     save_path = str(models_dir / 'model')
 
+    # Configure file logging and log command line arguments
+    exp_manager.configure_file_logging(log_level='INFO')
+    exp_manager.log_command_line_args(args)
+
     if tb_logs_dir:
         logger.info(f'TensorBoard logs: {tb_logs_dir}')
 
