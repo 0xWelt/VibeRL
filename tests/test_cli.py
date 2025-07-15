@@ -18,7 +18,9 @@ class TestCLIMainFunctions:
     @patch('viberl.cli.SnakeGameEnv')
     @patch('viberl.cli.REINFORCEAgent')
     @patch('viberl.cli.Trainer')
-    def test_train_main_basic(self, mock_trainer_class, mock_agent_class, mock_env_class):  # noqa: ANN001
+    def test_train_main_basic(
+        self, mock_trainer_class: Mock, mock_agent_class: Mock, mock_env_class: Mock
+    ) -> None:
         """Test train_main function with basic arguments."""
         # Mock environment
         mock_env = Mock()
@@ -53,7 +55,9 @@ class TestCLIMainFunctions:
     @patch('viberl.cli.SnakeGameEnv')
     @patch('viberl.cli.REINFORCEAgent')
     @patch('viberl.cli.evaluate_agent')
-    def test_eval_main_basic(self, mock_evaluate_agent, mock_agent_class, mock_env_class):  # noqa: ANN001
+    def test_eval_main_basic(
+        self, mock_evaluate_agent: Mock, mock_agent_class: Mock, mock_env_class: Mock
+    ) -> None:
         """Test eval_main function with basic arguments."""
         # Mock environment
         mock_env = Mock()
@@ -82,7 +86,7 @@ class TestCLIMainFunctions:
         mock_agent.load.assert_called_once_with('test_model.pth')
 
     @patch('viberl.cli.SnakeGameEnv')
-    def test_demo_main_basic(self, mock_env_class):  # noqa: ANN001
+    def test_demo_main_basic(self, mock_env_class: Mock) -> None:
         """Test demo_main function with basic arguments."""
         # Mock environment
         mock_env = Mock()

@@ -198,7 +198,7 @@ class TestTrainerEvalEnvFunctionality:
         """Test handling when deepcopy fails."""
 
         class UncopyableEnv(MockEnv):
-            def __deepcopy__(self, memo):  # noqa: ANN001
+            def __deepcopy__(self, memo: dict[int, object]) -> 'UncopyableEnv':
                 raise RuntimeError('Cannot deepcopy')
 
         env = UncopyableEnv(state_size=4)
