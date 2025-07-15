@@ -60,7 +60,7 @@ class TestCLIMainFunctions:
         mock_agent = Mock()
         mock_agent_class.return_value = mock_agent
         mock_agent.policy_network = Mock()
-        mock_agent.load_policy = Mock()
+        mock_agent.load = Mock()
 
         # Mock evaluation function
         mock_evaluate_agent.return_value = [8.0, 12.0, 10.0]
@@ -76,7 +76,7 @@ class TestCLIMainFunctions:
 
         # Verify agent was created and model was loaded
         mock_agent_class.assert_called_once()
-        mock_agent.load_policy.assert_called_once_with('test_model.pth')
+        mock_agent.load.assert_called_once_with('test_model.pth')
 
     @patch('viberl.cli.SnakeGameEnv')
     def test_demo_main_basic(self, mock_env_class):  # noqa: ANN001

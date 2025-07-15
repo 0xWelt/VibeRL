@@ -205,3 +205,27 @@ class DQNAgent(Agent):
             soft updates (exponential moving average) for simplicity and stability.
         """
         self.target_network.load_state_dict(self.q_network.state_dict())
+
+    def save(self, filepath: str) -> None:
+        """Save the agent's neural network parameters to a file.
+
+        Args:
+            filepath: Path where to save the model
+        """
+        torch.save(
+            {
+                'q_network': self.q_network.state_dict(),
+                'target_network': self.target_network.state_dict(),
+            },
+            filepath,
+        )
+
+    def load(self, filepath: str) -> None:
+        """Load the agent's neural network parameters from a file.
+
+        Args:
+            filepath: Path from which to load the model
+        """
+        checkpoint = torch.load(filepath, map_location='cpu')
+        self.q_network.load_state_dict(checkpoint['q_network'])
+        self.target_network.load_state_dict(checkpoint['target_network'])

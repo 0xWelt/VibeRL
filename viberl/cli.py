@@ -221,7 +221,7 @@ def eval_main():
 
     # Load trained model
     try:
-        agent.load_policy(args.model_path)
+        agent.load(args.model_path)
         logger.success(f'Loaded model from {args.model_path}')
     except OSError as e:
         logger.error(f'Failed to load model: {e}')

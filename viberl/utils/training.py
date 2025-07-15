@@ -147,15 +147,12 @@ def train_agent(
 
         scores.append(episode_reward)
 
-        # Independent interval-based operations
-        current_episode = episode + 1
-
         # 1. Evaluation check: iter % eval_interval == 0
         eval_rewards = []
         eval_lengths = []
         eval_mean = 0.0
 
-        if current_episode % eval_interval == 0:
+        if episode % eval_interval == 0:
             eval_rewards, eval_lengths = evaluate_agent(
                 eval_env, agent, num_episodes=eval_episodes, render=False, max_steps=max_steps
             )
@@ -164,7 +161,7 @@ def train_agent(
             eval_scores.extend(eval_rewards)
 
         # 2. Checkpoint saving check: iter % save_interval == 0
-        if save_interval is not None and current_episode % save_interval == 0:
+        if save_interval is not None and episode % save_interval == 0:
             # Save checkpoint to experiment directory
             if log_dir:
                 models_dir = Path(log_dir).parent / 'models'
@@ -172,7 +169,7 @@ def train_agent(
                 models_dir = Path('models')
             models_dir.mkdir(parents=True, exist_ok=True)
 
-            checkpoint_path = models_dir / f'model_episode_{current_episode}.pth'
+            checkpoint_path = models_dir / f'model_episode_{episode}.pth'
             agent.save(str(checkpoint_path))
 
             # Update best model if this is the best so far (reuse eval results)
@@ -184,7 +181,7 @@ def train_agent(
                 best_path.symlink_to(checkpoint_path.name)
 
         # 3. Logging check: iter % log_interval == 0
-        if current_episode % log_interval == 0:
+        if episode % log_interval == 0:
             # Calculate rollout statistics
             recent_scores = scores[-min(1000, len(scores)) :] if scores else [0]
             rollout_stats = {
@@ -200,7 +197,7 @@ def train_agent(
             # Log unified statistics
             logger.info('=' * 80)
             logger.info(
-                f'📊 TRAINING SUMMARY - Episode {current_episode:,}/{num_episodes:,} ({current_episode / num_episodes * 100:.1f}%)'
+                f'📊 TRAINING SUMMARY - Episode {episode:,}/{num_episodes:,} ({episode / num_episodes * 100:.1f}%)'
             )
             logger.info('=' * 80)
 

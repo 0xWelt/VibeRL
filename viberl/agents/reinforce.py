@@ -120,3 +120,20 @@ class REINFORCEAgent(Agent):
             discounted_return = reward + self.gamma * discounted_return
             returns.insert(0, discounted_return)
         return returns
+
+    def save(self, filepath: str) -> None:
+        """Save the agent's neural network parameters to a file.
+
+        Args:
+            filepath: Path where to save the model
+        """
+        torch.save(self.policy_network.state_dict(), filepath)
+
+    def load(self, filepath: str) -> None:
+        """Load the agent's neural network parameters from a file.
+
+        Args:
+            filepath: Path from which to load the model
+        """
+        state_dict = torch.load(filepath, map_location='cpu')
+        self.policy_network.load_state_dict(state_dict)
