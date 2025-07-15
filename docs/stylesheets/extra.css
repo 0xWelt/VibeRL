@@ -9,10 +9,16 @@
     display: block;
 }
 
-mjx-container {
+mjx-container[display="block"] {
     display: block;
     margin: 1.5em auto;
     text-align: center;
+}
+
+mjx-container[display="inline"] {
+    display: inline-block;
+    margin: 0;
+    text-align: left;
 }
 
 mjx-math {
@@ -22,7 +28,7 @@ mjx-math {
 /* Ensure formulas don't overflow on mobile */
 @media (max-width: 768px) {
     .MathJax_Display,
-    mjx-container {
+    mjx-container[display="block"] {
         overflow-x: auto;
         overflow-y: hidden;
         max-width: 100%;
