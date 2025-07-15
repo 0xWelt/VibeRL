@@ -164,6 +164,7 @@ def train_main():
         device=device,
         enable_wandb=args.wandb,
         wandb_config=vars(args),
+        run_name=experiment_name,
     )
 
     trainer.train(

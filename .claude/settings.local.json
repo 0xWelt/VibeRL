@@ -26,7 +26,8 @@
       "Bash(viberl-demo:*)",
       "Bash(viberl-eval:*)",
       "Bash(viberl-train:*)",
-      "WebFetch(domain:*)"
+      "WebFetch(domain:*)",
+      "WebFetch(domain:arxiv.org)"
     ],
     "deny": []
   }

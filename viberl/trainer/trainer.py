@@ -38,6 +38,7 @@ class Trainer:
         enable_tensorboard: bool = True,
         enable_wandb: bool = False,
         wandb_config: dict | None = None,
+        run_name: str | None = None,
     ) -> None:
         """Initialize the trainer.
 
@@ -77,6 +78,7 @@ class Trainer:
                 enable_tensorboard=enable_tensorboard,
                 enable_wandb=enable_wandb,
                 wandb_config=wandb_config,
+                run_name=run_name,
             )
 
     def train(
