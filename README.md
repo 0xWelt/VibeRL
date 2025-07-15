@@ -97,6 +97,9 @@ viberl/
 ├── typing.py           # Modern type system (Action, Transition, Trajectory)
 ├── agents/             # RL algorithms
 ├── envs/               # Environments
+├── trainer/            # Unified training framework
+│   ├── __init__.py
+│   └── trainer.py      # Main Trainer class
 └── utils/              # Training utilities
 ```
 
@@ -107,9 +110,67 @@ uv venv && source .venv/bin/activate
 uv pip install -e ".[dev]"
 
 # Quality checks
-uv run pytest tests/
+uv run pytest tests/ -n 8
 uv run ruff check viberl/ --fix
 uv run ruff format viberl/
+```
+
+## 🎯 Trainer Usage
+
+### Basic Training
+```python
+from viberl.trainer import Trainer
+from viberl.agents import DQNAgent
+from viberl.envs import SnakeGameEnv
+
+# Create environment and agent
+env = SnakeGameEnv(grid_size=15)
+agent = DQNAgent(
+    state_size=15*15,
+    action_size=4,
+    learning_rate=0.001,
+    memory_size=10000
+)
+
+# Create trainer
+trainer = Trainer(
+    env=env,
+    agent=agent,
+    max_steps=1000,
+    log_dir="logs/experiment_1"
+)
+
+# Train the agent
+rewards = trainer.train(
+    num_episodes=1000,
+    eval_interval=100,
+    save_interval=200,
+    save_path="models/"
+)
+```
+
+### Custom Evaluation Environment
+```python
+# Use different environment for evaluation
+train_env = SnakeGameEnv(grid_size=15)
+eval_env = SnakeGameEnv(grid_size=15)  # Can be different configuration
+
+trainer = Trainer(
+    env=train_env,
+    agent=agent,
+    eval_env=eval_env,  # Optional: uses deepcopy if not provided
+    max_steps=1000
+)
+```
+
+### Programmatic Evaluation
+```python
+# Evaluate trained agent
+scores, lengths = trainer.evaluate(
+    num_episodes=10,
+    render=True
+)
+print(f"Average score: {np.mean(scores):.2f}")
 ```
 
 ## 📈 Quick Metrics

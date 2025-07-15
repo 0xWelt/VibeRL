@@ -17,8 +17,8 @@ class TestCLIMainFunctions:
 
     @patch('viberl.cli.SnakeGameEnv')
     @patch('viberl.cli.REINFORCEAgent')
-    @patch('viberl.cli.train_agent')
-    def test_train_main_basic(self, mock_train_agent, mock_agent_class, mock_env_class):  # noqa: ANN001
+    @patch('viberl.cli.Trainer')
+    def test_train_main_basic(self, mock_trainer_class, mock_agent_class, mock_env_class):  # noqa: ANN001
         """Test train_main function with basic arguments."""
         # Mock environment
         mock_env = Mock()
@@ -29,8 +29,10 @@ class TestCLIMainFunctions:
         mock_agent_class.return_value = mock_agent
         mock_agent.policy_network = Mock()
 
-        # Mock training function
-        mock_train_agent.return_value = [10.0, 12.0, 15.0]
+        # Mock trainer
+        mock_trainer = Mock()
+        mock_trainer_class.return_value = mock_trainer
+        mock_trainer.train.return_value = [10.0, 12.0, 15.0]
 
         # Test with minimal arguments
         test_args = ['viberl-train', '--episodes', '10']
@@ -44,8 +46,9 @@ class TestCLIMainFunctions:
         # Verify agent was created
         mock_agent_class.assert_called_once()
 
-        # Verify training was called
-        mock_train_agent.assert_called_once()
+        # Verify trainer was created and used
+        mock_trainer_class.assert_called_once()
+        mock_trainer.train.assert_called_once()
 
     @patch('viberl.cli.SnakeGameEnv')
     @patch('viberl.cli.REINFORCEAgent')

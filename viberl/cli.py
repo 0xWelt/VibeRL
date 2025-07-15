@@ -12,7 +12,8 @@ from loguru import logger
 
 from viberl.agents import DQNAgent, PPOAgent, REINFORCEAgent
 from viberl.envs import SnakeGameEnv
-from viberl.utils import evaluate_agent, get_device, set_seed, train_agent
+from viberl.trainer import Trainer
+from viberl.utils import evaluate_agent, get_device, set_seed
 from viberl.utils.experiment_manager import create_experiment
 
 
@@ -61,6 +62,7 @@ def train_main():
         '--entropy-coef', type=float, default=0.01, help='Entropy coefficient (PPO)'
     )
     parser.add_argument('--max-grad-norm', type=float, default=0.5, help='Max gradient norm (PPO)')
+    parser.add_argument('--max-steps', type=int, default=1000, help='Maximum steps per episode')
     parser.add_argument('--eval-episodes', type=int, default=10, help='Evaluation episodes')
     parser.add_argument(
         '--eval-interval', type=int, default=100, help='Evaluation interval during training'
@@ -152,18 +154,24 @@ def train_main():
     if tb_logs_dir:
         logger.info(f'TensorBoard logs: {tb_logs_dir}')
 
-    # Train agent
-    train_agent(
+    # Create trainer and train agent
+    trainer = Trainer(
         env=env,
         agent=agent,
+        max_steps=args.max_steps,
+        log_dir=tb_logs_dir,
+        device=device,
+    )
+
+    trainer.train(
         num_episodes=args.episodes,
         render_interval=args.render_interval,
         save_interval=args.save_interval,
-        verbose=True,
-        log_dir=tb_logs_dir,
+        save_path=str(exp_manager.get_models_path()),
         eval_interval=args.eval_interval,
         eval_episodes=args.eval_episodes,
         log_interval=args.log_interval,
+        verbose=not args.quiet,
     )
 
     # Save final model
