@@ -12,16 +12,20 @@ from viberl.typing import Action, Trajectory
 
 
 class DQNAgent(Agent):
-    """Deep Q-Network (DQN) agent with experience replay and target network.
+    """DQN: Deep Q-Network combining Q-learning with deep neural networks for human-level control.
 
-    Implements the DQN algorithm with the following features:
-    - Experience replay buffer for stable learning
-    - Target network for reduced correlation
-    - Epsilon-greedy exploration strategy
-    - Batch learning for improved sample efficiency
+    **Key Concepts:**
+    • Learns optimal action-value function Q*(s,a) using neural networks
+    • Approximates Q-values in high-dimensional state spaces
+    • Experience replay buffer removes correlated samples
+    • Separate target network Q_θ⁻ for stable target computation
+    • Epsilon-greedy exploration balances learning and exploitation
 
-    The algorithm learns Q-values that approximate the optimal action-value function
-    using the Bellman equation: Q(s,a) = r + gamma * max_a' Q(s',a')
+    **Optimization Objective:**
+    $$L(\theta) = \\mathbb{E}_{(s,a,r,s') \\sim D}\\left[\\left(r + \\gamma \\max_{a'} Q_{\theta^-}(s',a') - Q_\theta(s,a)\right)^2\right]$$
+
+    **Reference:**
+    Mnih, V., Kavukcuoglu, K., Silver, D., et al. Human-level control through deep reinforcement learning. *Nature* **518**, 529-533 (2015). [PDF](https://www.nature.com/articles/nature14236)
     """
 
     def __init__(
@@ -39,26 +43,6 @@ class DQNAgent(Agent):
         hidden_size: int = 128,
         num_hidden_layers: int = 2,
     ):
-        """Initialize DQN agent with comprehensive hyperparameter configuration.
-
-        Args:
-            state_size: Size of the state space (input features to network)
-            action_size: Number of possible actions (output dimension)
-            learning_rate: Learning rate for Adam optimizer (typically 1e-4 to 1e-2)
-            gamma: Discount factor for future rewards (0.9 to 0.99, default 0.99)
-            epsilon_start: Initial exploration rate (1.0 for full exploration)
-            epsilon_end: Minimum exploration rate (0.01 for minimal exploration)
-            epsilon_decay: Decay rate for epsilon per episode (0.995 for gradual decay)
-            memory_size: Size of experience replay buffer (1000 to 100000)
-            batch_size: Number of samples per training batch (32 to 256)
-            target_update: Frequency of target network updates (in episodes)
-            hidden_size: Size of hidden layers in Q-network (64 to 512)
-            num_hidden_layers: Number of hidden layers (2 to 4)
-
-        Note:
-            The epsilon parameter starts at epsilon_start and decays exponentially:
-            epsilon = max(epsilon_end, epsilon * epsilon_decay)
-        """
         super().__init__(state_size, action_size)
         self.learning_rate = learning_rate
         self.gamma = gamma
@@ -84,23 +68,12 @@ class DQNAgent(Agent):
     def act(self, state: np.ndarray, training: bool = True) -> Action:
         """Select action using epsilon-greedy policy.
 
-        Implements the epsilon-greedy action selection strategy:
-        - In training mode: With probability epsilon, choose random action (exploration)
-        - In training mode: With probability 1-epsilon, choose best action (exploitation)
-        - In evaluation mode: Always choose best action (greedy)
-
         Args:
-            state: Current state as numpy array
-            training: Whether in training mode (affects epsilon-greedy behavior)
+            state: Current state observation.
+            training: Whether in training mode (affects exploration).
 
         Returns:
-            Action object containing the selected action
-
-        Example:
-            >>> agent = DQNAgent(state_size=4, action_size=2)
-            >>> state = np.array([0.1, 0.2, 0.3, 0.4])
-            >>> action = agent.act(state)  # Uses epsilon-greedy
-            >>> action = agent.act(state, training=False)  # Greedy action
+            Action containing the selected action.
         """
         if training and random.random() < self.epsilon:
             action = random.randint(0, self.action_size - 1)
@@ -111,36 +84,14 @@ class DQNAgent(Agent):
 
         return Action(action=action)
 
-    def learn(
-        self,
-        trajectory: Trajectory,
-        **kwargs,
-    ) -> dict[str, float]:
-        """Perform one learning step using Q-learning with experience replay.
-
-        The algorithm follows these steps:
-        1. Store new transitions in replay buffer
-        2. Sample a batch from memory if enough experiences exist
-        3. Compute Q-learning targets using target network
-        4. Update Q-network using mean squared error loss
-        5. Decay epsilon for exploration
-        6. Update target network periodically
-
-        The Q-learning update rule:
-        L = (r + gamma * max_a' Q_target(s', a') - Q(s, a))²
+    def learn(self, trajectory: Trajectory, **kwargs) -> dict[str, float]:
+        """Update Q-network using Q-learning with experience replay.
 
         Args:
-            trajectory: Complete trajectory containing transitions to learn from
+            trajectory: Complete trajectory containing transitions.
 
         Returns:
-            Dictionary containing training metrics:
-            - 'dqn/loss': Mean squared error loss
-            - 'dqn/epsilon': Current exploration rate
-            - 'dqn/memory_size': Number of experiences in buffer
-
-        Note:
-            Learning only occurs when the replay buffer contains at least
-            batch_size experiences to ensure stable training.
+            Dictionary containing loss, epsilon, and memory size.
         """
         if not trajectory.transitions:
             return {}
@@ -191,19 +142,7 @@ class DQNAgent(Agent):
         }
 
     def _update_target_network(self) -> None:
-        """Synchronize target network with main Q-network.
-
-        Performs a hard update by copying all parameters from the main Q-network
-        to the target Q-network. This helps stabilize learning by providing
-        a consistent target for Q-value estimation.
-
-        The target network is updated every `target_update` episodes to balance
-        between stable targets and adapting to new policy improvements.
-
-        Note:
-            This implementation uses hard updates (full parameter copy) rather than
-            soft updates (exponential moving average) for simplicity and stability.
-        """
+        """Synchronize target network with main Q-network."""
         self.target_network.load_state_dict(self.q_network.state_dict())
 
     def save(self, filepath: str) -> None:

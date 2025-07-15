@@ -9,7 +9,22 @@ from viberl.typing import Action, Trajectory
 
 
 class REINFORCEAgent(Agent):
-    """REINFORCE policy gradient agent."""
+    """REINFORCE: Monte-Carlo policy gradient method using complete episode returns.
+
+    **Key Concepts:**
+    • Policy gradient method using likelihood ratio trick
+    • Monte-Carlo returns for unbiased gradient estimates
+    • High-variance but unbiased gradients
+    • Requires complete episodes before learning
+    • Policy network $\\pi_\theta(a|s)$ for action selection
+
+    **Optimization Objective:**
+    $$\nabla_{\theta} J(\theta) = \\mathbb{E}\\left[\\sum_{t=0}^{T} \\log \\pi_\theta(a_t|s_t) G_t\right]$$
+    where $G_t = \\sum_{k=0}^{T-t} \\gamma^k r_{t+k}$ is the Monte-Carlo return.
+
+    **Reference:**
+    Williams, R.J. Simple statistical gradient-following algorithms for connectionist reinforcement learning. *Machine Learning* **8**, 229-256 (1992). [PDF](https://link.springer.com/article/10.1007/BF00992696)
+    """
 
     def __init__(
         self,
@@ -20,43 +35,41 @@ class REINFORCEAgent(Agent):
         hidden_size: int = 128,
         num_hidden_layers: int = 2,
     ):
-        """Initialize REINFORCE agent.
-
-        Args:
-            state_size: Size of the state space
-            action_size: Size of the action space
-            learning_rate: Learning rate for policy optimization
-            gamma: Discount factor for future rewards (0.0 to 1.0)
-            hidden_size: Size of hidden layers in policy network
-            num_hidden_layers: Number of hidden layers in policy network
-        """
         super().__init__(state_size, action_size)
         self.gamma = gamma
         self.policy_network = PolicyNetwork(state_size, action_size, hidden_size, num_hidden_layers)
         self.optimizer = optim.Adam(self.policy_network.parameters(), lr=learning_rate)
 
     def act(self, state: np.ndarray, training: bool = True) -> Action:
-        """Select action using current policy.
+        """Select action using policy π(a|s;θ).
 
         Args:
-            state: Current state as numpy array
-            training: Whether in training mode (affects action selection)
+            state: Current state observation.
+            training: Whether in training mode (affects exploration).
 
         Returns:
-            Action object containing the selected action
+            Action containing the selected action.
         """
-        action = self.policy_network.act(state)
+        if training:
+            # Training mode: sample from policy distribution
+            action = self.policy_network.act(state)
+        else:
+            # Evaluation mode: select most likely action (greedy)
+            state_tensor = torch.FloatTensor(state).unsqueeze(0)
+            with torch.no_grad():
+                action_probs = self.policy_network(state_tensor)
+                action = action_probs.argmax().item()
+
         return Action(action=action)
 
-    def learn(
-        self,
-        trajectory: Trajectory,
-        **kwargs,
-    ) -> dict[str, float]:
-        """Perform one learning step using REINFORCE algorithm.
+    def learn(self, trajectory: Trajectory, **kwargs) -> dict[str, float]:
+        """Update policy using REINFORCE gradient.
 
         Args:
-            trajectory: A complete trajectory containing transitions
+            trajectory: Complete episode trajectory.
+
+        Returns:
+            Dictionary containing policy loss and return statistics.
         """
         if not trajectory.transitions:
             return {}
@@ -97,22 +110,13 @@ class REINFORCEAgent(Agent):
         }
 
     def _compute_returns(self, rewards: list[float]) -> list[float]:
-        """Compute discounted returns using Monte Carlo method.
-
-        Calculates the discounted return for each timestep by working backwards
-        from the end of the episode. Uses the formula:
-        G_t = r_t + gamma * G_{t+1}
+        """Compute Monte-Carlo returns.
 
         Args:
-            rewards: List of rewards from a complete episode
+            rewards: List of rewards from episode.
 
         Returns:
-            List of discounted returns for each timestep
-
-        Example:
-            >>> rewards = [1, 2, 3]
-            >>> returns = [1 + 0.99 * (2 + 0.99 * 3), 2 + 0.99 * 3, 3]
-            >>> # returns ≈ [5.9401, 4.97, 3.0]
+            List of discounted returns for each timestep.
         """
         returns = []
         discounted_return = 0

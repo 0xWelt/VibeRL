@@ -17,7 +17,22 @@ from viberl.typing import Action, Trajectory
 
 
 class PPOAgent(Agent):
-    """Proximal Policy Optimization (PPO) agent."""
+    """PPO: Proximal Policy Optimization using clipped surrogate objective for stable policy updates.
+
+    **Key Concepts:**
+    • Prevents large policy updates through clipped surrogate objective
+    • Generalized Advantage Estimation (GAE) for stable advantage computation
+    • Policy network $\\pi_\theta(a|s)$ for action selection
+    • Value network $V_\\phi(s)$ for baseline estimation
+    • GAE computes advantages across multiple timesteps
+
+    **Optimization Objective:**
+    $$L^{CLIP}(\theta) = \\mathbb{E}_t\\left[\\min\\left(r_t(\theta) A_t, \text{clip}(r_t(\theta), 1-\\epsilon, 1+\\epsilon) A_t\right)\right]$$
+    where $r_t(\theta) = \frac{\\pi_\theta(a_t|s_t)}{\\pi_{\theta_{old}}(a_t|s_t)}$ and $A_t$ are GAE-computed advantages.
+
+    **Reference:**
+    Schulman, J., Wolski, F., Dhariwal, P., Radford, A., & Klimov, O. Proximal Policy Optimization Algorithms. *arXiv preprint arXiv:1707.06347* (2017). [PDF](https://arxiv.org/abs/1707.06347)
+    """
 
     def __init__(
         self,
@@ -73,26 +88,43 @@ class PPOAgent(Agent):
         )
 
     def act(self, state: np.ndarray, training: bool = True) -> Action:
-        """Select action using current policy."""
+        """Select action using policy π(a|s;θ).
+
+        Args:
+            state: Current state observation.
+            training: Whether in training mode (affects exploration).
+
+        Returns:
+            Action containing the selected action.
+        """
         state_tensor = torch.FloatTensor(state).unsqueeze(0).to(self.device)
 
         with torch.no_grad():
             action_probs = self.policy_network(state_tensor)
             dist = Categorical(action_probs)
-            action = dist.sample()
-            log_prob = dist.log_prob(action)
 
-        return Action(action=action.item(), logprobs=log_prob)
+            if training:
+                # Training mode: sample from policy distribution
+                action = dist.sample()
+                log_prob = dist.log_prob(action)
+                return Action(action=action.item(), logprobs=log_prob)
+            else:
+                # Evaluation mode: select most likely action (greedy)
+                action = action_probs.argmax().item()
+                return Action(action=action)
 
     def learn(
         self,
         trajectory: Trajectory,
         **kwargs,
     ) -> dict[str, float]:
-        """Update policy and value networks using PPO.
+        """Update policy and value networks using PPO clipped objective.
 
         Args:
-            trajectory: A complete trajectory containing transitions with logprobs and values
+            trajectory: Complete trajectory containing transitions with log probabilities.
+
+        Returns:
+            Dictionary containing policy loss, value loss, and total loss.
         """
         if not trajectory.transitions:
             return {}
@@ -218,7 +250,16 @@ class PPOAgent(Agent):
         return metrics
 
     def _compute_gae(self, rewards: list, values: list, dones: list) -> tuple[list, list]:
-        """Compute Generalized Advantage Estimation (GAE)."""
+        """Compute Generalized Advantage Estimation (GAE).
+
+        Args:
+            rewards: List of rewards from episode.
+            values: List of state values from value network.
+            dones: List of episode termination flags.
+
+        Returns:
+            Tuple of (advantages, returns) lists.
+        """
         advantages = []
         returns = []
         gae = 0
