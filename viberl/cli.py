@@ -72,6 +72,7 @@ def train_main():
     )
     parser.add_argument('--no-eval', action='store_true', help='Skip evaluation after training')
     parser.add_argument('--quiet', action='store_true', help='Suppress training progress output')
+    parser.add_argument('--wandb', action='store_true', help='Enable Weights & Biases logging')
 
     args = parser.parse_args()
 
@@ -161,6 +162,8 @@ def train_main():
         max_steps=args.max_steps,
         log_dir=tb_logs_dir,
         device=device,
+        enable_wandb=args.wandb,
+        wandb_config=vars(args),
     )
 
     trainer.train(

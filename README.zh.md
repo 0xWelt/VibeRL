@@ -54,19 +54,23 @@
 - **3种算法**: REINFORCE、PPO、DQN 统一接口
 - **类型安全**: 使用 Pydantic 模型处理动作、转换、轨迹
 - **CLI工具**: 简单的 `viberl-train`、`viberl-eval`、`viberl-demo` 命令
-- **现代Python**: 3.12+ 完整类型提示和 UV 支持
+- **现代Python**: 3.12+ 完整类型提示和 [UV](https://docs.astral.sh/uv/) 支持
 - **TensorBoard**: 内置训练指标和可视化
+- **Weights & Biases**: 可选的wandb集成，使用 `--wandb` 参数
 
 ## 🎯 快速开始
 
 ```bash
 # 安装
-uv pip install -e ".[dev]"
+[uv](https://docs.astral.sh/uv/) pip install -e ".[dev]"
 
 # 训练智能体
 viberl-train --alg=dqn --episodes 1000 --grid-size 15
 viberl-train --alg=ppo --episodes 500 --lr 3e-4
 viberl-train --alg=reinforce --episodes 1000 --grid-size 10
+
+# 使用 [Weights & Biases](https://wandb.ai/) 进行训练
+viberl-train --alg=dqn --episodes 1000 --wandb --name my_experiment
 
 # 评估
 viberl-eval --model-path experiments/*/models/final_model.pth --episodes 10

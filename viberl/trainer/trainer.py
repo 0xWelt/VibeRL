@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 from copy import deepcopy
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -10,9 +9,9 @@ from typing import TYPE_CHECKING
 import numpy as np
 import torch
 from loguru import logger
-from torch.utils.tensorboard import SummaryWriter
 
 from viberl.typing import Trajectory, Transition
+from viberl.utils.writer import UnifiedWriter
 
 
 if TYPE_CHECKING:
@@ -36,6 +35,9 @@ class Trainer:
         log_dir: str | None = None,
         device: str = 'auto',
         eval_env: gym.Env | None = None,
+        enable_tensorboard: bool = True,
+        enable_wandb: bool = False,
+        wandb_config: dict | None = None,
     ) -> None:
         """Initialize the trainer.
 
@@ -43,9 +45,12 @@ class Trainer:
             env: The training environment
             agent: The RL agent to train
             max_steps: Maximum steps per episode
-            log_dir: Directory for TensorBoard logs
+            log_dir: Directory for logs
             device: Device to use for training ("auto", "cpu", "cuda")
             eval_env: Optional evaluation environment. If None, will create a deep copy of the training environment.
+            enable_tensorboard: Whether to enable TensorBoard logging
+            enable_wandb: Whether to enable Weights & Biases logging
+            wandb_config: Configuration dict for wandb
         """
         self.env = env
         self.agent = agent
@@ -63,12 +68,16 @@ class Trainer:
         self.episode_rewards: list[float] = []
         self.eval_rewards: list[float] = []
         self.best_eval_score = float('-inf')
-        self.writer: SummaryWriter | None = None
+        self.writer: UnifiedWriter | None = None
 
-        # Initialize TensorBoard writer
+        # Initialize unified writer
         if log_dir is not None:
-            os.makedirs(log_dir, exist_ok=True)
-            self.writer = SummaryWriter(log_dir=log_dir)
+            self.writer = UnifiedWriter(
+                log_dir=log_dir,
+                enable_tensorboard=enable_tensorboard,
+                enable_wandb=enable_wandb,
+                wandb_config=wandb_config,
+            )
 
     def train(
         self,
@@ -193,13 +202,13 @@ class Trainer:
         trajectory = Trajectory.from_transitions(transitions)
         learn_metrics = self.agent.learn(trajectory=trajectory)
 
-        # TensorBoard logging
+        # Unified logging
         if self.writer is not None:
-            self.writer.add_scalar('rollout_train/average_return', episode_reward, episode)
-            self.writer.add_scalar('rollout_train/episode_length', len(transitions), episode)
+            self.writer.log_scalar('rollout_train/average_return', episode_reward, episode)
+            self.writer.log_scalar('rollout_train/episode_length', len(transitions), episode)
             if learn_metrics:
-                for metric_name, metric_value in learn_metrics.items():
-                    self.writer.add_scalar(f'learn/{metric_name}', metric_value, episode)
+                metrics_dict = {f'learn/{k}': v for k, v in learn_metrics.items()}
+                self.writer.log_scalars(metrics_dict, episode)
 
         return episode_reward
 
@@ -379,9 +388,10 @@ class Trainer:
 
         logger.info('=' * 80)
 
-        # TensorBoard logging for evaluation
+        # Unified logging for evaluation
         if self.writer is not None and eval_rewards:
-            self.writer.add_scalar('rollout_eval/average_return', eval_mean, episode)
-            self.writer.add_scalar(
-                'rollout_eval/episode_length', np.mean([len(eval_rewards)]), episode
-            )
+            eval_metrics = {
+                'rollout_eval/average_return': eval_mean,
+                'rollout_eval/episode_length': np.mean([len(eval_rewards)]),
+            }
+            self.writer.log_scalars(eval_metrics, episode)

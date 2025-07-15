@@ -54,19 +54,23 @@
 - **3種類のアルゴリズム**: REINFORCE、PPO、DQNを統一インターフェースで
 - **型安全性**: アクション、遷移、軌跡のためのPydanticモデル
 - **CLIツール**: シンプルな `viberl-train`、`viberl-eval`、`viberl-demo` コマンド
-- **モダンPython**: 3.12+ 完全な型ヒントとUVサポート
+- **モダンPython**: 3.12+ 完全な型ヒントと[UV](https://docs.astral.sh/uv/)サポート
 - **TensorBoard**: 組み込みのトレーニング指標と可視化
+- **Weights & Biases**: オプションのwandb統合、`--wandb`フラグ付き
 
 ## 🎯 クイックスタート
 
 ```bash
 # インストール
-uv pip install -e ".[dev]"
+[uv](https://docs.astral.sh/uv/) pip install -e ".[dev]"
 
 # エージェントのトレーニング
 viberl-train --alg=dqn --episodes 1000 --grid-size 15
 viberl-train --alg=ppo --episodes 500 --lr 3e-4
 viberl-train --alg=reinforce --episodes 1000 --grid-size 10
+
+# [Weights & Biases](https://wandb.ai/)でトレーニング
+viberl-train --alg=dqn --episodes 1000 --wandb --name my_experiment
 
 # 評価
 viberl-eval --model-path experiments/*/models/final_model.pth --episodes 10

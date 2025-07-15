@@ -11,7 +11,7 @@ Welcome to **VibeRL** - A modern Reinforcement Learning framework built with typ
 git clone https://github.com/0xWelt/VibeRL.git
 cd VibeRL
 
-# Install using uv
+# Install using [uv](https://docs.astral.sh/uv/)
 uv pip install -e "."
 
 # Or install with development dependencies
@@ -95,6 +95,25 @@ Access TensorBoard at `http://localhost:6006` to view:
 - Learning rates and hyperparameters
 - Action distributions
 - Custom metrics per algorithm
+
+### [Weights & Biases Integration](https://wandb.ai/)
+
+Track experiments with [Weights & Biases](https://wandb.ai/) for enhanced experiment management:
+
+```bash
+# Enable wandb logging during training
+viberl-train --alg dqn --episodes 1000 --wandb --name my_experiment
+
+# All CLI arguments are automatically logged to wandb
+viberl-train --alg ppo --episodes 500 --lr 3e-4 --wandb --name ppo_tuning
+```
+
+Features include:
+- Automatic hyperparameter tracking
+- Real-time metric visualization
+- Experiment comparison
+- Artifact storage for models and logs
+- Collaborative experiment sharing
 
 ## Python API
 
@@ -206,7 +225,7 @@ training_metrics = experiment.train_agent(
 - **Three Algorithms**: REINFORCE, DQN, PPO with unified interface
 - **Type Safety**: Full type annotations throughout
 - **CLI Interface**: Complete training, evaluation, and demo commands
-- **Experiment Management**: Automatic directory structure with TensorBoard logging
+- **Experiment Management**: Automatic directory structure with TensorBoard and Weights & Biases logging
 - **50+ Tests**: Comprehensive test suite
 
 ## Architecture
@@ -217,7 +236,7 @@ The framework follows a clean architecture:
 - **`viberl/agents/`**: RL algorithms (REINFORCE, DQN, PPO)
 - **`viberl/envs/`**: Environments (SnakeGameEnv)
 - **`viberl/networks/`**: Neural network implementations
-- **`viberl/utils/`**: Training utilities and experiment management
+- **`viberl/utils/`**: Training utilities, experiment management, and unified logging
 - **`viberl/cli.py`**: Command-line interface
 
 ## Algorithms

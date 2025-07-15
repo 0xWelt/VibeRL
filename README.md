@@ -54,19 +54,23 @@ This project showcases modern AI-assisted development, combining Kimi K2's reaso
 - **3 Algorithms**: REINFORCE, PPO, DQN with unified interface
 - **Type-Safe**: Pydantic models for actions, transitions, trajectories
 - **CLI Tools**: Simple `viberl-train`, `viberl-eval`, `viberl-demo` commands
-- **Modern Python**: 3.12+ with full type hints and UV support
+- **Modern Python**: 3.12+ with full type hints and [UV](https://docs.astral.sh/uv/) support
 - **TensorBoard**: Built-in training metrics and visualization
+- **Weights & Biases**: Optional wandb integration with `--wandb` flag
 
 ## 🎯 Quick Start
 
 ```bash
 # Install
-uv pip install -e ".[dev]"
+[uv](https://docs.astral.sh/uv/) pip install -e ".[dev]"
 
 # Train agents
 viberl-train --alg=dqn --episodes 1000 --grid-size 15
 viberl-train --alg=ppo --episodes 500 --lr 3e-4
 viberl-train --alg=reinforce --episodes 1000 --grid-size 10
+
+# Train with [Weights & Biases](https://wandb.ai/) logging
+viberl-train --alg=dqn --episodes 1000 --wandb --name my_experiment
 
 # Evaluate
 viberl-eval --model-path experiments/*/models/final_model.pth --episodes 10
