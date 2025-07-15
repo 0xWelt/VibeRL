@@ -62,6 +62,7 @@ class UnifiedWriter:
                 project=project_name,
                 name=run_name,
                 config=wandb_config,
+                dir=log_dir,
             )
 
     def log_scalar(self, tag: str, value: float, step: int) -> None:
