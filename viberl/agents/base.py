@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    import gymnasium as gym
     import numpy as np
 
     from viberl.typing import Action
@@ -50,37 +49,18 @@ class Agent(ABC):
             Dictionary of step metrics (e.g., loss values)
         """
 
-    def reset(self):
-        """Reset agent state for new episode."""
-
-    def get_metrics(self) -> dict[str, float]:
-        """Get current training metrics.
-
-        Returns:
-            Dictionary of metrics
-        """
-        return {}
-
-    def save(self, filepath: str):
+    @abstractmethod
+    def save(self, filepath: str) -> None:
         """Save agent state to file.
 
         Args:
             filepath: Path to save the model
         """
 
-    def load(self, filepath: str):
+    @abstractmethod
+    def load(self, filepath: str) -> None:
         """Load agent state from file.
 
         Args:
             filepath: Path to load the model from
         """
-
-    def setup_training(self, env: gym.Env):
-        """Setup agent for training in given environment.
-
-        Args:
-            env: Training environment
-        """
-
-    def setup_evaluation(self):
-        """Setup agent for evaluation mode."""
