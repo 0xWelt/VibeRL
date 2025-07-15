@@ -1,0 +1,80 @@
+/* MathJax and formula styling */
+.MathJax {
+    outline: 0;
+}
+
+.MathJax_Display {
+    margin: 1.5em 0;
+    text-align: center;
+    display: block;
+}
+
+mjx-container {
+    display: block;
+    margin: 1.5em auto;
+    text-align: center;
+}
+
+mjx-math {
+    display: inline-block;
+}
+
+/* Ensure formulas don't overflow on mobile */
+@media (max-width: 768px) {
+    .MathJax_Display,
+    mjx-container {
+        overflow-x: auto;
+        overflow-y: hidden;
+        max-width: 100%;
+    }
+}
+
+/* Improve readability of mathematical content */
+.docstring-section {
+    font-size: 0.9em;
+    line-height: 1.6;
+}
+
+.docstring-section h3 {
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.docstring-section ul,
+.docstring-section .md-typeset ul {
+    margin: 1em 0 1em 2em;
+    padding-left: 0;
+}
+
+.docstring-section li,
+.docstring-section .md-typeset li {
+    margin-bottom: 0.5em;
+    list-style-type: disc;
+}
+
+.docstring-section li:last-child {
+    margin-bottom: 0;
+}
+
+/* Better spacing for display math */
+.docstring-section p {
+    margin-bottom: 1em;
+}
+
+.docstring-section h3 + ul {
+    margin-top: 0.75em;
+}
+
+/* Ensure proper spacing after section headers */
+.docstring-section h4,
+.docstring-section h5 {
+    margin-top: 1.2em;
+    margin-bottom: 0.4em;
+}
+
+.docstring-section h4 + ul,
+.docstring-section h5 + ul {
+    margin-top: 0.5em;
+}

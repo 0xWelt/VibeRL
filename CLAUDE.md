@@ -5,11 +5,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Instructions for Claude Code
 
 1. You should implement tests for each part of the code and try to coverage as much as possible.
-2. After you have done your changes:
+2. You can run commands to verify your code. Note:
+   1. Do not use commands that may block program execution, such as `mkdocs serve` or `tensorboard`.
+   2. You can create temporary files to test your code and delete them after you are done.
+3. After you have done your changes:
    1.  Make sure `pytest -n 8` passes. If it doesn't, fix the issues and run again.
    2.  Make sure `pre-commit run --all` passes. If it doesn't, fix the issues and run again.
    3.  Check if `CLAUDE.md, README.md, pyproject.toml` are up to date, change them according to the changes you made.
-3. When creating a git commit:
+4. When creating a git commit:
    1. Scan all newly-added and modified files; if any of them shouldn't be committed, update .gitignore to exclude them, then run `git add .` to stage all changes.
    2. Always create a new commit, do not use `git commit --amend` to modify the previous commit.
    3. Never commit with `--no-verify`, make sure to pass pre-commit. The pre-commit hook has auto-fix enabled so you may run `pre-commit run --all` twice to check if there are any issues remaining.

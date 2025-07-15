@@ -1,3 +1,34 @@
+r"""DQN: Deep Q-Network combining Q-learning with deep neural networks for human-level control.
+
+**Algorithm Overview:**
+
+DQN combines traditional Q-learning with deep neural networks to learn optimal action-value
+functions in environments with high-dimensional state spaces. It addresses key challenges
+of applying deep learning to reinforcement learning through experience replay and target networks.
+
+**Key Concepts:**
+
+- **Deep Q-Learning**: Uses neural networks to approximate Q-values $Q(s,a;\theta)$
+- **Experience Replay**: Stores and samples experiences to break correlation between samples
+- **Target Network**: Separate frozen network provides stable target Q-values
+- **Epsilon-Greedy**: Balances exploration and exploitation during training
+- **Temporal Difference**: Uses TD error for Q-value updates
+
+**Mathematical Foundation:**
+
+**Optimization Objective:**
+
+$$L(\theta) = \mathbb{E}_{(s,a,r,s') \sim D}\left[\left(r + \gamma \max_{a'} Q_{\text{target}}(s',a') - Q_\theta(s,a)\right)^2\right]$$
+
+**Bellman Optimality Equation:**
+
+$$Q^*(s,a) = \mathbb{E}\left[r + \gamma \max_{a'} Q^*(s',a')\right]$$
+
+**Reference:**
+Mnih, V., Kavukcuoglu, K., Silver, D., et al. Human-level control through deep reinforcement learning.
+*Nature* **518**, 529-533 (2015). [PDF](https://www.nature.com/articles/nature14236)
+"""
+
 import random
 from collections import deque
 
@@ -12,20 +43,27 @@ from viberl.typing import Action, Trajectory
 
 
 class DQNAgent(Agent):
-    """DQN: Deep Q-Network combining Q-learning with deep neural networks for human-level control.
+    """DQN agent implementation with deep Q-learning and experience replay.
 
-    **Key Concepts:**
-    • Learns optimal action-value function Q*(s,a) using neural networks
-    • Approximates Q-values in high-dimensional state spaces
-    • Experience replay buffer removes correlated samples
-    • Separate target network Q_θ⁻ for stable target computation
-    • Epsilon-greedy exploration balances learning and exploitation
+    This agent implements the Deep Q-Network algorithm using neural networks to
+    approximate Q-values, with experience replay and target networks for stability.
 
-    **Optimization Objective:**
-    $$L(\theta) = \\mathbb{E}_{(s,a,r,s') \\sim D}\\left[\\left(r + \\gamma \\max_{a'} Q_{\theta^-}(s',a') - Q_\theta(s,a)\right)^2\right]$$
+    Args:
+        state_size: Dimension of the state space. Must be positive.
+        action_size: Number of possible actions. Must be positive.
+        learning_rate: Learning rate for the Adam optimizer. Must be positive.
+        gamma: Discount factor for future rewards. Should be in (0, 1].
+        epsilon_start: Initial exploration rate. Should be in [0, 1].
+        epsilon_end: Final exploration rate. Should be in [0, 1].
+        epsilon_decay: Decay rate for exploration. Should be in (0, 1].
+        memory_size: Size of the experience replay buffer. Must be positive.
+        batch_size: Batch size for training. Must be positive.
+        target_update: Frequency of target network updates. Must be positive.
+        hidden_size: Number of neurons in each hidden layer. Must be positive.
+        num_hidden_layers: Number of hidden layers in the Q-network. Must be non-negative.
 
-    **Reference:**
-    Mnih, V., Kavukcuoglu, K., Silver, D., et al. Human-level control through deep reinforcement learning. *Nature* **518**, 529-533 (2015). [PDF](https://www.nature.com/articles/nature14236)
+    Raises:
+        ValueError: If any parameter is invalid.
     """
 
     def __init__(
@@ -84,7 +122,7 @@ class DQNAgent(Agent):
 
         return Action(action=action)
 
-    def learn(self, trajectory: Trajectory, **kwargs) -> dict[str, float]:
+    def learn(self, trajectory: Trajectory) -> dict[str, float]:
         """Update Q-network using Q-learning with experience replay.
 
         Args:

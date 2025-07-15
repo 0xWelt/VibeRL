@@ -1,8 +1,33 @@
-"""
-Proximal Policy Optimization (PPO) agent implementation.
+r"""PPO: Proximal Policy Optimization for stable policy gradient updates.
 
-PPO is a policy gradient method that uses a clipped surrogate objective
-to prevent large policy updates, making training more stable.
+**Algorithm Overview:**
+
+PPO is a policy gradient method that prevents large policy updates through a
+clipped surrogate objective, making training more stable and reliable while
+maintaining sample efficiency.
+
+**Key Concepts:**
+
+- **Clipped Surrogate Objective**: Prevents destructive policy updates
+- **Generalized Advantage Estimation (GAE)**: Computes stable advantage estimates
+- **Multiple PPO Epochs**: Reuses collected data efficiently
+- **Policy Network**: $\pi_\theta(a|s)$ for action selection
+- **Value Network**: $V_\phi(s)$ for baseline estimation
+
+**Mathematical Foundation:**
+
+**Optimization Objective:**
+
+$$L^{CLIP}(\theta) = \mathbb{E}_t\left[\min\left(r_t(\theta) A_t, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) A_t\right)\right]$$
+
+**Advantage Function:**
+
+$$A_t = \delta_t + (\gamma\lambda) \delta_{t+1} + (\gamma\lambda)^2 \delta_{t+2} + \dots$$
+
+**Reference:**
+Schulman, J., Wolski, F., Dhariwal, P., Radford, A., & Klimov, O. Proximal Policy
+Optimization Algorithms. *arXiv preprint arXiv:1707.06347* (2017).
+[PDF](https://arxiv.org/abs/1707.06347)
 """
 
 import numpy as np
@@ -17,21 +42,30 @@ from viberl.typing import Action, Trajectory
 
 
 class PPOAgent(Agent):
-    """PPO: Proximal Policy Optimization using clipped surrogate objective for stable policy updates.
+    """PPO agent implementation with clipped surrogate objective and GAE.
 
-    **Key Concepts:**
-    • Prevents large policy updates through clipped surrogate objective
-    • Generalized Advantage Estimation (GAE) for stable advantage computation
-    • Policy network $\\pi_\theta(a|s)$ for action selection
-    • Value network $V_\\phi(s)$ for baseline estimation
-    • GAE computes advantages across multiple timesteps
+    This agent implements Proximal Policy Optimization using a clipped surrogate
+    objective to prevent large policy updates, along with Generalized Advantage
+    Estimation for stable advantage computation.
 
-    **Optimization Objective:**
-    $$L^{CLIP}(\theta) = \\mathbb{E}_t\\left[\\min\\left(r_t(\theta) A_t, \text{clip}(r_t(\theta), 1-\\epsilon, 1+\\epsilon) A_t\right)\right]$$
-    where $r_t(\theta) = \frac{\\pi_\theta(a_t|s_t)}{\\pi_{\theta_{old}}(a_t|s_t)}$ and $A_t$ are GAE-computed advantages.
+    Args:
+        state_size: Dimension of the state space. Must be positive.
+        action_size: Number of possible actions. Must be positive.
+        learning_rate: Learning rate for the Adam optimizer. Must be positive.
+        gamma: Discount factor for future rewards. Should be in (0, 1].
+        lam: GAE lambda parameter for advantage computation. Should be in [0, 1].
+        clip_epsilon: PPO clipping parameter. Should be positive.
+        value_loss_coef: Coefficient for value loss. Should be positive.
+        entropy_coef: Coefficient for entropy bonus. Should be positive.
+        max_grad_norm: Maximum gradient norm for clipping. Should be positive.
+        ppo_epochs: Number of PPO epochs per update. Must be positive.
+        batch_size: Batch size for training. Must be positive.
+        hidden_size: Number of neurons in each hidden layer. Must be positive.
+        num_hidden_layers: Number of hidden layers. Must be non-negative.
+        device: Device for computation ('auto', 'cpu', or 'cuda').
 
-    **Reference:**
-    Schulman, J., Wolski, F., Dhariwal, P., Radford, A., & Klimov, O. Proximal Policy Optimization Algorithms. *arXiv preprint arXiv:1707.06347* (2017). [PDF](https://arxiv.org/abs/1707.06347)
+    Raises:
+        ValueError: If any parameter is invalid.
     """
 
     def __init__(
@@ -88,7 +122,7 @@ class PPOAgent(Agent):
         )
 
     def act(self, state: np.ndarray, training: bool = True) -> Action:
-        """Select action using policy π(a|s;θ).
+        r"""Select action using policy $\pi(a|s;\theta)$.
 
         Args:
             state: Current state observation.
@@ -113,11 +147,7 @@ class PPOAgent(Agent):
                 action = action_probs.argmax().item()
                 return Action(action=action)
 
-    def learn(
-        self,
-        trajectory: Trajectory,
-        **kwargs,
-    ) -> dict[str, float]:
+    def learn(self, trajectory: Trajectory) -> dict[str, float]:
         """Update policy and value networks using PPO clipped objective.
 
         Args:
