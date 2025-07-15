@@ -51,12 +51,23 @@
 
 ## ✨ 特徴
 
-- **3種類のアルゴリズム**: REINFORCE、PPO、DQNを統一インターフェースで
-- **型安全性**: アクション、遷移、軌跡のためのPydanticモデル
-- **CLIツール**: シンプルな `viberl-train`、`viberl-eval`、`viberl-demo` コマンド
-- **モダンPython**: 3.12+ 完全な型ヒントと[UV](https://docs.astral.sh/uv/)サポート
-- **TensorBoard**: 組み込みのトレーニング指標と可視化
-- **Weights & Biases**: オプションのwandb統合、`--wandb`フラグ付き
+### 🔧 **モダン開発スタック**
+- **[UV](https://docs.astral.sh/uv/)**: Rust製の高速Pythonパッケージマネージャーで、pipとpoetryを完全に置き換え、ミリ秒単位の依存関係解決と仮想環境管理を提供
+- **[Ruff](https://docs.astral.sh/ruff/)**: Rustで書かれた超高速Pythonリンターで、PEP 8標準を厳格に実行し、実行時の前にコードの問題を検出
+- **[Pytest](https://docs.pytest.org/)**: 全アルゴリズム、環境、ユーティリティをカバーする50以上のユニットテストを含む包括的テストフレームワーク
+- **[Pydantic](https://docs.pydantic.dev/)**: Python型ヒントを使用したランタイム型検証で、アクション、遷移、軌跡全体のデータ整合性を確保
+- **[Loguru](https://loguru.readthedocs.io/)**: 自動ファイルローテーション、構造化ロギング、カラー化コンソール出力を備えたエレガントなログライブラリ
+- **[MkDocs](https://www.mkdocs.org/)**: Markdownを美しいドキュメントに変換する静的サイトジェネレーターで、検索、ナビゲーション、レスポンシブデザインを内蔵
+- **[TensorBoard](https://www.tensorflow.org/tensorboard)**: 損失曲線、報酬トレンド、ハイパーパラメータスイープを表示するリアルタイムトレーニング可視化ダッシュボード
+- **[Weights & Biases](https://wandb.ai/)**: ハイパーパラメータ、メトリクス、アーティファクトを記録し、協働的ML研究を可能にする高度な実験追跡プラットフォーム
+
+### 🤖 **強化学習アルゴリズム**
+- **[REINFORCE](https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html)**: モンテカルロ収益の政策勾配法
+- **[PPO](https://arxiv.org/abs/1707.06347)**: クリッピング付き近接政策最適化
+- **[DQN](https://www.nature.com/articles/nature14236)**: 経験再生の深層Qネットワーク
+
+### 🐍 **環境**
+- **SnakeGame**: カスタム環境、[Gymnasium](https://gymnasium.farama.org/)統合
 
 ## 🎯 クイックスタート
 

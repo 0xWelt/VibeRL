@@ -51,12 +51,23 @@ This project showcases modern AI-assisted development, combining Kimi K2's reaso
 
 ## ✨ Features
 
-- **3 Algorithms**: REINFORCE, PPO, DQN with unified interface
-- **Type-Safe**: Pydantic models for actions, transitions, trajectories
-- **CLI Tools**: Simple `viberl-train`, `viberl-eval`, `viberl-demo` commands
-- **Modern Python**: 3.12+ with full type hints and [UV](https://docs.astral.sh/uv/) support
-- **TensorBoard**: Built-in training metrics and visualization
-- **Weights & Biases**: Optional wandb integration with `--wandb` flag
+### 🔧 **Modern Development Stack**
+- **[UV](https://docs.astral.sh/uv/)**: Lightning-fast Python package manager that replaces pip and poetry with Rust-powered dependency resolution and virtual environment management
+- **[Ruff](https://docs.astral.sh/ruff/)**: Ultra-fast Python linter and formatter written in Rust that enforces PEP 8 standards and catches code issues before runtime
+- **[Pytest](https://docs.pytest.org/)**: Comprehensive testing framework with 50+ unit tests covering all algorithms, environments, and utilities with fixtures and parametrization
+- **[Pydantic](https://docs.pydantic.dev/)**: Runtime type validation using Python type hints that ensures data integrity across actions, transitions, and trajectories
+- **[Loguru](https://loguru.readthedocs.io/)**: Elegant logging library with automatic file rotation, structured logging, and colored console output for debugging and monitoring
+- **[MkDocs](https://www.mkdocs.org/)**: Static site generator that transforms Markdown into beautiful documentation with search, navigation, and responsive design
+- **[TensorBoard](https://www.tensorflow.org/tensorboard)**: Real-time training visualization dashboard showing loss curves, reward trends, and hyperparameter sweeps
+- **[Weights & Biases](https://wandb.ai/)**: Advanced experiment tracking platform that logs hyperparameters, metrics, artifacts, and enables collaborative ML research
+
+### 🤖 **Reinforcement Learning Algorithms**
+- **[REINFORCE](https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html)**: Policy gradient method with Monte Carlo returns
+- **[PPO](https://arxiv.org/abs/1707.06347)**: Proximal Policy Optimization with clipping
+- **[DQN](https://www.nature.com/articles/nature14236)**: Deep Q-Network with experience replay
+
+### 🐍 **Environment**
+- **SnakeGame**: Custom environment with [Gymnasium](https://gymnasium.farama.org/) integration
 
 ## 🎯 Quick Start
 

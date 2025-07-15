@@ -51,12 +51,23 @@
 
 ## ✨ 特性
 
-- **3种算法**: REINFORCE、PPO、DQN 统一接口
-- **类型安全**: 使用 Pydantic 模型处理动作、转换、轨迹
-- **CLI工具**: 简单的 `viberl-train`、`viberl-eval`、`viberl-demo` 命令
-- **现代Python**: 3.12+ 完整类型提示和 [UV](https://docs.astral.sh/uv/) 支持
-- **TensorBoard**: 内置训练指标和可视化
-- **Weights & Biases**: 可选的wandb集成，使用 `--wandb` 参数
+### 🔧 **现代化开发栈**  
+- **[UV](https://docs.astral.sh/uv/)**: 基于Rust的极速Python包管理器，完全替代pip和poetry，提供毫秒级依赖解析和虚拟环境管理
+- **[Ruff](https://docs.astral.sh/ruff/)**: 用Rust编写的超快Python代码检查器，严格执行PEP 8标准并在运行时前捕获代码问题
+- **[Pytest](https://docs.pytest.org/)**: 包含50+单元测试的综合测试框架，覆盖所有算法、环境和工具，支持固件和参数化测试
+- **[Pydantic](https://docs.pydantic.dev/)**: 使用Python类型提示的运行时类型验证，确保动作、转换、轨迹的数据完整性
+- **[Loguru](https://loguru.readthedocs.io/)**: 优雅的日志库，支持自动文件轮转、结构化日志记录和彩色控制台输出，便于调试和监控
+- **[MkDocs](https://www.mkdocs.org/)**: 将Markdown转换为精美文档的静态站点生成器，内置搜索、导航和响应式设计
+- **[TensorBoard](https://www.tensorflow.org/tensorboard)**: 实时训练可视化仪表板，展示损失曲线、奖励趋势和超参数扫描
+- **[Weights & Biases](https://wandb.ai/)**: 高级实验跟踪平台，记录超参数、指标、工件，支持协作式机器学习研究
+
+### 🤖 **强化学习算法**
+- **[REINFORCE](https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html)**: 蒙特卡洛收益的策略梯度方法
+- **[PPO](https://arxiv.org/abs/1707.06347)**: 带裁剪的近端策略优化
+- **[DQN](https://www.nature.com/articles/nature14236)**: 经验回放的深度Q网络
+
+### 🐍 **环境**
+- **SnakeGame**: 自定义环境，集成 [Gymnasium](https://gymnasium.farama.org/)
 
 ## 🎯 快速开始
 
