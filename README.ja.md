@@ -1,15 +1,39 @@
-# 🚀 VibeRL
+<p align="center">
+  <img src="docs/VibeRL LOGO.png" alt="VibeRL Logo" width="260"/>
+</p>
 
-[![Documentation](https://img.shields.io/badge/docs-0xwelt.github.io%2FVibeRL-blue)](https://0xwelt.github.io/VibeRL/)
-[![CI](https://img.shields.io/github/actions/workflow/status/0xWelt/VibeRL/docs.yml?branch=main)](https://github.com/0xWelt/VibeRL/actions)
-[![Tests](https://img.shields.io/github/actions/workflow/status/0xWelt/VibeRL/pytest.yml?branch=main)](https://github.com/0xWelt/VibeRL/actions/workflows/pytest.yml)
-[![Coverage](https://img.shields.io/codecov/c/github/0xWelt/VibeRL)](https://codecov.io/gh/0xWelt/VibeRL)
-[![Python](https://img.shields.io/badge/python-3.12+-3776ab)](https://www.python.org/downloads/)
-[![PyTorch](https://img.shields.io/badge/PyTorch-ee4c2c)](https://pytorch.org/)
-[![Gymnasium](https://img.shields.io/badge/Gymnasium-008000)](https://gymnasium.farama.org/)
-[![License](https://img.shields.io/badge/license-MIT-green)](https://opensource.org/licenses/MIT)
+<p align="center">
+  <a href="https://0xwelt.github.io/VibeRL/">
+    <img src="https://img.shields.io/badge/docs-0xwelt.github.io%2FVibeRL-blue" alt="Documentation"/>
+  </a>
+  <a href="https://github.com/0xWelt/VibeRL/actions">
+    <img src="https://img.shields.io/github/actions/workflow/status/0xWelt/VibeRL/docs.yml?branch=main" alt="CI"/>
+  </a>
+  <a href="https://github.com/0xWelt/VibeRL/actions/workflows/pytest.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/0xWelt/VibeRL/pytest.yml?branch=main" alt="Tests"/>
+  </a>
+  <a href="https://codecov.io/gh/0xWelt/VibeRL">
+    <img src="https://img.shields.io/codecov/c/github/0xWelt/VibeRL" alt="Coverage"/>
+  </a>
+  <a href="https://www.python.org/downloads/">
+    <img src="https://img.shields.io/badge/python-3.12+-3776ab" alt="Python"/>
+  </a>
+  <a href="https://pytorch.org/">
+    <img src="https://img.shields.io/badge/PyTorch-ee4c2c" alt="PyTorch"/>
+  </a>
+  <a href="https://gymnasium.farama.org/">
+    <img src="https://img.shields.io/badge/Gymnasium-008000" alt="Gymnasium"/>
+  </a>
+  <a href="https://opensource.org/licenses/MIT">
+    <img src="https://img.shields.io/badge/license-MIT-green" alt="License"/>
+  </a>
+</p>
 
-[🇺🇸 English](./README.md) | [🇨🇳 中文](./README.zh.md) | 🇯🇵 日本語
+<p align="center">
+  <a href="./README.md">🇺🇸 English</a> | <a href="./README.zh.md">🇨🇳 中文</a> | 🇯🇵 日本語
+</p>
+
+---
 
 教育と研究のためのモダンな強化学習フレームワークで、型安全性と最新のPython実践を採用しています。
 
