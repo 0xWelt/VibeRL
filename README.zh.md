@@ -9,63 +9,63 @@
 [![Gymnasium](https://img.shields.io/badge/Gymnasium-008000)](https://gymnasium.farama.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://opensource.org/licenses/MIT)
 
-🇺🇸 English | [🇨🇳 中文](./README.zh.md) | [🇯🇵 日本語](./README.ja.md)
+[🇺🇸 English](./README.md) | 🇨🇳 中文 | [🇯🇵 日本語](./README.ja.md)
 
-A modern Reinforcement Learning framework for education and research, built with type safety and modern Python practices.
+一个现代化的强化学习框架，专为教育和研究设计，采用类型安全和现代 Python 实践构建。
 
-Document: https://0xwelt.github.io/VibeRL
+文档: https://0xwelt.github.io/VibeRL
 
-## 🤖 Creation Story
+## 🤖 创造故事
 
-**VibeRL** was generated using **Kimi K2** (Moonshot AI's trillion-parameter open-source MoE model released July 2025) in combination with **Claude Code** for refinement and implementation.
+**VibeRL** 使用 **Kimi K2**（月之暗面于2025年7月发布的万亿参数开源MoE模型）结合 **Claude Code** 进行优化和实施，展示了现代AI辅助开发的强大能力。
 
-> **[Kimi K2](https://github.com/MoonshotAI/Kimi-K2)**: A 1+ trillion parameter Mixture-of-Experts model focused on long context understanding, code generation, complex reasoning, and agentic behavior. Released under Apache 2.0 license by Moonshot AI in July 2025.
+> **[Kimi K2](https://github.com/MoonshotAI/Kimi-K2)**: 月之暗面的万亿参数MoE模型，专注于长上下文理解、代码生成、复杂推理和智能体行为。2025年7月以Apache 2.0许可证开源发布。
 >
-> **[Claude Code](https://claude.ai/code)**: Anthropic's AI-powered development tool for precise code generation and project refinement.
+> **[Claude Code](https://claude.ai/code)**: Anthropic的AI驱动开发工具，提供精确的代码生成和项目优化功能。
 
-This project showcases modern AI-assisted development, combining Kimi K2's reasoning capabilities with Claude Code's precision to accelerate reinforcement learning research and education.
+本项目展示了现代AI辅助开发的能力，结合 Kimi K2 的推理能力与 Claude Code 的精确性，加速强化学习研究和教育。
 
-## ✨ Features
+## ✨ 特性
 
-- **3 Algorithms**: REINFORCE, PPO, DQN with unified interface
-- **Type-Safe**: Pydantic models for actions, transitions, trajectories
-- **CLI Tools**: Simple `viberl-train`, `viberl-eval`, `viberl-demo` commands
-- **Modern Python**: 3.12+ with full type hints and UV support
-- **TensorBoard**: Built-in training metrics and visualization
+- **3种算法**: REINFORCE、PPO、DQN 统一接口
+- **类型安全**: 使用 Pydantic 模型处理动作、转换、轨迹
+- **CLI工具**: 简单的 `viberl-train`、`viberl-eval`、`viberl-demo` 命令
+- **现代Python**: 3.12+ 完整类型提示和 UV 支持
+- **TensorBoard**: 内置训练指标和可视化
 
-## 🎯 Quick Start
+## 🎯 快速开始
 
 ```bash
-# Install
+# 安装
 uv pip install -e ".[dev]"
 
-# Train agents
+# 训练智能体
 viberl-train --alg=dqn --episodes 1000 --grid-size 15
 viberl-train --alg=ppo --episodes 500 --lr 3e-4
 viberl-train --alg=reinforce --episodes 1000 --grid-size 10
 
-# Evaluate
+# 评估
 viberl-eval --model-path experiments/*/models/final_model.pth --episodes 10
 
-# Demo
+# 演示
 viberl-demo --episodes 5 --grid-size 20
 ```
 
-## 🤝 Contributors
+## 🤝 贡献者
 
-Thanks to all the contributors who have helped make VibeRL better!
+感谢所有帮助改进VibeRL的贡献者！
 
 <a href="https://github.com/0xWelt/VibeRL/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=0xWelt/VibeRL" />
 </a>
 
-## ⭐ Star History
+## ⭐ Star 历史
 
 [![Star History Chart](https://api.star-history.com/svg?repos=0xWelt/VibeRL&type=Date)](https://star-history.com/#0xWelt/VibeRL&Date)
 
-## 📖 Citation
+## 📖 引用
 
-If you use VibeRL in your research, please cite:
+如果您在研究中使用VibeRL，请引用：
 
 ```bibtex
 @software{viberl2025,
