@@ -54,6 +54,8 @@
     
       <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
     
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -266,25 +268,6 @@
         </a>
       </li>
     
-  
-
-      
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../../../contributing/" class="md-tabs__link">
-        
-  
-  
-    
-  
-  Contributing
-
-      </a>
-    </li>
   
 
       
@@ -636,6 +619,54 @@
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;learn
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#viberl.agents.reinforce.REINFORCEAgent.save" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;save
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" save">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#viberl.agents.reinforce.REINFORCEAgent.save--later-agentloadmodelsreinforce_policypth" class="md-nav__link">
+    <span class="md-ellipsis">
+      Later: agent.load('models/reinforce_policy.pth')
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#viberl.agents.reinforce.REINFORCEAgent.load" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;load
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" load">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#viberl.agents.reinforce.REINFORCEAgent.load--agent-is-now-restored-to-the-saved-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      Agent is now restored to the saved state
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1134,28 +1165,6 @@
   
 
     
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../contributing/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Contributing
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
   </ul>
 </nav>
                   </div>
@@ -1172,7 +1181,7 @@
 
 
 
-<h1 id="viberlagentsreinforce"><code>viberl.agents.reinforce</code><a class="headerlink" href="#viberlagentsreinforce" title="Permanent link">&para;</a></h1>
+<h1 id="viberlagentsreinforce"><code>viberl.agents.reinforce</code></h1>
 
 
 <div class="doc doc-object doc-module">
@@ -1181,6 +1190,29 @@
 
 <a id="viberl.agents.reinforce"></a>
     <div class="doc doc-contents first">
+
+        <p>REINFORCE: Monte-Carlo policy gradient method for reinforcement learning.</p>
+<p><strong>Algorithm Overview:</strong></p>
+<p>REINFORCE is a policy gradient method that uses complete episode returns to update
+the policy parameters. It directly optimizes the policy without requiring a value
+function, making it conceptually simple but potentially high-variance.</p>
+<p><strong>Key Concepts:</strong></p>
+<ul>
+<li><strong>Policy Gradient</strong>: Directly optimizes policy parameters <span class="arithmatex">\(\theta\)</span> to maximize expected return</li>
+<li><strong>Likelihood Ratio Trick</strong>: Uses <span class="arithmatex">\(\nabla_\theta \log \pi_\theta(a|s)\)</span> for gradient computation</li>
+<li><strong>Monte-Carlo Returns</strong>: Uses complete episode returns <span class="arithmatex">\(G_t\)</span> for unbiased estimates</li>
+<li><strong>High Variance</strong>: Large variance in gradient estimates but unbiased</li>
+<li><strong>Episode-based Learning</strong>: Requires complete episodes before parameter updates</li>
+</ul>
+<p><strong>Mathematical Foundation:</strong></p>
+<p><strong>Optimization Objective:</strong></p>
+<div class="arithmatex">\[\nabla_{\theta} J(\theta) = \mathbb{E}\left[\sum_{t=0}^{T} \log \pi_{\theta}(a_t|s_t) G_t\right]\]</div>
+<p><strong>Return Calculation:</strong></p>
+<div class="arithmatex">\[G_t = \sum_{k=0}^{T-t} \gamma^k r_{t+k}\]</div>
+<p><strong>Reference:</strong>
+Williams, R.J. Simple statistical gradient-following algorithms for connectionist
+reinforcement learning. <em>Machine Learning</em> <strong>8</strong>, 229-256 (1992).
+<a href="https://link.springer.com/article/10.1007/BF00992696">PDF</a></p>
 
 
 
@@ -1202,7 +1234,7 @@
             <td><code><a class="autorefs autorefs-internal" title="            REINFORCEAgent (viberl.agents.reinforce.REINFORCEAgent)" href="#viberl.agents.reinforce.REINFORCEAgent">REINFORCEAgent</a></code></td>
             <td>
               <div class="doc-md-description">
-                <p>REINFORCE policy gradient agent.</p>
+                <p>REINFORCE agent implementation with policy gradient optimization.</p>
               </div>
             </td>
           </tr>
@@ -1232,15 +1264,15 @@
 <code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">REINFORCEAgent</span>
 
 
-<a href="#viberl.agents.reinforce.REINFORCEAgent" class="headerlink" title="Permanent link">&para;</a></h2>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">REINFORCEAgent</span><span class="p">(</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">state_size</span><span class="p">:</span> <span class="n"><span title="int">int</span></span><span class="p">,</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">action_size</span><span class="p">:</span> <span class="n"><span title="int">int</span></span><span class="p">,</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">learning_rate</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">,</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">gamma</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mf">0.99</span><span class="p">,</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">hidden_size</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">128</span><span class="p">,</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">num_hidden_layers</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">)</span>
+</h2>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">REINFORCEAgent</span><span class="p">(</span>
+    <span class="n">state_size</span><span class="p">:</span> <span class="n"><span title="int">int</span></span><span class="p">,</span>
+    <span class="n">action_size</span><span class="p">:</span> <span class="n"><span title="int">int</span></span><span class="p">,</span>
+    <span class="n">learning_rate</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">,</span>
+    <span class="n">gamma</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mf">0.99</span><span class="p">,</span>
+    <span class="n">hidden_size</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">128</span><span class="p">,</span>
+    <span class="n">num_hidden_layers</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+<span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1248,9 +1280,9 @@
               Bases: <code><a class="autorefs autorefs-internal" title="            Agent (viberl.agents.base.Agent)" href="../base/#viberl.agents.base.Agent">Agent</a></code></p>
 
 
-        <p>REINFORCE policy gradient agent.</p>
-
-        <p>Initialize REINFORCE agent.</p>
+        <p>REINFORCE agent implementation with policy gradient optimization.</p>
+<p>This agent implements the REINFORCE algorithm using a policy network to directly
+optimize the policy parameters via Monte-Carlo gradient estimates.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -1273,7 +1305,7 @@
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Size of the state space</p>
+                <p>Dimension of the state space. Must be positive.</p>
               </div>
             </td>
             <td>
@@ -1289,7 +1321,7 @@
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Size of the action space</p>
+                <p>Number of possible actions. Must be positive.</p>
               </div>
             </td>
             <td>
@@ -1305,7 +1337,7 @@
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Learning rate for policy optimization</p>
+                <p>Learning rate for the Adam optimizer. Must be positive.</p>
               </div>
             </td>
             <td>
@@ -1321,7 +1353,7 @@
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Discount factor for future rewards (0.0 to 1.0)</p>
+                <p>Discount factor for future rewards. Should be in (0, 1].</p>
               </div>
             </td>
             <td>
@@ -1337,7 +1369,7 @@
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Size of hidden layers in policy network</p>
+                <p>Number of neurons in each hidden layer. Must be positive.</p>
               </div>
             </td>
             <td>
@@ -1353,7 +1385,7 @@
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Number of hidden layers in policy network</p>
+                <p>Number of hidden layers. Must be non-negative.</p>
               </div>
             </td>
             <td>
@@ -1362,6 +1394,31 @@
           </tr>
       </tbody>
     </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If any parameter is invalid (e.g., negative dimensions).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+        <p>Initialize the REINFORCE agent.</p>
 
 
 
@@ -1385,7 +1442,7 @@
               <td><code><a class="autorefs autorefs-internal" title="            act (viberl.agents.reinforce.REINFORCEAgent.act)" href="#viberl.agents.reinforce.REINFORCEAgent.act">act</a></code></td>
               <td>
                 <div class="doc-md-description">
-                  <p>Select action using current policy.</p>
+                  <p>Select action using the current policy.</p>
                 </div>
               </td>
             </tr>
@@ -1393,7 +1450,23 @@
               <td><code><a class="autorefs autorefs-internal" title="            learn (viberl.agents.reinforce.REINFORCEAgent.learn)" href="#viberl.agents.reinforce.REINFORCEAgent.learn">learn</a></code></td>
               <td>
                 <div class="doc-md-description">
-                  <p>Perform one learning step using REINFORCE algorithm.</p>
+                  <p>Update policy parameters using the REINFORCE gradient algorithm.</p>
+                </div>
+              </td>
+            </tr>
+            <tr class="doc-section-item">
+              <td><code><a class="autorefs autorefs-internal" title="            save (viberl.agents.reinforce.REINFORCEAgent.save)" href="#viberl.agents.reinforce.REINFORCEAgent.save">save</a></code></td>
+              <td>
+                <div class="doc-md-description">
+                  <p>Save the agent's policy network parameters to a file.</p>
+                </div>
+              </td>
+            </tr>
+            <tr class="doc-section-item">
+              <td><code><a class="autorefs autorefs-internal" title="            load (viberl.agents.reinforce.REINFORCEAgent.load)" href="#viberl.agents.reinforce.REINFORCEAgent.load">load</a></code></td>
+              <td>
+                <div class="doc-md-description">
+                  <p>Load the agent's policy network parameters from a file.</p>
                 </div>
               </td>
             </tr>
@@ -1463,51 +1536,61 @@
 
                   <details class="quote">
                     <summary>Source code in <code>viberl/agents/reinforce.py</code></summary>
-                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-14">14</a></span>
-<span class="normal"><a href="#__codelineno-0-15">15</a></span>
-<span class="normal"><a href="#__codelineno-0-16">16</a></span>
-<span class="normal"><a href="#__codelineno-0-17">17</a></span>
-<span class="normal"><a href="#__codelineno-0-18">18</a></span>
-<span class="normal"><a href="#__codelineno-0-19">19</a></span>
-<span class="normal"><a href="#__codelineno-0-20">20</a></span>
-<span class="normal"><a href="#__codelineno-0-21">21</a></span>
-<span class="normal"><a href="#__codelineno-0-22">22</a></span>
-<span class="normal"><a href="#__codelineno-0-23">23</a></span>
-<span class="normal"><a href="#__codelineno-0-24">24</a></span>
-<span class="normal"><a href="#__codelineno-0-25">25</a></span>
-<span class="normal"><a href="#__codelineno-0-26">26</a></span>
-<span class="normal"><a href="#__codelineno-0-27">27</a></span>
-<span class="normal"><a href="#__codelineno-0-28">28</a></span>
-<span class="normal"><a href="#__codelineno-0-29">29</a></span>
-<span class="normal"><a href="#__codelineno-0-30">30</a></span>
-<span class="normal"><a href="#__codelineno-0-31">31</a></span>
-<span class="normal"><a href="#__codelineno-0-32">32</a></span>
-<span class="normal"><a href="#__codelineno-0-33">33</a></span>
-<span class="normal"><a href="#__codelineno-0-34">34</a></span>
-<span class="normal"><a href="#__codelineno-0-35">35</a></span>
-<span class="normal"><a href="#__codelineno-0-36">36</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15"></a>    <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16"></a>    <span class="n">state_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17"></a>    <span class="n">action_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18"></a>    <span class="n">learning_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-3</span><span class="p">,</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19"></a>    <span class="n">gamma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.99</span><span class="p">,</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20"></a>    <span class="n">hidden_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span><span class="p">,</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21"></a>    <span class="n">num_hidden_layers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="p">):</span>
-<a id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize REINFORCE agent.</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24"></a>
-<a id="__codelineno-0-25" name="__codelineno-0-25"></a><span class="sd">    Args:</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="sd">        state_size: Size of the state space</span>
-<a id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="sd">        action_size: Size of the action space</span>
-<a id="__codelineno-0-28" name="__codelineno-0-28"></a><span class="sd">        learning_rate: Learning rate for policy optimization</span>
-<a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="sd">        gamma: Discount factor for future rewards (0.0 to 1.0)</span>
-<a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="sd">        hidden_size: Size of hidden layers in policy network</span>
-<a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="sd">        num_hidden_layers: Number of hidden layers in policy network</span>
-<a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-33" name="__codelineno-0-33"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">state_size</span><span class="p">,</span> <span class="n">action_size</span><span class="p">)</span>
-<a id="__codelineno-0-34" name="__codelineno-0-34"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">gamma</span>
-<a id="__codelineno-0-35" name="__codelineno-0-35"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">policy_network</span> <span class="o">=</span> <span class="n">PolicyNetwork</span><span class="p">(</span><span class="n">state_size</span><span class="p">,</span> <span class="n">action_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">num_hidden_layers</span><span class="p">)</span>
-<a id="__codelineno-0-36" name="__codelineno-0-36"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">policy_network</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">)</span>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">state_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">action_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">learning_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-3</span><span class="p">,</span>
+    <span class="n">gamma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.99</span><span class="p">,</span>
+    <span class="n">hidden_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span><span class="p">,</span>
+    <span class="n">num_hidden_layers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the REINFORCE agent.&quot;&quot;&quot;</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">state_size</span><span class="p">,</span> <span class="n">action_size</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">state_size</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;state_size must be positive, got </span><span class="si">{</span><span class="n">state_size</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">action_size</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;action_size must be positive, got </span><span class="si">{</span><span class="n">action_size</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">learning_rate</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;learning_rate must be positive, got </span><span class="si">{</span><span class="n">learning_rate</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">gamma</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;gamma must be in (0, 1], got </span><span class="si">{</span><span class="n">gamma</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">hidden_size</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;hidden_size must be positive, got </span><span class="si">{</span><span class="n">hidden_size</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">num_hidden_layers</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;num_hidden_layers must be non-negative, got </span><span class="si">{</span><span class="n">num_hidden_layers</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">gamma</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">policy_network</span> <span class="o">=</span> <span class="n">PolicyNetwork</span><span class="p">(</span><span class="n">state_size</span><span class="p">,</span> <span class="n">action_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">num_hidden_layers</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">policy_network</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
                   </details>
 
@@ -1533,8 +1616,8 @@
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
-<a href="#viberl.agents.reinforce.REINFORCEAgent.gamma" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">gamma</span> <span class="o">=</span> <span class="n"><span title="viberl.agents.reinforce.REINFORCEAgent(gamma)">gamma</span></span>
+</h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">gamma</span> <span class="o">=</span> <span class="n"><span title="viberl.agents.reinforce.REINFORCEAgent(gamma)">gamma</span></span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1555,8 +1638,8 @@
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
-<a href="#viberl.agents.reinforce.REINFORCEAgent.policy_network" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">policy_network</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="            PolicyNetwork (viberl.networks.policy_network.PolicyNetwork)" href="../../networks/policy_network/#viberl.networks.policy_network.PolicyNetwork">PolicyNetwork</a></span><span class="p">(</span><span class="n"><span title="viberl.agents.reinforce.REINFORCEAgent(state_size)">state_size</span></span><span class="p">,</span> <span class="n"><span title="viberl.agents.reinforce.REINFORCEAgent(action_size)">action_size</span></span><span class="p">,</span> <span class="n"><span title="viberl.agents.reinforce.REINFORCEAgent(hidden_size)">hidden_size</span></span><span class="p">,</span> <span class="n"><span title="viberl.agents.reinforce.REINFORCEAgent(num_hidden_layers)">num_hidden_layers</span></span><span class="p">)</span>
+</h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">policy_network</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="            PolicyNetwork (viberl.networks.policy_network.PolicyNetwork)" href="../../networks/policy_network/#viberl.networks.policy_network.PolicyNetwork">PolicyNetwork</a></span><span class="p">(</span><span class="n"><span title="viberl.agents.reinforce.REINFORCEAgent(state_size)">state_size</span></span><span class="p">,</span> <span class="n"><span title="viberl.agents.reinforce.REINFORCEAgent(action_size)">action_size</span></span><span class="p">,</span> <span class="n"><span title="viberl.agents.reinforce.REINFORCEAgent(hidden_size)">hidden_size</span></span><span class="p">,</span> <span class="n"><span title="viberl.agents.reinforce.REINFORCEAgent(num_hidden_layers)">num_hidden_layers</span></span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1577,8 +1660,8 @@
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
-<a href="#viberl.agents.reinforce.REINFORCEAgent.optimizer" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">optimizer</span> <span class="o">=</span> <span class="n"><span title="torch.optim.Adam">Adam</span></span><span class="p">(</span><span class="n"><span title="viberl.agents.reinforce.REINFORCEAgent(self).policy_network.parameters">parameters</span></span><span class="p">(),</span> <span class="n"><span title="torch.optim.Adam(lr)">lr</span></span><span class="o">=</span><span class="n"><span title="viberl.agents.reinforce.REINFORCEAgent(learning_rate)">learning_rate</span></span><span class="p">)</span>
+</h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">optimizer</span> <span class="o">=</span> <span class="n"><span title="torch.optim.Adam">Adam</span></span><span class="p">(</span><span class="n"><span title="viberl.agents.reinforce.REINFORCEAgent(self).policy_network.parameters">parameters</span></span><span class="p">(),</span> <span class="n"><span title="torch.optim.Adam(lr)">lr</span></span><span class="o">=</span><span class="n"><span title="viberl.agents.reinforce.REINFORCEAgent(learning_rate)">learning_rate</span></span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1596,13 +1679,18 @@
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">act</span>
 
 
-<a href="#viberl.agents.reinforce.REINFORCEAgent.act" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">act</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n"><span title="numpy.ndarray">ndarray</span></span><span class="p">,</span> <span class="n">training</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="            Action (viberl.typing.Action)" href="../../typing/#viberl.typing.Action">Action</a></span>
+</h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">act</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n"><span title="numpy.ndarray">ndarray</span></span><span class="p">,</span> <span class="n">training</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="            Action (viberl.typing.Action)" href="../../typing/#viberl.typing.Action">Action</a></span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
 
-        <p>Select action using current policy.</p>
+        <p>Select action using the current policy.</p>
+<p>Uses the policy network to compute action probabilities and selects
+an action based on the current mode (training vs evaluation).</p>
+<p>In training mode, samples from the policy distribution to ensure
+exploration. In evaluation mode, selects the most probable action
+(greedy selection).</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -1625,7 +1713,8 @@
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Current state as numpy array</p>
+                <p>Current state observation as a numpy array. Should have shape
+(state_size,) or be convertible to a tensor of that shape.</p>
               </div>
             </td>
             <td>
@@ -1641,7 +1730,9 @@
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Whether in training mode (affects action selection)</p>
+                <p>Whether in training mode. If True, samples from the policy
+distribution for exploration. If False, selects the action with
+highest probability (greedy selection).</p>
               </div>
             </td>
             <td>
@@ -1667,7 +1758,40 @@
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Action object containing the selected action</p>
+                <p>Action containing the selected action index as an integer.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If the state has incorrect shape or type.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="RuntimeError">RuntimeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If there's an error during action computation.</p>
               </div>
             </td>
           </tr>
@@ -1677,29 +1801,75 @@
 
             <details class="quote">
               <summary>Source code in <code>viberl/agents/reinforce.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-38">38</a></span>
-<span class="normal"><a href="#__codelineno-0-39">39</a></span>
-<span class="normal"><a href="#__codelineno-0-40">40</a></span>
-<span class="normal"><a href="#__codelineno-0-41">41</a></span>
-<span class="normal"><a href="#__codelineno-0-42">42</a></span>
-<span class="normal"><a href="#__codelineno-0-43">43</a></span>
-<span class="normal"><a href="#__codelineno-0-44">44</a></span>
-<span class="normal"><a href="#__codelineno-0-45">45</a></span>
-<span class="normal"><a href="#__codelineno-0-46">46</a></span>
-<span class="normal"><a href="#__codelineno-0-47">47</a></span>
-<span class="normal"><a href="#__codelineno-0-48">48</a></span>
-<span class="normal"><a href="#__codelineno-0-49">49</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-38" name="__codelineno-0-38"></a><span class="k">def</span><span class="w"> </span><span class="nf">act</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">training</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Action</span><span class="p">:</span>
-<a id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Select action using current policy.</span>
-<a id="__codelineno-0-40" name="__codelineno-0-40"></a>
-<a id="__codelineno-0-41" name="__codelineno-0-41"></a><span class="sd">    Args:</span>
-<a id="__codelineno-0-42" name="__codelineno-0-42"></a><span class="sd">        state: Current state as numpy array</span>
-<a id="__codelineno-0-43" name="__codelineno-0-43"></a><span class="sd">        training: Whether in training mode (affects action selection)</span>
-<a id="__codelineno-0-44" name="__codelineno-0-44"></a>
-<a id="__codelineno-0-45" name="__codelineno-0-45"></a><span class="sd">    Returns:</span>
-<a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="sd">        Action object containing the selected action</span>
-<a id="__codelineno-0-47" name="__codelineno-0-47"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-48" name="__codelineno-0-48"></a>    <span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy_network</span><span class="o">.</span><span class="n">act</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
-<a id="__codelineno-0-49" name="__codelineno-0-49"></a>    <span class="k">return</span> <span class="n">Action</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">)</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">act</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">training</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Action</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Select action using the current policy.</span>
+
+<span class="sd">    Uses the policy network to compute action probabilities and selects</span>
+<span class="sd">    an action based on the current mode (training vs evaluation).</span>
+
+<span class="sd">    In training mode, samples from the policy distribution to ensure</span>
+<span class="sd">    exploration. In evaluation mode, selects the most probable action</span>
+<span class="sd">    (greedy selection).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        state: Current state observation as a numpy array. Should have shape</span>
+<span class="sd">            (state_size,) or be convertible to a tensor of that shape.</span>
+<span class="sd">        training: Whether in training mode. If True, samples from the policy</span>
+<span class="sd">            distribution for exploration. If False, selects the action with</span>
+<span class="sd">            highest probability (greedy selection).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Action containing the selected action index as an integer.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the state has incorrect shape or type.</span>
+<span class="sd">        RuntimeError: If there&#39;s an error during action computation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">training</span><span class="p">:</span>
+        <span class="c1"># Training mode: sample from policy distribution</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy_network</span><span class="o">.</span><span class="n">act</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Evaluation mode: select most likely action (greedy)</span>
+        <span class="n">state_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">state</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="n">action_probs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy_network</span><span class="p">(</span><span class="n">state_tensor</span><span class="p">)</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">action_probs</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">Action</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -1713,13 +1883,13 @@
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">learn</span>
 
 
-<a href="#viberl.agents.reinforce.REINFORCEAgent.learn" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">learn</span><span class="p">(</span><span class="n">trajectory</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            Trajectory (viberl.typing.Trajectory)" href="../../typing/#viberl.typing.Trajectory">Trajectory</a></span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="float">float</span></span><span class="p">]</span>
+</h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">learn</span><span class="p">(</span><span class="n">trajectories</span><span class="p">:</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="            Trajectory (viberl.typing.Trajectory)" href="../../typing/#viberl.typing.Trajectory">Trajectory</a></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="float">float</span></span><span class="p">]</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
 
-        <p>Perform one learning step using REINFORCE algorithm.</p>
+        <p>Update policy parameters using the REINFORCE gradient algorithm.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -1735,14 +1905,14 @@
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>trajectory</code>
+                <code>trajectories</code>
             </td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="            Trajectory (viberl.typing.Trajectory)" href="../../typing/#viberl.typing.Trajectory">Trajectory</a></code>
+                  <code><span title="list">list</span>[<a class="autorefs autorefs-internal" title="            Trajectory (viberl.typing.Trajectory)" href="../../typing/#viberl.typing.Trajectory">Trajectory</a>]</code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>A complete trajectory containing transitions</p>
+                <p>List of trajectories to learn from</p>
               </div>
             </td>
             <td>
@@ -1753,101 +1923,582 @@
     </table>
 
 
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="float">float</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Dictionary containing training metrics:</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="float">float</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <ul>
+<li>'reinforce/policy_loss': Policy loss value (float)</li>
+</ul>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="float">float</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <ul>
+<li>'reinforce/return_mean': Mean of normalized returns (float)</li>
+</ul>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="float">float</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <ul>
+<li>'reinforce/batch_size': Number of trajectories in batch (int)</li>
+</ul>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If no trajectories are provided or contains invalid data.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="RuntimeError">RuntimeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If there's an error during gradient computation.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
             <details class="quote">
               <summary>Source code in <code>viberl/agents/reinforce.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-51">51</a></span>
-<span class="normal"><a href="#__codelineno-0-52">52</a></span>
-<span class="normal"><a href="#__codelineno-0-53">53</a></span>
-<span class="normal"><a href="#__codelineno-0-54">54</a></span>
-<span class="normal"><a href="#__codelineno-0-55">55</a></span>
-<span class="normal"><a href="#__codelineno-0-56">56</a></span>
-<span class="normal"><a href="#__codelineno-0-57">57</a></span>
-<span class="normal"><a href="#__codelineno-0-58">58</a></span>
-<span class="normal"><a href="#__codelineno-0-59">59</a></span>
-<span class="normal"><a href="#__codelineno-0-60">60</a></span>
-<span class="normal"><a href="#__codelineno-0-61">61</a></span>
-<span class="normal"><a href="#__codelineno-0-62">62</a></span>
-<span class="normal"><a href="#__codelineno-0-63">63</a></span>
-<span class="normal"><a href="#__codelineno-0-64">64</a></span>
-<span class="normal"><a href="#__codelineno-0-65">65</a></span>
-<span class="normal"><a href="#__codelineno-0-66">66</a></span>
-<span class="normal"><a href="#__codelineno-0-67">67</a></span>
-<span class="normal"><a href="#__codelineno-0-68">68</a></span>
-<span class="normal"><a href="#__codelineno-0-69">69</a></span>
-<span class="normal"><a href="#__codelineno-0-70">70</a></span>
-<span class="normal"><a href="#__codelineno-0-71">71</a></span>
-<span class="normal"><a href="#__codelineno-0-72">72</a></span>
-<span class="normal"><a href="#__codelineno-0-73">73</a></span>
-<span class="normal"><a href="#__codelineno-0-74">74</a></span>
-<span class="normal"><a href="#__codelineno-0-75">75</a></span>
-<span class="normal"><a href="#__codelineno-0-76">76</a></span>
-<span class="normal"><a href="#__codelineno-0-77">77</a></span>
-<span class="normal"><a href="#__codelineno-0-78">78</a></span>
-<span class="normal"><a href="#__codelineno-0-79">79</a></span>
-<span class="normal"><a href="#__codelineno-0-80">80</a></span>
-<span class="normal"><a href="#__codelineno-0-81">81</a></span>
-<span class="normal"><a href="#__codelineno-0-82">82</a></span>
-<span class="normal"><a href="#__codelineno-0-83">83</a></span>
-<span class="normal"><a href="#__codelineno-0-84">84</a></span>
-<span class="normal"><a href="#__codelineno-0-85">85</a></span>
-<span class="normal"><a href="#__codelineno-0-86">86</a></span>
-<span class="normal"><a href="#__codelineno-0-87">87</a></span>
-<span class="normal"><a href="#__codelineno-0-88">88</a></span>
-<span class="normal"><a href="#__codelineno-0-89">89</a></span>
-<span class="normal"><a href="#__codelineno-0-90">90</a></span>
-<span class="normal"><a href="#__codelineno-0-91">91</a></span>
-<span class="normal"><a href="#__codelineno-0-92">92</a></span>
-<span class="normal"><a href="#__codelineno-0-93">93</a></span>
-<span class="normal"><a href="#__codelineno-0-94">94</a></span>
-<span class="normal"><a href="#__codelineno-0-95">95</a></span>
-<span class="normal"><a href="#__codelineno-0-96">96</a></span>
-<span class="normal"><a href="#__codelineno-0-97">97</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-51" name="__codelineno-0-51"></a><span class="k">def</span><span class="w"> </span><span class="nf">learn</span><span class="p">(</span>
-<a id="__codelineno-0-52" name="__codelineno-0-52"></a>    <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-53" name="__codelineno-0-53"></a>    <span class="n">trajectory</span><span class="p">:</span> <span class="n">Trajectory</span><span class="p">,</span>
-<a id="__codelineno-0-54" name="__codelineno-0-54"></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-<a id="__codelineno-0-55" name="__codelineno-0-55"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<a id="__codelineno-0-56" name="__codelineno-0-56"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Perform one learning step using REINFORCE algorithm.</span>
-<a id="__codelineno-0-57" name="__codelineno-0-57"></a>
-<a id="__codelineno-0-58" name="__codelineno-0-58"></a><span class="sd">    Args:</span>
-<a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="sd">        trajectory: A complete trajectory containing transitions</span>
-<a id="__codelineno-0-60" name="__codelineno-0-60"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-61" name="__codelineno-0-61"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">transitions</span><span class="p">:</span>
-<a id="__codelineno-0-62" name="__codelineno-0-62"></a>        <span class="k">return</span> <span class="p">{}</span>
-<a id="__codelineno-0-63" name="__codelineno-0-63"></a>
-<a id="__codelineno-0-64" name="__codelineno-0-64"></a>    <span class="c1"># Extract data from trajectory</span>
-<a id="__codelineno-0-65" name="__codelineno-0-65"></a>    <span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">state</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">transitions</span><span class="p">]</span>
-<a id="__codelineno-0-66" name="__codelineno-0-66"></a>    <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">action</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">transitions</span><span class="p">]</span>
-<a id="__codelineno-0-67" name="__codelineno-0-67"></a>    <span class="n">rewards</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">reward</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">transitions</span><span class="p">]</span>
-<a id="__codelineno-0-68" name="__codelineno-0-68"></a>
-<a id="__codelineno-0-69" name="__codelineno-0-69"></a>    <span class="c1"># Compute returns</span>
-<a id="__codelineno-0-70" name="__codelineno-0-70"></a>    <span class="n">returns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_returns</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span>
-<a id="__codelineno-0-71" name="__codelineno-0-71"></a>
-<a id="__codelineno-0-72" name="__codelineno-0-72"></a>    <span class="c1"># Normalize returns for stability</span>
-<a id="__codelineno-0-73" name="__codelineno-0-73"></a>    <span class="n">returns</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span>
-<a id="__codelineno-0-74" name="__codelineno-0-74"></a>    <span class="k">if</span> <span class="n">returns</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-<a id="__codelineno-0-75" name="__codelineno-0-75"></a>        <span class="n">returns</span> <span class="o">=</span> <span class="p">(</span><span class="n">returns</span> <span class="o">-</span> <span class="n">returns</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="n">returns</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
-<a id="__codelineno-0-76" name="__codelineno-0-76"></a>
-<a id="__codelineno-0-77" name="__codelineno-0-77"></a>    <span class="c1"># Convert states and actions to tensors</span>
-<a id="__codelineno-0-78" name="__codelineno-0-78"></a>    <span class="n">states_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">states</span><span class="p">))</span>
-<a id="__codelineno-0-79" name="__codelineno-0-79"></a>    <span class="n">actions_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
-<a id="__codelineno-0-80" name="__codelineno-0-80"></a>
-<a id="__codelineno-0-81" name="__codelineno-0-81"></a>    <span class="c1"># Get action probabilities</span>
-<a id="__codelineno-0-82" name="__codelineno-0-82"></a>    <span class="n">action_probs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy_network</span><span class="p">(</span><span class="n">states_tensor</span><span class="p">)</span>
-<a id="__codelineno-0-83" name="__codelineno-0-83"></a>
-<a id="__codelineno-0-84" name="__codelineno-0-84"></a>    <span class="c1"># Compute loss</span>
-<a id="__codelineno-0-85" name="__codelineno-0-85"></a>    <span class="n">m</span> <span class="o">=</span> <span class="n">Categorical</span><span class="p">(</span><span class="n">action_probs</span><span class="p">)</span>
-<a id="__codelineno-0-86" name="__codelineno-0-86"></a>    <span class="n">log_probs</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">log_prob</span><span class="p">(</span><span class="n">actions_tensor</span><span class="p">)</span>
-<a id="__codelineno-0-87" name="__codelineno-0-87"></a>    <span class="n">loss</span> <span class="o">=</span> <span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">log_probs</span> <span class="o">*</span> <span class="n">returns</span><span class="p">)</span>
-<a id="__codelineno-0-88" name="__codelineno-0-88"></a>
-<a id="__codelineno-0-89" name="__codelineno-0-89"></a>    <span class="c1"># Update policy</span>
-<a id="__codelineno-0-90" name="__codelineno-0-90"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
-<a id="__codelineno-0-91" name="__codelineno-0-91"></a>    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
-<a id="__codelineno-0-92" name="__codelineno-0-92"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
-<a id="__codelineno-0-93" name="__codelineno-0-93"></a>
-<a id="__codelineno-0-94" name="__codelineno-0-94"></a>    <span class="k">return</span> <span class="p">{</span>
-<a id="__codelineno-0-95" name="__codelineno-0-95"></a>        <span class="s1">&#39;reinforce/policy_loss&#39;</span><span class="p">:</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
-<a id="__codelineno-0-96" name="__codelineno-0-96"></a>        <span class="s1">&#39;reinforce/return_mean&#39;</span><span class="p">:</span> <span class="n">returns</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
-<a id="__codelineno-0-97" name="__codelineno-0-97"></a>    <span class="p">}</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">learn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trajectories</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Trajectory</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Update policy parameters using the REINFORCE gradient algorithm.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        trajectories: List of trajectories to learn from</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dictionary containing training metrics:</span>
+<span class="sd">        - &#39;reinforce/policy_loss&#39;: Policy loss value (float)</span>
+<span class="sd">        - &#39;reinforce/return_mean&#39;: Mean of normalized returns (float)</span>
+<span class="sd">        - &#39;reinforce/batch_size&#39;: Number of trajectories in batch (int)</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If no trajectories are provided or contains invalid data.</span>
+<span class="sd">        RuntimeError: If there&#39;s an error during gradient computation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">trajectories</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="c1"># Collect all data from all trajectories</span>
+    <span class="n">all_states</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">all_actions</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">all_returns</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">trajectory</span> <span class="ow">in</span> <span class="n">trajectories</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">transitions</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Extract data from trajectory</span>
+        <span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">state</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">transitions</span><span class="p">]</span>
+        <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">action</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">transitions</span><span class="p">]</span>
+        <span class="n">rewards</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">reward</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">transitions</span><span class="p">]</span>
+
+        <span class="c1"># Compute returns for this trajectory</span>
+        <span class="n">returns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_returns</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span>
+
+        <span class="c1"># Normalize returns for this trajectory</span>
+        <span class="n">returns</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">returns</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">returns</span> <span class="o">=</span> <span class="p">(</span><span class="n">returns</span> <span class="o">-</span> <span class="n">returns</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="n">returns</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+
+        <span class="n">all_states</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
+        <span class="n">all_actions</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+        <span class="n">all_returns</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">returns</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">all_states</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="c1"># Convert to tensors</span>
+    <span class="n">states_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">all_states</span><span class="p">))</span>
+    <span class="n">actions_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span><span class="n">all_actions</span><span class="p">)</span>
+    <span class="n">returns_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">all_returns</span><span class="p">)</span>
+
+    <span class="c1"># Get action probabilities</span>
+    <span class="n">action_probs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy_network</span><span class="p">(</span><span class="n">states_tensor</span><span class="p">)</span>
+
+    <span class="c1"># Compute loss across all trajectories</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">Categorical</span><span class="p">(</span><span class="n">action_probs</span><span class="p">)</span>
+    <span class="n">log_probs</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">log_prob</span><span class="p">(</span><span class="n">actions_tensor</span><span class="p">)</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">log_probs</span> <span class="o">*</span> <span class="n">returns_tensor</span><span class="p">)</span>
+
+    <span class="c1"># Update policy</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;reinforce/policy_loss&#39;</span><span class="p">:</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+        <span class="s1">&#39;reinforce/return_mean&#39;</span><span class="p">:</span> <span class="n">returns_tensor</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+        <span class="s1">&#39;reinforce/batch_size&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">trajectories</span><span class="p">),</span>
+    <span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="viberl.agents.reinforce.REINFORCEAgent.save" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">save</span>
+
+
+</h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">save</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Save the agent's policy network parameters to a file.</p>
+<p>Saves the complete state of the policy network, including all parameters
+and buffers. The saved file can be loaded later to restore the exact
+same policy.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>filepath</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Path where to save the model. Should include the .pth extension.
+The directory will be created if it doesn't exist.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="IOError">IOError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If there's an error writing to the file.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If filepath is empty or invalid.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<details class="example" open>
+  <summary>Example</summary>
+  <blockquote>
+<blockquote>
+<blockquote>
+<p>agent.save('models/reinforce_policy.pth')</p>
+<h4 id="viberl.agents.reinforce.REINFORCEAgent.save--later-agentloadmodelsreinforce_policypth">Later: agent.load('models/reinforce_policy.pth')</h4>
+</blockquote>
+</blockquote>
+</blockquote>
+</details>
+
+            <details class="quote">
+              <summary>Source code in <code>viberl/agents/reinforce.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save the agent&#39;s policy network parameters to a file.</span>
+
+<span class="sd">    Saves the complete state of the policy network, including all parameters</span>
+<span class="sd">    and buffers. The saved file can be loaded later to restore the exact</span>
+<span class="sd">    same policy.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filepath: Path where to save the model. Should include the .pth extension.</span>
+<span class="sd">            The directory will be created if it doesn&#39;t exist.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        IOError: If there&#39;s an error writing to the file.</span>
+<span class="sd">        ValueError: If filepath is empty or invalid.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; agent.save(&#39;models/reinforce_policy.pth&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; # Later: agent.load(&#39;models/reinforce_policy.pth&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">filepath</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;filepath cannot be empty&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Ensure directory exists</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filepath</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">policy_network</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">filepath</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="viberl.agents.reinforce.REINFORCEAgent.load" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">load</span>
+
+
+</h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">load</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Load the agent's policy network parameters from a file.</p>
+<p>Loads previously saved policy network parameters from disk. Can be used
+to restore an agent to a previously saved state.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>filepath</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Path from which to load the model. Should point to a .pth file
+created by the save() method.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="IOError">IOError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If the file doesn't exist or can't be read.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If filepath is empty or the file contains invalid data.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="RuntimeError">RuntimeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If there's a mismatch between saved and current network architecture.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<details class="example" open>
+  <summary>Example</summary>
+  <blockquote>
+<blockquote>
+<blockquote>
+<p>agent.load('models/reinforce_policy.pth')</p>
+<h4 id="viberl.agents.reinforce.REINFORCEAgent.load--agent-is-now-restored-to-the-saved-state">Agent is now restored to the saved state</h4>
+</blockquote>
+</blockquote>
+</blockquote>
+</details>
+
+            <details class="quote">
+              <summary>Source code in <code>viberl/agents/reinforce.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load the agent&#39;s policy network parameters from a file.</span>
+
+<span class="sd">    Loads previously saved policy network parameters from disk. Can be used</span>
+<span class="sd">    to restore an agent to a previously saved state.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filepath: Path from which to load the model. Should point to a .pth file</span>
+<span class="sd">            created by the save() method.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        IOError: If the file doesn&#39;t exist or can&#39;t be read.</span>
+<span class="sd">        ValueError: If filepath is empty or the file contains invalid data.</span>
+<span class="sd">        RuntimeError: If there&#39;s a mismatch between saved and current network architecture.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; agent.load(&#39;models/reinforce_policy.pth&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; # Agent is now restored to the saved state</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">filepath</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;filepath cannot be empty&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;File not found: </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">state_dict</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">map_location</span><span class="o">=</span><span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Verify compatibility</span>
+    <span class="n">current_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy_network</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">state_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">!=</span> <span class="n">current_params</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s1">&#39;Network architecture mismatch: saved model has different parameters&#39;</span>
+        <span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">policy_network</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">state_dict</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -1949,6 +2600,10 @@
     
     
       <script src="../../../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+        <script src="../../../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
   </body>

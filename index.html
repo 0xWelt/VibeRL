@@ -52,6 +52,8 @@
     
       <link rel="stylesheet" href="assets/_mkdocstrings.css">
     
+      <link rel="stylesheet" href="stylesheets/extra.css">
+    
     <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -267,25 +269,6 @@
   
 
       
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="contributing/" class="md-tabs__link">
-        
-  
-  
-    
-  
-  Contributing
-
-      </a>
-    </li>
-  
-
-      
     </ul>
   </div>
 </nav>
@@ -438,6 +421,48 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#experiment-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Experiment Management
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Experiment Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#directory-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Directory Structure
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tensorboard-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      TensorBoard Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#weights-biases-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Weights &amp; Biases Integration
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#python-api" class="md-nav__link">
     <span class="md-ellipsis">
       Python API
@@ -460,6 +485,15 @@
   <a href="#custom-training-loop" class="md-nav__link">
     <span class="md-ellipsis">
       Custom Training Loop
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#experiment-management-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      Experiment Management API
     </span>
   </a>
   
@@ -527,15 +561,6 @@
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#contributing" class="md-nav__link">
-    <span class="md-ellipsis">
-      Contributing
-    </span>
-  </a>
   
 </li>
       
@@ -1201,28 +1226,6 @@
   
 
     
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="contributing/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Contributing
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
   </ul>
 </nav>
                   </div>
@@ -1242,121 +1245,216 @@
   
 
 
-<h1 id="viberl-documentation">VibeRL Documentation<a class="headerlink" href="#viberl-documentation" title="Permanent link">&para;</a></h1>
+<h1 id="viberl-documentation">VibeRL Documentation</h1>
 <p>Welcome to <strong>VibeRL</strong> - A modern Reinforcement Learning framework built with type safety and modern Python practices.</p>
-<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
-<h3 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Clone the repository</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/0xWelt/VibeRL.git
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nb">cd</span><span class="w"> </span>VibeRL
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1"># Install using uv</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.&quot;</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="c1"># Or install with development dependencies</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
-</code></pre></div>
-<h3 id="your-first-training">Your First Training<a class="headerlink" href="#your-first-training" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Train a REINFORCE agent</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>viberl-train<span class="w"> </span>--alg<span class="w"> </span>reinforce<span class="w"> </span>--episodes<span class="w"> </span><span class="m">1000</span><span class="w"> </span>--grid-size<span class="w"> </span><span class="m">10</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Train a DQN agent</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>viberl-train<span class="w"> </span>--alg<span class="w"> </span>dqn<span class="w"> </span>--episodes<span class="w"> </span><span class="m">2000</span><span class="w"> </span>--grid-size<span class="w"> </span><span class="m">15</span><span class="w"> </span>--memory-size<span class="w"> </span><span class="m">10000</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># Train a PPO agent</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>viberl-train<span class="w"> </span>--alg<span class="w"> </span>ppo<span class="w"> </span>--episodes<span class="w"> </span><span class="m">1000</span><span class="w"> </span>--grid-size<span class="w"> </span><span class="m">12</span><span class="w"> </span>--ppo-epochs<span class="w"> </span><span class="m">4</span>
-</code></pre></div>
-<h3 id="evaluate-and-demo">Evaluate and Demo<a class="headerlink" href="#evaluate-and-demo" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Evaluate a trained model</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>viberl-eval<span class="w"> </span>--model-path<span class="w"> </span>experiments/reinforce_snake/final_model.pth<span class="w"> </span>--episodes<span class="w"> </span><span class="m">10</span><span class="w"> </span>--render
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Run demo with random actions</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>viberl-demo<span class="w"> </span>--episodes<span class="w"> </span><span class="m">5</span><span class="w"> </span>--grid-size<span class="w"> </span><span class="m">15</span>
-</code></pre></div>
-<h2 id="python-api">Python API<a class="headerlink" href="#python-api" title="Permanent link">&para;</a></h2>
-<h3 id="basic-training">Basic Training<a class="headerlink" href="#basic-training" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">viberl.agents.reinforce</span><span class="w"> </span><span class="kn">import</span> <span class="n">REINFORCEAgent</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">viberl.envs</span><span class="w"> </span><span class="kn">import</span> <span class="n">SnakeGameEnv</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">viberl.utils.training</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_agent</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="c1"># Create environment</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">env</span> <span class="o">=</span> <span class="n">SnakeGameEnv</span><span class="p">(</span><span class="n">grid_size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="c1"># Create agent</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="n">agent</span> <span class="o">=</span> <span class="n">REINFORCEAgent</span><span class="p">(</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    <span class="n">state_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>  <span class="c1"># 10x10 grid</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    <span class="n">action_size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>   <span class="c1"># 4 directions</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.001</span>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="p">)</span>
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="c1"># Train the agent</span>
-<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="n">train_agent</span><span class="p">(</span>
-<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>    <span class="n">agent</span><span class="o">=</span><span class="n">agent</span><span class="p">,</span>
-<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>    <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
-<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>    <span class="n">episodes</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
-<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>    <span class="n">save_path</span><span class="o">=</span><span class="s2">&quot;models/reinforce_snake.pth&quot;</span>
-<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="p">)</span>
-</code></pre></div>
-<h3 id="custom-training-loop">Custom Training Loop<a class="headerlink" href="#custom-training-loop" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">viberl.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Trajectory</span><span class="p">,</span> <span class="n">Transition</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">viberl.agents.dqn</span><span class="w"> </span><span class="kn">import</span> <span class="n">DQNAgent</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">env</span> <span class="o">=</span> <span class="n">SnakeGameEnv</span><span class="p">(</span><span class="n">grid_size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">agent</span> <span class="o">=</span> <span class="n">DQNAgent</span><span class="p">(</span><span class="n">state_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">action_size</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="k">for</span> <span class="n">episode</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">):</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    <span class="n">state</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    <span class="n">transitions</span> <span class="o">=</span> <span class="p">[]</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>        <span class="n">action</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">act</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>        <span class="n">next_state</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="o">.</span><span class="n">action</span><span class="p">)</span>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>
-<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>        <span class="n">transitions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Transition</span><span class="p">(</span>
-<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="o">=</span><span class="n">reward</span><span class="p">,</span>
-<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>            <span class="n">next_state</span><span class="o">=</span><span class="n">next_state</span><span class="p">,</span> <span class="n">done</span><span class="o">=</span><span class="n">done</span>
-<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>        <span class="p">))</span>
-<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>
-<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>        <span class="n">state</span> <span class="o">=</span> <span class="n">next_state</span>
-<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>        <span class="k">if</span> <span class="n">done</span> <span class="ow">or</span> <span class="n">truncated</span><span class="p">:</span>
-<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>            <span class="k">break</span>
-<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>
-<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a>    <span class="n">trajectory</span> <span class="o">=</span> <span class="n">Trajectory</span><span class="o">.</span><span class="n">from_transitions</span><span class="p">(</span><span class="n">transitions</span><span class="p">)</span>
-<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a>    <span class="n">metrics</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">learn</span><span class="p">(</span><span class="n">trajectory</span><span class="p">)</span>
-<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a>
-<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a>    <span class="k">if</span> <span class="n">episode</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Episode </span><span class="si">{</span><span class="n">episode</span><span class="si">}</span><span class="s2">, Reward: </span><span class="si">{</span><span class="n">trajectory</span><span class="o">.</span><span class="n">total_reward</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</code></pre></div>
-<h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h2>
+<h2 id="quick-start">Quick Start</h2>
+<h3 id="installation">Installation</h3>
+<pre><code class="language-bash"># Clone the repository
+git clone https://github.com/0xWelt/VibeRL.git
+cd VibeRL
+
+# Install using [uv](https://docs.astral.sh/uv/)
+uv pip install -e &quot;.&quot;
+
+# Or install with development dependencies
+uv pip install -e &quot;.[dev]&quot;
+</code></pre>
+<h3 id="your-first-training">Your First Training</h3>
+<pre><code class="language-bash"># Train a REINFORCE agent
+viberl-train --alg reinforce --episodes 1000 --grid-size 10
+
+# Train a DQN agent
+viberl-train --alg dqn --episodes 2000 --grid-size 15 --memory-size 10000
+
+# Train a PPO agent
+viberl-train --alg ppo --episodes 1000 --grid-size 12 --ppo-epochs 4
+</code></pre>
+<h3 id="evaluate-and-demo">Evaluate and Demo</h3>
+<pre><code class="language-bash"># Evaluate a trained model
+viberl-eval --model-path experiments/reinforce_snake_20241231_120000/final_model.pth --episodes 10 --render
+
+# Run demo with random actions
+viberl-demo --episodes 5 --grid-size 15
+
+# Monitor training with TensorBoard
+tensorboard --logdir experiments/
+</code></pre>
+<h2 id="experiment-management">Experiment Management</h2>
+<h3 id="directory-structure">Directory Structure</h3>
+<p>When training agents, VibeRL automatically creates organized experiment directories:</p>
+<pre><code>experiments/
+├── reinforce_snake_20241231_120000/
+│   ├── final_model.pth
+│   ├── best_model.pth
+│   ├── config.json
+│   ├── metrics.json
+│   ├── tensorboard/
+│   │   └── events.out.tfevents.*
+│   └── logs/
+│       └── training.log
+├── dqn_snake_20250101_143000/
+│   └── ...
+└── ppo_snake_20250102_090000/
+    └── ...
+</code></pre>
+<p>Each experiment directory contains:
+- <strong>Model files</strong>: <code>final_model.pth</code>, <code>best_model.pth</code> (highest reward)
+- <strong>Configuration</strong>: <code>config.json</code> with all training parameters
+- <strong>Metrics</strong>: <code>metrics.json</code> with training statistics
+- <strong>TensorBoard logs</strong>: Real-time training metrics
+- <strong>Training logs</strong>: Detailed log files</p>
+<h3 id="tensorboard-integration">TensorBoard Integration</h3>
+<p>Monitor your training progress in real-time with TensorBoard:</p>
+<pre><code class="language-bash"># Start TensorBoard for all experiments
+tensorboard --logdir experiments/
+
+# Start TensorBoard for specific algorithm
+tensorboard --logdir experiments/reinforce_*
+
+# Start TensorBoard for specific run
+tensorboard --logdir experiments/reinforce_snake_20241231_120000/tensorboard/
+</code></pre>
+<p>Access TensorBoard at <code>http://localhost:6006</code> to view:
+- Episode rewards and lengths
+- Loss curves (policy, value, total)
+- Learning rates and hyperparameters
+- Action distributions
+- Custom metrics per algorithm</p>
+<h3 id="weights-biases-integration"><a href="https://wandb.ai/">Weights &amp; Biases Integration</a></h3>
+<p>Track experiments with <a href="https://wandb.ai/">Weights &amp; Biases</a> for enhanced experiment management:</p>
+<pre><code class="language-bash"># Enable wandb logging during training
+viberl-train --alg dqn --episodes 1000 --wandb --name my_experiment
+
+# All CLI arguments are automatically logged to wandb
+viberl-train --alg ppo --episodes 500 --lr 3e-4 --wandb --name ppo_tuning
+</code></pre>
+<p>Features include:
+- Automatic hyperparameter tracking
+- Real-time metric visualization
+- Experiment comparison
+- Artifact storage for models and logs
+- Collaborative experiment sharing</p>
+<h2 id="python-api">Python API</h2>
+<h3 id="basic-training">Basic Training</h3>
+<pre><code class="language-python">from viberl.agents.reinforce import REINFORCEAgent
+from viberl.envs import SnakeGameEnv
+from viberl.utils.training import train_agent
+
+# Create environment
+env = SnakeGameEnv(grid_size=10)
+
+# Create agent
+agent = REINFORCEAgent(
+    state_size=100,  # 10x10 grid
+    action_size=4,   # 4 directions
+    learning_rate=0.001
+)
+
+# Train the agent
+train_agent(
+    agent=agent,
+    env=env,
+    episodes=1000,
+    save_path=&quot;models/reinforce_snake.pth&quot;
+)
+</code></pre>
+<h3 id="custom-training-loop">Custom Training Loop</h3>
+<pre><code class="language-python">import numpy as np
+from loguru import logger
+from viberl.typing import Trajectory, Transition
+from viberl.agents.dqn import DQNAgent
+
+env = SnakeGameEnv(grid_size=10)
+agent = DQNAgent(state_size=100, action_size=4)
+
+for episode in range(1000):
+    state, _ = env.reset()
+    transitions = []
+
+    while True:
+        action = agent.act(state, training=True)
+        next_state, reward, done, truncated, info = env.step(action.action)
+
+        transitions.append(Transition(
+            state=state, action=action, reward=reward,
+            next_state=next_state, done=done
+        ))
+
+        state = next_state
+        if done or truncated:
+            break
+
+    trajectory = Trajectory.from_transitions(transitions)
+    metrics = agent.learn(trajectory)
+
+    if episode % 100 == 0:
+        logger.info(f&quot;Episode {episode}, Reward: {trajectory.total_reward}&quot;)
+</code></pre>
+<h3 id="experiment-management-api">Experiment Management API</h3>
+<pre><code class="language-python">from viberl.utils.experiment_manager import ExperimentManager
+from viberl.agents.ppo import PPOAgent
+from viberl.envs import SnakeGameEnv
+
+# Create experiment with automatic directory structure
+experiment = ExperimentManager(
+    algorithm=&quot;ppo&quot;,
+    grid_size=12,
+    learning_rate=0.001,
+    experiment_dir=&quot;experiments&quot;
+)
+
+# Access experiment paths
+logger.info(f&quot;Model will be saved to: {experiment.model_path}&quot;)
+logger.info(f&quot;TensorBoard logs: {experiment.tensorboard_path}&quot;)
+logger.info(f&quot;Config file: {experiment.config_path}&quot;)
+
+# Use with training
+env = SnakeGameEnv(grid_size=12)
+agent = PPOAgent(
+    state_size=144,  # 12x12 grid
+    action_size=4,
+    learning_rate=0.001,
+    device=experiment.device
+)
+
+# Train with automatic logging
+training_metrics = experiment.train_agent(
+    agent=agent,
+    env=env,
+    episodes=1000,
+    log_frequency=100
+)
+
+# View TensorBoard (run in terminal)
+# tensorboard --logdir experiments/ppo_*
+</code></pre>
+<h2 id="features">Features</h2>
 <ul>
 <li><strong>Modern Type System</strong>: Pydantic-based Action, Transition, Trajectory classes</li>
 <li><strong>Three Algorithms</strong>: REINFORCE, DQN, PPO with unified interface</li>
 <li><strong>Type Safety</strong>: Full type annotations throughout</li>
 <li><strong>CLI Interface</strong>: Complete training, evaluation, and demo commands</li>
-<li><strong>Experiment Management</strong>: Automatic directory structure with TensorBoard logging</li>
+<li><strong>Experiment Management</strong>: Automatic directory structure with TensorBoard and Weights &amp; Biases logging</li>
 <li><strong>50+ Tests</strong>: Comprehensive test suite</li>
 </ul>
-<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<h2 id="architecture">Architecture</h2>
 <p>The framework follows a clean architecture:</p>
 <ul>
 <li><strong><code>viberl/typing.py</code></strong>: Modern type system</li>
 <li><strong><code>viberl/agents/</code></strong>: RL algorithms (REINFORCE, DQN, PPO)</li>
 <li><strong><code>viberl/envs/</code></strong>: Environments (SnakeGameEnv)</li>
 <li><strong><code>viberl/networks/</code></strong>: Neural network implementations</li>
-<li><strong><code>viberl/utils/</code></strong>: Training utilities and experiment management</li>
+<li><strong><code>viberl/utils/</code></strong>: Training utilities, experiment management, and unified logging</li>
 <li><strong><code>viberl/cli.py</code></strong>: Command-line interface</li>
 </ul>
-<h2 id="algorithms">Algorithms<a class="headerlink" href="#algorithms" title="Permanent link">&para;</a></h2>
-<h3 id="reinforce">REINFORCE<a class="headerlink" href="#reinforce" title="Permanent link">&para;</a></h3>
+<h2 id="algorithms">Algorithms</h2>
+<h3 id="reinforce">REINFORCE</h3>
 <p>Policy gradient method using Monte Carlo returns.</p>
-<h3 id="dqn">DQN<a class="headerlink" href="#dqn" title="Permanent link">&para;</a></h3>
+<h3 id="dqn">DQN</h3>
 <p>Deep Q-Network with experience replay and target networks.</p>
-<h3 id="ppo">PPO<a class="headerlink" href="#ppo" title="Permanent link">&para;</a></h3>
+<h3 id="ppo">PPO</h3>
 <p>Proximal Policy Optimization with clipping and multiple epochs.</p>
-<h2 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Permanent link">&para;</a></h2>
-<p>See the <a href="contributing/">Contributing Guide</a> for information on how to contribute to VibeRL.</p>
-<h2 id="license">License<a class="headerlink" href="#license" title="Permanent link">&para;</a></h2>
+<h2 id="license">License</h2>
 <p>This project is licensed under the MIT License - see the <a href="https://github.com/0xWelt/VibeRL/blob/main/LICENSE">LICENSE</a> file for details.</p>
 
 
@@ -1437,6 +1535,10 @@
     
     
       <script src="assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+        <script src="javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
   </body>
