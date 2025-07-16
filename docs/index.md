@@ -22,13 +22,13 @@ uv pip install -e ".[dev]"
 
 ```bash
 # Train a REINFORCE agent
-viberl-train --alg reinforce --episodes 1000 --grid-size 10
+viberl-train --alg reinforce --episodes 1000 --grid-size 10 --trajectory-batch 4
 
 # Train a DQN agent
-viberl-train --alg dqn --episodes 2000 --grid-size 15 --memory-size 10000
+viberl-train --alg dqn --episodes 2000 --grid-size 15 --memory-size 10000 --trajectory-batch 8
 
 # Train a PPO agent
-viberl-train --alg ppo --episodes 1000 --grid-size 12 --ppo-epochs 4
+viberl-train --alg ppo --episodes 1000 --grid-size 12 --ppo-epochs 4 --trajectory-batch 16
 ```
 
 ### Evaluate and Demo
@@ -172,7 +172,7 @@ for episode in range(1000):
             break
 
     trajectory = Trajectory.from_transitions(transitions)
-    metrics = agent.learn(trajectory)
+    metrics = agent.learn(trajectories=[trajectory])
 
     if episode % 100 == 0:
         logger.info(f"Episode {episode}, Reward: {trajectory.total_reward}")
@@ -223,6 +223,7 @@ training_metrics = experiment.train_agent(
 
 - **Modern Type System**: Pydantic-based Action, Transition, Trajectory classes
 - **Three Algorithms**: REINFORCE, DQN, PPO with unified interface
+- **Batch Training**: Collect multiple trajectories per training iteration
 - **Type Safety**: Full type annotations throughout
 - **CLI Interface**: Complete training, evaluation, and demo commands
 - **Experiment Management**: Automatic directory structure with TensorBoard and Weights & Biases logging
