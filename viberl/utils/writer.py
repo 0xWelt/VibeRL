@@ -3,17 +3,16 @@
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 
-if TYPE_CHECKING:
-    from typing import Self
-
-
-# Import types for TYPE_CHECKING only
 if TYPE_CHECKING:
     import types
+    from typing import Self
 
+    import numpy as np
+    import torch
+    import wandb
 
 try:
     import wandb
@@ -40,7 +39,7 @@ class UnifiedWriter:
         run_name: str | None = None,
         enable_tensorboard: bool = True,
         enable_wandb: bool = False,
-        wandb_config: dict[str, Any] | None = None,
+        wandb_config: dict[str, object] | None = None,
     ) -> None:
         """Initialize unified writer.
 
@@ -63,7 +62,7 @@ class UnifiedWriter:
             self.tb_writer = SummaryWriter(log_dir)
 
         # Initialize Weights & Biases
-        self.wandb_run: Any | None = None
+        self.wandb_run: object | None = None
         if enable_wandb:
             if not WANDB_AVAILABLE:
                 raise ImportError(
@@ -93,7 +92,7 @@ class UnifiedWriter:
         if self.wandb_run is not None:
             wandb.log(scalars, step=step)
 
-    def log_histogram(self, tag: str, values: Any, step: int) -> None:
+    def log_histogram(self, tag: str, values: torch.Tensor | np.ndarray, step: int) -> None:
         """Log histogram data."""
         if self.tb_writer is not None:
             self.tb_writer.add_histogram(tag, values, step)

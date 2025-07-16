@@ -9,19 +9,18 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     import numpy as np
 
-    from viberl.typing import Action
+    from viberl.typing import Action, Trajectory
 
 
 class Agent(ABC):
     """Abstract base class for all RL agents."""
 
-    def __init__(self, state_size: int, action_size: int, **kwargs: dict):
+    def __init__(self, state_size: int, action_size: int) -> None:
         """Initialize the agent.
 
         Args:
             state_size: Size of the state space
             action_size: Size of the action space
-            **kwargs: Additional configuration parameters
         """
         self.state_size = state_size
         self.action_size = action_size
@@ -39,13 +38,11 @@ class Agent(ABC):
         """
 
     @abstractmethod
-    def learn(self, **kwargs: dict) -> dict[str, float]:
+    def learn(self, trajectories: list[Trajectory]) -> dict[str, float]:
         """Perform one learning step.
 
         Args:
-            **kwargs: Learning-specific parameters
-                - trajectories: List of trajectories for batch learning
-                - trajectory: Single trajectory (for backward compatibility)
+            trajectories: List of trajectories to learn from
 
         Returns:
             Dictionary of step metrics (e.g., loss values)

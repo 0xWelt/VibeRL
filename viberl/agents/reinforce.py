@@ -39,7 +39,7 @@ from torch.distributions import Categorical
 
 from viberl.agents.base import Agent
 from viberl.networks.policy_network import PolicyNetwork
-from viberl.typing import Action
+from viberl.typing import Action, Trajectory
 
 
 class REINFORCEAgent(Agent):
@@ -125,15 +125,11 @@ class REINFORCEAgent(Agent):
 
         return Action(action=action)
 
-    def learn(self, **kwargs: dict) -> dict[str, float]:
+    def learn(self, trajectories: list[Trajectory]) -> dict[str, float]:
         """Update policy parameters using the REINFORCE gradient algorithm.
 
-        Supports both single trajectory and batch of trajectories.
-
         Args:
-            **kwargs: Learning-specific parameters:
-                - trajectories: List of trajectories for batch learning
-                - trajectory: Single trajectory (backward compatibility)
+            trajectories: List of trajectories to learn from
 
         Returns:
             Dictionary containing training metrics:
@@ -145,15 +141,8 @@ class REINFORCEAgent(Agent):
             ValueError: If no trajectories are provided or contains invalid data.
             RuntimeError: If there's an error during gradient computation.
         """
-        # Handle both single trajectory and batch of trajectories
-        if 'trajectories' in kwargs:
-            trajectories = kwargs['trajectories']
-            if not trajectories:
-                return {}
-        elif 'trajectory' in kwargs:
-            trajectories = [kwargs['trajectory']]
-        else:
-            raise ValueError("Either 'trajectories' or 'trajectory' must be provided")
+        if not trajectories:
+            return {}
 
         # Collect all data from all trajectories
         all_states = []

@@ -38,7 +38,7 @@ from torch.distributions import Categorical
 from viberl.agents.base import Agent
 from viberl.networks.policy_network import PolicyNetwork
 from viberl.networks.value_network import VNetwork
-from viberl.typing import Action
+from viberl.typing import Action, Trajectory
 
 
 class PPOAgent(Agent):
@@ -147,28 +147,17 @@ class PPOAgent(Agent):
                 action = action_probs.argmax().item()
                 return Action(action=action)
 
-    def learn(self, **kwargs: dict) -> dict[str, float]:
+    def learn(self, trajectories: list[Trajectory]) -> dict[str, float]:
         """Update policy and value networks using PPO clipped objective.
 
-        Supports both single trajectory and batch of trajectories.
-
         Args:
-            **kwargs: Learning-specific parameters:
-                - trajectories: List of trajectories for batch learning
-                - trajectory: Single trajectory (backward compatibility)
+            trajectories: List of trajectories to learn from
 
         Returns:
             Dictionary containing policy loss, value loss, and total loss.
         """
-        # Handle both single trajectory and batch of trajectories
-        if 'trajectories' in kwargs:
-            trajectories = kwargs['trajectories']
-            if not trajectories:
-                return {}
-        elif 'trajectory' in kwargs:
-            trajectories = [kwargs['trajectory']]
-        else:
-            raise ValueError("Either 'trajectories' or 'trajectory' must be provided")
+        if not trajectories:
+            return {}
 
         # Collect all data from all trajectories
         all_states = []

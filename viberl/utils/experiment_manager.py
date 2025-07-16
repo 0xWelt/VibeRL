@@ -7,7 +7,6 @@ tensorboard logging, and model checkpoints.
 
 from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 from loguru import logger
 
@@ -101,7 +100,7 @@ class ExperimentManager:
             retention='10 days',  # Keep logs for 10 days
         )
 
-    def log_command_line_args(self, args: Any) -> None:
+    def log_command_line_args(self, args: object) -> None:
         """
         Log command line arguments to training.log.
 

@@ -39,7 +39,7 @@ import torch.optim as optim
 
 from viberl.agents.base import Agent
 from viberl.networks.value_network import QNetwork
-from viberl.typing import Action
+from viberl.typing import Action, Trajectory
 
 
 class DQNAgent(Agent):
@@ -122,28 +122,17 @@ class DQNAgent(Agent):
 
         return Action(action=action)
 
-    def learn(self, **kwargs: dict) -> dict[str, float]:
+    def learn(self, trajectories: list[Trajectory]) -> dict[str, float]:
         """Update Q-network using Q-learning with experience replay.
 
-        Supports both single trajectory and batch of trajectories.
-
         Args:
-            **kwargs: Learning-specific parameters:
-                - trajectories: List of trajectories for batch learning
-                - trajectory: Single trajectory (backward compatibility)
+            trajectories: List of trajectories to learn from
 
         Returns:
             Dictionary containing loss, epsilon, and memory size.
         """
-        # Handle both single trajectory and batch of trajectories
-        if 'trajectories' in kwargs:
-            trajectories = kwargs['trajectories']
-            if not trajectories:
-                return {}
-        elif 'trajectory' in kwargs:
-            trajectories = [kwargs['trajectory']]
-        else:
-            raise ValueError("Either 'trajectories' or 'trajectory' must be provided")
+        if not trajectories:
+            return {}
 
         # Store all transitions from all trajectories in memory
         transitions_added = 0

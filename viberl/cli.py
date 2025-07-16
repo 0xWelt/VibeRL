@@ -73,7 +73,7 @@ def train_main():
     parser.add_argument(
         '--trajectory-batch',
         type=int,
-        default=1,
+        default=8,
         help='Number of trajectories to collect per training iteration',
     )
     parser.add_argument('--no-eval', action='store_true', help='Skip evaluation after training')

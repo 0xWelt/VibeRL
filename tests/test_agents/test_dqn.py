@@ -68,7 +68,7 @@ class TestDQNSpecific:
         trajectory = Trajectory.from_transitions(transitions)
 
         # Learn and check epsilon decay
-        agent.learn(trajectory=trajectory)
+        agent.learn(trajectories=[trajectory])
         assert agent.epsilon <= initial_epsilon
         assert agent.epsilon >= agent.epsilon_end
 
@@ -84,7 +84,7 @@ class TestDQNSpecific:
                 done=False,
             )
             trajectory = Trajectory.from_transitions([transition])
-            agent.learn(trajectory=trajectory)
+            agent.learn(trajectories=[trajectory])
 
         assert len(agent.memory) > 0
         assert len(agent.memory) <= agent.memory_size
@@ -101,7 +101,7 @@ class TestDQNSpecific:
                 done=False,
             )
             trajectory = Trajectory.from_transitions([transition])
-            agent.learn(trajectory=trajectory)
+            agent.learn(trajectories=[trajectory])
 
         # Should have enough data for batch learning
         assert len(agent.memory) >= agent.batch_size
@@ -140,7 +140,7 @@ class TestDQNSpecific:
             done=False,
         )
         trajectory = Trajectory.from_transitions([transition])
-        metrics = agent.learn(trajectory=trajectory)
+        metrics = agent.learn(trajectories=[trajectory])
 
         assert isinstance(metrics, dict)
 
@@ -159,7 +159,7 @@ class TestDQNSpecific:
                 done=False,
             )
             trajectory = Trajectory.from_transitions([transition])
-            agent.learn(trajectory=trajectory)
+            agent.learn(trajectories=[trajectory])
 
         # Memory should not exceed max size
         assert len(agent.memory) <= 5

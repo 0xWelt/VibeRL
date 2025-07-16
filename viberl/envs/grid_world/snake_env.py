@@ -15,7 +15,10 @@ class Direction(Enum):
 
 
 class SnakeGameEnv(gym.Env):
-    metadata: ClassVar[dict[str, Any]] = {'render_modes': ['human', 'rgb_array'], 'render_fps': 10}
+    metadata: ClassVar[dict[str, int | list[str]]] = {
+        'render_modes': ['human', 'rgb_array'],
+        'render_fps': 10,
+    }
 
     def __init__(self, render_mode: str | None = None, grid_size: int = 20):
         super().__init__()
