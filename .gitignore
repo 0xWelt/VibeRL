@@ -176,3 +176,6 @@ checkpoints/
 # TensorBoard logs
 tb_logs/
 *tfevents*
+
+# Weights & Biases
+wandb/
