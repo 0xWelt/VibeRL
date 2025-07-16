@@ -50,7 +50,7 @@ class TestREINFORCESpecific:
             )
 
         trajectory = Trajectory.from_transitions(transitions)
-        metrics = agent.learn(trajectory)
+        metrics = agent.learn(trajectory=trajectory)
 
         assert isinstance(metrics, dict)
         assert 'reinforce/policy_loss' in metrics
@@ -84,7 +84,7 @@ class TestREINFORCESpecific:
         trajectory = Trajectory.from_transitions(transitions)
 
         # Should be able to learn from trajectory
-        metrics = agent.learn(trajectory)
+        metrics = agent.learn(trajectory=trajectory)
         assert isinstance(metrics, dict)
         assert 'reinforce/policy_loss' in metrics
         assert isinstance(metrics['reinforce/policy_loss'], float)
@@ -127,7 +127,7 @@ class TestREINFORCESpecific:
         )
 
         trajectory = Trajectory.from_transitions(transitions)
-        metrics = agent.learn(trajectory)
+        metrics = agent.learn(trajectory=trajectory)
 
         assert isinstance(metrics, dict)
         assert 'reinforce/policy_loss' in metrics
@@ -160,7 +160,7 @@ class TestREINFORCESpecific:
         )
         trajectory = Trajectory.from_transitions([transition])
 
-        metrics = agent.learn(trajectory)
+        metrics = agent.learn(trajectory=trajectory)
         assert isinstance(metrics, dict)
         assert 'reinforce/policy_loss' in metrics
 
@@ -169,7 +169,7 @@ class TestREINFORCESpecific:
         trajectory = Trajectory.from_transitions([])
 
         # Should handle empty trajectory gracefully
-        metrics = agent.learn(trajectory)
+        metrics = agent.learn(trajectory=trajectory)
         assert isinstance(metrics, dict)
 
     def test_single_transition_trajectory(self, agent: REINFORCEAgent) -> None:
@@ -183,6 +183,6 @@ class TestREINFORCESpecific:
         )
         trajectory = Trajectory.from_transitions([transition])
 
-        metrics = agent.learn(trajectory)
+        metrics = agent.learn(trajectory=trajectory)
         assert isinstance(metrics, dict)
         assert 'reinforce/policy_loss' in metrics

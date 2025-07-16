@@ -51,7 +51,7 @@
 
 ## ✨ 特性
 
-### 🔧 **现代化开发栈**  
+### 🔧 **现代化开发栈**
 - **[UV](https://docs.astral.sh/uv/)**: 基于Rust的极速Python包管理器，完全替代pip和poetry，提供毫秒级依赖解析和虚拟环境管理
 - **[Ruff](https://docs.astral.sh/ruff/)**: 用Rust编写的超快Python代码检查器，严格执行PEP 8标准并在运行时前捕获代码问题
 - **[Pytest](https://docs.pytest.org/)**: 包含50+单元测试的综合测试框架，覆盖所有算法、环境和工具，支持固件和参数化测试

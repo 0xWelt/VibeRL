@@ -44,6 +44,8 @@ class Agent(ABC):
 
         Args:
             **kwargs: Learning-specific parameters
+                - trajectories: List of trajectories for batch learning
+                - trajectory: Single trajectory (for backward compatibility)
 
         Returns:
             Dictionary of step metrics (e.g., loss values)

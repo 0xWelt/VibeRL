@@ -67,7 +67,7 @@ class TestPPOSpecific:
         trajectory = Trajectory.from_transitions(transitions)
 
         # Should be able to learn
-        metrics = agent.learn(trajectory)
+        metrics = agent.learn(trajectory=trajectory)
         assert isinstance(metrics, dict)
         assert 'ppo/policy_loss' in metrics
         assert 'ppo/value_loss' in metrics
@@ -93,7 +93,7 @@ class TestPPOSpecific:
 
         trajectory = Trajectory.from_transitions(transitions)
 
-        metrics = agent.learn(trajectory)
+        metrics = agent.learn(trajectory=trajectory)
         assert isinstance(metrics, dict)
         assert 'ppo/policy_loss' in metrics
         assert 'ppo/value_loss' in metrics
@@ -120,7 +120,7 @@ class TestPPOSpecific:
         trajectory = Trajectory.from_transitions(transitions)
 
         # Should process in batches
-        metrics = agent.learn(trajectory)
+        metrics = agent.learn(trajectory=trajectory)
         assert isinstance(metrics, dict)
         assert 'ppo/policy_loss' in metrics
 
@@ -144,7 +144,7 @@ class TestPPOSpecific:
         )
         trajectory = Trajectory.from_transitions([transition])
 
-        metrics = agent.learn(trajectory)
+        metrics = agent.learn(trajectory=trajectory)
         assert isinstance(metrics, dict)
         assert agent.clip_epsilon == clip_epsilon
 
@@ -172,7 +172,7 @@ class TestPPOSpecific:
         trajectory = Trajectory.from_transitions(transitions)
 
         # Should handle small batch gracefully
-        metrics = agent.learn(trajectory)
+        metrics = agent.learn(trajectory=trajectory)
         assert isinstance(metrics, dict)
 
     def test_empty_trajectory_handling(self, agent: PPOAgent) -> None:
@@ -180,5 +180,5 @@ class TestPPOSpecific:
         trajectory = Trajectory.from_transitions([])
 
         # Should handle empty trajectory gracefully
-        metrics = agent.learn(trajectory)
+        metrics = agent.learn(trajectory=trajectory)
         assert isinstance(metrics, dict)

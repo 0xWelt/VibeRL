@@ -3,7 +3,16 @@
 from __future__ import annotations
 
 import os
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+
+if TYPE_CHECKING:
+    from typing import Self
+
+
+# Import types for TYPE_CHECKING only
+if TYPE_CHECKING:
+    import types
 
 
 try:
@@ -15,6 +24,10 @@ except ImportError:
     WANDB_AVAILABLE = False
 
 from torch.utils.tensorboard import SummaryWriter
+
+
+if TYPE_CHECKING:
+    import types
 
 
 class UnifiedWriter:
@@ -94,10 +107,15 @@ class UnifiedWriter:
         if self.wandb_run is not None and WANDB_AVAILABLE:
             wandb.finish()
 
-    def __enter__(self) -> UnifiedWriter:
+    def __enter__(self) -> Self:
         """Context manager entry."""
         return self
 
-    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: types.TracebackType | None,
+    ) -> None:
         """Context manager exit."""
         self.close()

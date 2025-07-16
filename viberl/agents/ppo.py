@@ -38,7 +38,7 @@ from torch.distributions import Categorical
 from viberl.agents.base import Agent
 from viberl.networks.policy_network import PolicyNetwork
 from viberl.networks.value_network import VNetwork
-from viberl.typing import Action, Trajectory
+from viberl.typing import Action
 
 
 class PPOAgent(Agent):
@@ -147,44 +147,76 @@ class PPOAgent(Agent):
                 action = action_probs.argmax().item()
                 return Action(action=action)
 
-    def learn(self, trajectory: Trajectory) -> dict[str, float]:
+    def learn(self, **kwargs: dict) -> dict[str, float]:
         """Update policy and value networks using PPO clipped objective.
 
+        Supports both single trajectory and batch of trajectories.
+
         Args:
-            trajectory: Complete trajectory containing transitions with log probabilities.
+            **kwargs: Learning-specific parameters:
+                - trajectories: List of trajectories for batch learning
+                - trajectory: Single trajectory (backward compatibility)
 
         Returns:
             Dictionary containing policy loss, value loss, and total loss.
         """
-        if not trajectory.transitions:
+        # Handle both single trajectory and batch of trajectories
+        if 'trajectories' in kwargs:
+            trajectories = kwargs['trajectories']
+            if not trajectories:
+                return {}
+        elif 'trajectory' in kwargs:
+            trajectories = [kwargs['trajectory']]
+        else:
+            raise ValueError("Either 'trajectories' or 'trajectory' must be provided")
+
+        # Collect all data from all trajectories
+        all_states = []
+        all_actions = []
+        all_rewards = []
+        all_log_probs = []
+        all_dones = []
+        all_values = []
+
+        for trajectory in trajectories:
+            if not trajectory.transitions:
+                continue
+
+            # Extract data from trajectory
+            states = [t.state for t in trajectory.transitions]
+            actions = [t.action.action for t in trajectory.transitions]
+            rewards = [t.reward for t in trajectory.transitions]
+            log_probs = [
+                t.action.logprobs.item() if t.action.logprobs is not None else 0.0
+                for t in trajectory.transitions
+            ]
+            dones = [t.done for t in trajectory.transitions]
+
+            # Compute values for each state
+            values = []
+            for state in states:
+                state_tensor = torch.FloatTensor(state).unsqueeze(0).to(self.device)
+                with torch.no_grad():
+                    value = self.value_network(state_tensor).squeeze(-1).item()
+                    values.append(value)
+
+            all_states.extend(states)
+            all_actions.extend(actions)
+            all_rewards.extend(rewards)
+            all_log_probs.extend(log_probs)
+            all_dones.extend(dones)
+            all_values.extend(values)
+
+        if not all_states:
             return {}
 
-        # Extract data from trajectory
-        states = [t.state for t in trajectory.transitions]
-        actions = [t.action.action for t in trajectory.transitions]
-        rewards = [t.reward for t in trajectory.transitions]
-        log_probs = [
-            t.action.logprobs.item() if t.action.logprobs is not None else 0.0
-            for t in trajectory.transitions
-        ]
-
-        # Compute values for each state
-        values = []
-        for state in states:
-            state_tensor = torch.FloatTensor(state).unsqueeze(0).to(self.device)
-            with torch.no_grad():
-                value = self.value_network(state_tensor).squeeze(-1).item()
-                values.append(value)
-
-        dones = [t.done for t in trajectory.transitions]
-
         # Convert to tensors
-        states_tensor = torch.FloatTensor(np.array(states)).to(self.device)
-        actions_tensor = torch.LongTensor(actions).to(self.device)
-        old_log_probs_tensor = torch.FloatTensor(log_probs).to(self.device)
+        states_tensor = torch.FloatTensor(np.array(all_states)).to(self.device)
+        actions_tensor = torch.LongTensor(all_actions).to(self.device)
+        old_log_probs_tensor = torch.FloatTensor(all_log_probs).to(self.device)
 
         # Compute advantages and returns
-        advantages, returns = self._compute_gae(rewards, values, dones)
+        advantages, returns = self._compute_gae(all_rewards, all_values, all_dones)
         advantages_tensor = torch.FloatTensor(advantages).to(self.device)
         returns_tensor = torch.FloatTensor(returns).to(self.device)
 
@@ -197,7 +229,7 @@ class PPOAgent(Agent):
             advantages_tensor = advantages_tensor - advantages_tensor.mean()
 
         # Create dataset
-        dataset_size = len(states)
+        dataset_size = len(all_states)
         indices = np.arange(dataset_size)
 
         metrics = {
@@ -205,6 +237,7 @@ class PPOAgent(Agent):
             'ppo/value_loss': 0.0,
             'ppo/entropy_loss': 0.0,
             'ppo/total_loss': 0.0,
+            'ppo/batch_size': len(trajectories),
         }
 
         # PPO epochs
@@ -274,7 +307,7 @@ class PPOAgent(Agent):
 
         # Average metrics over all batches and epochs
         num_batches = (dataset_size + self.batch_size - 1) // self.batch_size
-        for key in metrics:
+        for key in ['ppo/policy_loss', 'ppo/value_loss', 'ppo/entropy_loss', 'ppo/total_loss']:
             metrics[key] /= num_batches * self.ppo_epochs
 
         return metrics

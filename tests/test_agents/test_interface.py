@@ -139,7 +139,7 @@ class TestAgentInterface:
         )
         trajectory = Trajectory.from_transitions([transition])
 
-        metrics = agent_instance.learn(trajectory)
+        metrics = agent_instance.learn(trajectory=trajectory)
         assert isinstance(metrics, dict)
 
     @pytest.mark.parametrize(

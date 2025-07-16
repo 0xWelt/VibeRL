@@ -94,11 +94,14 @@ python examples/human_play/play_human.py
 # Train REINFORCE
 viberl-train --alg reinforce --episodes 1000 --grid-size 10 --lr 0.001
 
+# Train REINFORCE with batch learning (multiple trajectories per iteration)
+viberl-train --alg reinforce --episodes 1000 --grid-size 10 --lr 0.001 --trajectory-batch 4
+
 # Train DQN with experience replay
 viberl-train --alg dqn --episodes 2000 --grid-size 15 --memory-size 10000 --batch-size 64
 
-# Train PPO with advanced parameters
-viberl-train --alg ppo --episodes 1000 --grid-size 12 --ppo-epochs 4 --clip-epsilon 0.2
+# Train PPO with batch learning and advanced parameters
+viberl-train --alg ppo --episodes 1000 --grid-size 12 --ppo-epochs 4 --clip-epsilon 0.2 --trajectory-batch 8
 
 # Evaluate model
 viberl-eval --model-path experiments/ppo_snake_20241231_120000/final_model.pth --episodes 10 --render

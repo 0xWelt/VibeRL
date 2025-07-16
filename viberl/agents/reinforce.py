@@ -39,7 +39,7 @@ from torch.distributions import Categorical
 
 from viberl.agents.base import Agent
 from viberl.networks.policy_network import PolicyNetwork
-from viberl.typing import Action, Trajectory
+from viberl.typing import Action
 
 
 class REINFORCEAgent(Agent):
@@ -125,60 +125,77 @@ class REINFORCEAgent(Agent):
 
         return Action(action=action)
 
-    def learn(self, trajectory: Trajectory) -> dict[str, float]:
+    def learn(self, **kwargs: dict) -> dict[str, float]:
         """Update policy parameters using the REINFORCE gradient algorithm.
 
-        Computes the policy gradient using the likelihood ratio trick and updates
-        the policy network parameters. Uses complete episode returns (Monte-Carlo
-        estimates) for gradient computation.
-
-        The method:
-        1. Extracts states, actions, and rewards from the trajectory
-        2. Computes discounted returns for each timestep
-        3. Normalizes returns for training stability
-        4. Computes policy loss using log probabilities and returns
-        5. Updates policy parameters via backpropagation
+        Supports both single trajectory and batch of trajectories.
 
         Args:
-            trajectory: Complete episode trajectory containing all transitions
-                from the episode. Must have at least one transition.
+            **kwargs: Learning-specific parameters:
+                - trajectories: List of trajectories for batch learning
+                - trajectory: Single trajectory (backward compatibility)
 
         Returns:
             Dictionary containing training metrics:
             - 'reinforce/policy_loss': Policy loss value (float)
             - 'reinforce/return_mean': Mean of normalized returns (float)
+            - 'reinforce/batch_size': Number of trajectories in batch (int)
 
         Raises:
-            ValueError: If trajectory is empty or contains invalid data.
+            ValueError: If no trajectories are provided or contains invalid data.
             RuntimeError: If there's an error during gradient computation.
         """
-        if not trajectory.transitions:
+        # Handle both single trajectory and batch of trajectories
+        if 'trajectories' in kwargs:
+            trajectories = kwargs['trajectories']
+            if not trajectories:
+                return {}
+        elif 'trajectory' in kwargs:
+            trajectories = [kwargs['trajectory']]
+        else:
+            raise ValueError("Either 'trajectories' or 'trajectory' must be provided")
+
+        # Collect all data from all trajectories
+        all_states = []
+        all_actions = []
+        all_returns = []
+
+        for trajectory in trajectories:
+            if not trajectory.transitions:
+                continue
+
+            # Extract data from trajectory
+            states = [t.state for t in trajectory.transitions]
+            actions = [t.action.action for t in trajectory.transitions]
+            rewards = [t.reward for t in trajectory.transitions]
+
+            # Compute returns for this trajectory
+            returns = self._compute_returns(rewards)
+
+            # Normalize returns for this trajectory
+            returns = torch.FloatTensor(returns)
+            if returns.std() > 0:
+                returns = (returns - returns.mean()) / (returns.std() + 1e-8)
+
+            all_states.extend(states)
+            all_actions.extend(actions)
+            all_returns.extend(returns.tolist())
+
+        if not all_states:
             return {}
 
-        # Extract data from trajectory
-        states = [t.state for t in trajectory.transitions]
-        actions = [t.action.action for t in trajectory.transitions]
-        rewards = [t.reward for t in trajectory.transitions]
-
-        # Compute returns
-        returns = self._compute_returns(rewards)
-
-        # Normalize returns for stability
-        returns = torch.FloatTensor(returns)
-        if returns.std() > 0:
-            returns = (returns - returns.mean()) / (returns.std() + 1e-8)
-
-        # Convert states and actions to tensors
-        states_tensor = torch.FloatTensor(np.array(states))
-        actions_tensor = torch.LongTensor(actions)
+        # Convert to tensors
+        states_tensor = torch.FloatTensor(np.array(all_states))
+        actions_tensor = torch.LongTensor(all_actions)
+        returns_tensor = torch.FloatTensor(all_returns)
 
         # Get action probabilities
         action_probs = self.policy_network(states_tensor)
 
-        # Compute loss
+        # Compute loss across all trajectories
         m = Categorical(action_probs)
         log_probs = m.log_prob(actions_tensor)
-        loss = -torch.mean(log_probs * returns)
+        loss = -torch.mean(log_probs * returns_tensor)
 
         # Update policy
         self.optimizer.zero_grad()
@@ -187,7 +204,8 @@ class REINFORCEAgent(Agent):
 
         return {
             'reinforce/policy_loss': loss.item(),
-            'reinforce/return_mean': returns.mean().item(),
+            'reinforce/return_mean': returns_tensor.mean().item(),
+            'reinforce/batch_size': len(trajectories),
         }
 
     def _compute_returns(self, rewards: list[float]) -> list[float]:

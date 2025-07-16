@@ -39,6 +39,7 @@ class Trainer:
         enable_wandb: bool = False,
         wandb_config: dict | None = None,
         run_name: str | None = None,
+        batch_size: int = 1,
     ) -> None:
         """Initialize the trainer.
 
@@ -52,6 +53,7 @@ class Trainer:
             enable_tensorboard: Whether to enable TensorBoard logging
             enable_wandb: Whether to enable Weights & Biases logging
             wandb_config: Configuration dict for wandb
+            batch_size: Number of trajectories to collect per training iteration
         """
         self.env = env
         self.agent = agent
@@ -64,6 +66,7 @@ class Trainer:
             self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         else:
             self.device = torch.device(device)
+        self.batch_size = batch_size
 
         # Initialize tracking variables
         self.episode_rewards: list[float] = []
@@ -121,17 +124,44 @@ class Trainer:
         eval_env = self._create_eval_env()
 
         try:
-            for episode in range(num_episodes):
-                # Run training episode
-                episode_reward = self._train_episode(episode, render_interval)
-                self.episode_rewards.append(episode_reward)
+            iteration = 0
+            episodes_completed = 0
+
+            while episodes_completed < num_episodes:
+                # Collect batch of trajectories
+                trajectories = []
+                batch_rewards = []
+
+                for _ in range(min(self.batch_size, num_episodes - episodes_completed)):
+                    trajectory, episode_reward = self._collect_trajectory(
+                        episodes_completed + len(trajectories), render_interval
+                    )
+                    trajectories.append(trajectory)
+                    batch_rewards.append(episode_reward)
+                    self.episode_rewards.append(episode_reward)
+                    episodes_completed += 1
+
+                # Update agent with collected trajectories
+                learn_metrics = self.agent.learn(trajectories=trajectories)
+
+                # Log batch metrics
+                if self.writer is not None:
+                    for i, (reward, trajectory) in enumerate(zip(batch_rewards, trajectories)):
+                        episode_idx = episodes_completed - len(batch_rewards) + i
+                        self.writer.log_scalar('rollout_train/average_return', reward, episode_idx)
+                        self.writer.log_scalar(
+                            'rollout_train/episode_length', len(trajectory.transitions), episode_idx
+                        )
+                        if learn_metrics:
+                            metrics_dict = {f'learn/{k}': v for k, v in learn_metrics.items()}
+                            self.writer.log_scalars(metrics_dict, episode_idx)
 
                 # Evaluation
                 eval_mean = 0.0
                 eval_rewards = []
                 eval_lengths = []
 
-                if episode % eval_interval == 0:
+                if iteration % eval_interval == 0:
                     eval_rewards, eval_lengths = self.evaluate(
                         eval_env, num_episodes=eval_episodes, render=False
                     )
@@ -139,12 +169,16 @@ class Trainer:
                     self.eval_rewards.extend(eval_rewards)
 
                 # Save checkpoint
-                if save_interval is not None and episode % save_interval == 0:
-                    self._save_checkpoint(episode, eval_rewards, save_path)
+                if save_interval is not None and iteration % save_interval == 0:
+                    self._save_checkpoint(episodes_completed - 1, eval_rewards, save_path)
 
                 # Logging
-                if episode % log_interval == 0:
-                    self._log_progress(episode, num_episodes, eval_rewards, eval_mean, verbose)
+                if iteration % log_interval == 0:
+                    self._log_progress(
+                        episodes_completed, num_episodes, eval_rewards, eval_mean, verbose
+                    )
+
+                iteration += 1
 
         finally:
             eval_env.close()
@@ -153,15 +187,17 @@ class Trainer:
 
         return self.episode_rewards
 
-    def _train_episode(self, episode: int, render_interval: int | None) -> float:
-        """Run a single training episode.
+    def _collect_trajectory(
+        self, episode: int, render_interval: int | None
+    ) -> tuple[Trajectory, float]:
+        """Collect a single trajectory by running an episode.
 
         Args:
             episode: Current episode number
             render_interval: Interval for rendering
 
         Returns:
-            Total reward for the episode
+            Tuple of (trajectory, episode_reward)
         """
         state, _ = self.env.reset()
         state = self._preprocess_state(state)
@@ -200,19 +236,8 @@ class Trainer:
             if done:
                 break
 
-        # Update agent policy
         trajectory = Trajectory.from_transitions(transitions)
-        learn_metrics = self.agent.learn(trajectory=trajectory)
-
-        # Unified logging
-        if self.writer is not None:
-            self.writer.log_scalar('rollout_train/average_return', episode_reward, episode)
-            self.writer.log_scalar('rollout_train/episode_length', len(transitions), episode)
-            if learn_metrics:
-                metrics_dict = {f'learn/{k}': v for k, v in learn_metrics.items()}
-                self.writer.log_scalars(metrics_dict, episode)
-
-        return episode_reward
+        return trajectory, episode_reward
 
     def evaluate(
         self,

@@ -29,39 +29,37 @@ class TestUnifiedWriter:
 
     def test_initialization_wandb_only(self):
         """Test initialization with only wandb enabled."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            with patch('wandb.init') as mock_wandb_init:
-                mock_wandb_init.return_value = None
+        with tempfile.TemporaryDirectory() as tmpdir, patch('wandb.init') as mock_wandb_init:
+            mock_wandb_init.return_value = None
 
-                writer = UnifiedWriter(
-                    log_dir=tmpdir,
-                    enable_tensorboard=False,
-                    enable_wandb=True,
-                )
+            writer = UnifiedWriter(
+                log_dir=tmpdir,
+                enable_tensorboard=False,
+                enable_wandb=True,
+            )
 
-                assert writer.enable_tensorboard is False
-                assert writer.enable_wandb is True
-                assert writer.tb_writer is None
-                assert writer.wandb_run is None  # Mocked
-                writer.close()
+            assert writer.enable_tensorboard is False
+            assert writer.enable_wandb is True
+            assert writer.tb_writer is None
+            assert writer.wandb_run is None  # Mocked
+            writer.close()
 
     def test_initialization_both_enabled(self):
         """Test initialization with both TensorBoard and wandb enabled."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            with patch('wandb.init') as mock_wandb_init:
-                mock_wandb_init.return_value = None
+        with tempfile.TemporaryDirectory() as tmpdir, patch('wandb.init') as mock_wandb_init:
+            mock_wandb_init.return_value = None
 
-                writer = UnifiedWriter(
-                    log_dir=tmpdir,
-                    enable_tensorboard=True,
-                    enable_wandb=True,
-                )
+            writer = UnifiedWriter(
+                log_dir=tmpdir,
+                enable_tensorboard=True,
+                enable_wandb=True,
+            )
 
-                assert writer.enable_tensorboard is True
-                assert writer.enable_wandb is True
-                assert writer.tb_writer is not None
-                assert writer.wandb_run is None  # Mocked
-                writer.close()
+            assert writer.enable_tensorboard is True
+            assert writer.enable_wandb is True
+            assert writer.tb_writer is not None
+            assert writer.wandb_run is None  # Mocked
+            writer.close()
 
     def test_log_scalar(self):
         """Test logging scalar values."""
@@ -105,14 +103,16 @@ class TestUnifiedWriter:
 
     def test_context_manager(self):
         """Test using writer as context manager."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            with UnifiedWriter(
+        with (
+            tempfile.TemporaryDirectory() as tmpdir,
+            UnifiedWriter(
                 log_dir=tmpdir,
                 enable_tensorboard=True,
                 enable_wandb=False,
-            ) as writer:
-                writer.log_scalar('test/context', 1.0, 0)
-                assert writer.tb_writer is not None
+            ) as writer,
+        ):
+            writer.log_scalar('test/context', 1.0, 0)
+            assert writer.tb_writer is not None
 
     def test_close(self):
         """Test proper cleanup on close."""
@@ -143,23 +143,23 @@ class TestUnifiedWriter:
 
     def test_wandb_config(self):
         """Test wandb configuration."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            with patch('wandb.init') as mock_wandb_init:
-                mock_wandb_init.return_value = None
+        with tempfile.TemporaryDirectory() as tmpdir, patch('wandb.init') as mock_wandb_init:
+            mock_wandb_init.return_value = None
 
-                config = {'learning_rate': 0.001, 'batch_size': 32}
-                writer = UnifiedWriter(
-                    log_dir=tmpdir,
-                    enable_tensorboard=False,
-                    enable_wandb=True,
-                    wandb_config=config,
-                    project_name='test_project',
-                    run_name='test_run',
-                )
+            config = {'learning_rate': 0.001, 'batch_size': 32}
+            writer = UnifiedWriter(
+                log_dir=tmpdir,
+                enable_tensorboard=False,
+                enable_wandb=True,
+                wandb_config=config,
+                project_name='test_project',
+                run_name='test_run',
+            )
 
-                mock_wandb_init.assert_called_once_with(
-                    project='test_project',
-                    name='test_run',
-                    config=config,
-                )
-                writer.close()
+            mock_wandb_init.assert_called_once_with(
+                project='test_project',
+                name='test_run',
+                config=config,
+                dir=tmpdir,
+            )
+            writer.close()

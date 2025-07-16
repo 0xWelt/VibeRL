@@ -70,6 +70,12 @@ def train_main():
     parser.add_argument(
         '--log-interval', type=int, default=1000, help='Log summary interval during training'
     )
+    parser.add_argument(
+        '--trajectory-batch',
+        type=int,
+        default=1,
+        help='Number of trajectories to collect per training iteration',
+    )
     parser.add_argument('--no-eval', action='store_true', help='Skip evaluation after training')
     parser.add_argument('--quiet', action='store_true', help='Suppress training progress output')
     parser.add_argument('--wandb', action='store_true', help='Enable Weights & Biases logging')
@@ -165,6 +171,7 @@ def train_main():
         enable_wandb=args.wandb,
         wandb_config=vars(args),
         run_name=experiment_name,
+        batch_size=args.trajectory_batch,
     )
 
     trainer.train(
