@@ -26,6 +26,7 @@ file_mapping = {
     'api/utils/training.md': 'viberl.utils.training',
     'api/utils/mock_env.md': 'viberl.utils.mock_env',
     'api/utils/experiment_manager.md': 'viberl.utils.experiment_manager',
+    'api/utils/vector_env.md': 'viberl.utils.vector_env',
     # Standalone modules
     'api/typing.md': 'viberl.typing',
     'api/cli.md': 'viberl.cli',
@@ -99,7 +100,8 @@ viberl/
 │   ├── common.py → common.md
 │   ├── training.py → training.md
 │   ├── mock_env.py → mock_env.md
-│   └── experiment_manager.py → experiment_manager.md
+│   ├── experiment_manager.py → experiment_manager.md
+│   └── vector_env.py → vector_env.md
 ├── typing.py → typing.md
 └── cli.py → cli.md
 ```

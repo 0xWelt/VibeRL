@@ -67,12 +67,17 @@ viberl-train --alg=reinforce --episodes 1000 --grid-size 10
 # Train with [Weights & Biases](https://wandb.ai/) logging
 viberl-train --alg=dqn --episodes 1000 --wandb --name my_experiment
 
+# 🚀 Parallel Training with AsyncVectorEnv
+viberl-train --alg=reinforce --episodes 1000 --num-envs 4 --trajectory-batch 8
+viberl-train --alg=ppo --episodes 500 --lr 3e-4 --num-envs 2 --trajectory-batch 4
+
 # Evaluate
 viberl-eval --model-path experiments/*/models/final_model.pth --episodes 10
 
 # Demo
 viberl-demo --episodes 5 --grid-size 20
 ```
+
 
 ## 🤝 Contributors
 

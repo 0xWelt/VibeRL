@@ -76,6 +76,12 @@ def train_main():
         default=8,
         help='Number of trajectories to collect per training iteration',
     )
+    parser.add_argument(
+        '--num-envs',
+        type=int,
+        default=1,
+        help='Number of parallel environments for sampling (use 1 for sequential)',
+    )
     parser.add_argument('--no-eval', action='store_true', help='Skip evaluation after training')
     parser.add_argument('--quiet', action='store_true', help='Suppress training progress output')
     parser.add_argument('--wandb', action='store_true', help='Enable Weights & Biases logging')
@@ -172,6 +178,7 @@ def train_main():
         wandb_config=vars(args),
         run_name=experiment_name,
         batch_size=args.trajectory_batch,
+        num_envs=args.num_envs,
     )
 
     trainer.train(

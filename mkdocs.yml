@@ -25,6 +25,7 @@ nav:
       - Training Utilities: api/utils/training.md
       - Mock Environment: api/utils/mock_env.md
       - Experiment Manager: api/utils/experiment_manager.md
+      - Vector Environment: api/utils/vector_env.md
     - Types: api/typing.md
     - CLI: api/cli.md
 
@@ -119,6 +120,11 @@ markdown_extensions:
       generic: true
   - pymdownx.betterem:
       smart_enable: all
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
 
 extra_javascript:
   - javascripts/mathjax.js

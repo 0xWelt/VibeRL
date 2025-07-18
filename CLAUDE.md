@@ -31,6 +31,7 @@ The codebase follows a clean 5-layer architecture:
 - **`viberl/networks/`**: Neural network implementations (base, policy, value networks)
 - **`viberl/cli.py`**: Command-line interface with train/eval/demo modes
 - **`viberl/utils/`**: Training utilities and experiment management
+- **`viberl/utils/vector_env.py`**: Parallel sampling with AsyncVectorEnv
 
 ### Key Classes & Components
 

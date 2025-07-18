@@ -40,6 +40,7 @@ class Trainer:
         wandb_config: dict | None = None,
         run_name: str | None = None,
         batch_size: int = 1,
+        num_envs: int = 1,
     ) -> None:
         """Initialize the trainer.
 
@@ -54,6 +55,7 @@ class Trainer:
             enable_wandb: Whether to enable Weights & Biases logging
             wandb_config: Configuration dict for wandb
             batch_size: Number of trajectories to collect per training iteration
+            num_envs: Number of parallel environments for sampling
         """
         self.env = env
         self.agent = agent
@@ -67,12 +69,29 @@ class Trainer:
         else:
             self.device = torch.device(device)
         self.batch_size = batch_size
+        self.num_envs = num_envs
 
         # Initialize tracking variables
         self.episode_rewards: list[float] = []
         self.eval_rewards: list[float] = []
         self.best_eval_score = float('-inf')
         self.writer: UnifiedWriter | None = None
+
+        # Initialize vector sampler for parallel environments
+        self.vector_sampler = None
+        if num_envs > 1:
+            from viberl.utils.vector_env import create_vector_sampler
+
+            def env_fn():
+                return deepcopy(env)
+
+            self.vector_sampler = create_vector_sampler(
+                env_fn=env_fn,
+                num_envs=num_envs,
+                agent=agent,
+                max_steps=max_steps,
+                device=str(self.device),
+            )
 
         # Initialize unified writer
         if log_dir is not None:
@@ -129,17 +148,29 @@ class Trainer:
 
             while episodes_completed < num_episodes:
                 # Collect batch of trajectories
-                trajectories = []
-                batch_rewards = []
-
-                for _ in range(min(self.batch_size, num_episodes - episodes_completed)):
-                    trajectory, episode_reward = self._collect_trajectory(
-                        episodes_completed + len(trajectories), render_interval
+                if self.num_envs > 1 and self.vector_sampler is not None:
+                    # Use parallel sampling
+                    trajectories_and_rewards = self.vector_sampler.collect_trajectory_batch(
+                        min(self.batch_size, num_episodes - episodes_completed),
+                        render=render_interval is not None and iteration % render_interval == 0,
                     )
-                    trajectories.append(trajectory)
-                    batch_rewards.append(episode_reward)
-                    self.episode_rewards.append(episode_reward)
-                    episodes_completed += 1
+                    trajectories = [traj for traj, _ in trajectories_and_rewards]
+                    batch_rewards = [reward for _, reward in trajectories_and_rewards]
+                else:
+                    # Use sequential sampling
+                    trajectories = []
+                    batch_rewards = []
+
+                    for _ in range(min(self.batch_size, num_episodes - episodes_completed)):
+                        trajectory, episode_reward = self._collect_trajectory(
+                            episodes_completed + len(trajectories), render_interval
+                        )
+                        trajectories.append(trajectory)
+                        batch_rewards.append(episode_reward)
+
+                # Update tracking
+                self.episode_rewards.extend(batch_rewards)
+                episodes_completed += len(batch_rewards)
 
                 # Update agent with collected trajectories
                 learn_metrics = self.agent.learn(trajectories=trajectories)
@@ -182,6 +213,8 @@ class Trainer:
 
         finally:
             eval_env.close()
+            if self.vector_sampler is not None:
+                self.vector_sampler.close()
             if self.writer is not None:
                 self.writer.close()
 
