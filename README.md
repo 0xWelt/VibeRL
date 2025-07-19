@@ -36,6 +36,7 @@ This project showcases modern AI-assisted development, combining Kimi K2's reaso
 ## ✨ Features
 
 ### 🔧 **Modern Development Stack**
+- **[Gymnasium](https://gymnasium.farama.org/)**: Standard RL environment interface ensuring compatibility with the entire RL ecosystem. VibeRL follows Gymnasium's API standards and supports both single and parallel environments through `AsyncVectorEnv` for efficient sampling
 - **[UV](https://docs.astral.sh/uv/)**: Lightning-fast Python package manager that replaces pip and poetry with Rust-powered dependency resolution and virtual environment management
 - **[Ruff](https://docs.astral.sh/ruff/)**: Ultra-fast Python linter and formatter written in Rust that enforces PEP 8 standards and catches code issues before runtime
 - **[Pytest](https://docs.pytest.org/)**: Comprehensive testing framework with 50+ unit tests covering all algorithms, environments, and utilities with fixtures and parametrization
