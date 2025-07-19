@@ -1,9 +1,11 @@
 """Tests for vector environment utilities."""
 
+from typing import Any, Callable
 from unittest.mock import Mock
 
 import numpy as np
 import pytest
+from gymnasium import Env
 
 from viberl.agents.base import Agent
 from viberl.envs import SnakeGameEnv
@@ -12,7 +14,7 @@ from viberl.utils.vector_env import VectorEnvSampler, create_vector_sampler
 
 
 @pytest.fixture
-def mock_agent():
+def mock_agent() -> Mock:
     """Create a mock agent for testing."""
     agent = Mock(spec=Agent)
     agent.act.return_value = Action(action=0, log_prob=0.0)
@@ -20,10 +22,10 @@ def mock_agent():
 
 
 @pytest.fixture
-def snake_env_fn():
+def snake_env_fn() -> Callable[[], Env]:
     """Create snake environment factory."""
 
-    def _create_env():
+    def _create_env() -> Env:
         return SnakeGameEnv(grid_size=5)
 
     return _create_env
@@ -32,7 +34,7 @@ def snake_env_fn():
 class TestVectorEnvSampler:
     """Test VectorEnvSampler class."""
 
-    def test_initialization(self, snake_env_fn, mock_agent):
+    def test_initialization(self, snake_env_fn: Callable[[], Env], mock_agent: Mock):
         """Test VectorEnvSampler initialization."""
         sampler = VectorEnvSampler(
             env_fn=snake_env_fn,

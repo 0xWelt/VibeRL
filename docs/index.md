@@ -63,11 +63,22 @@ trainer.train(num_episodes=1000)
 
 ## Features
 
-- **Modern Python**: Type-safe design with Pydantic
-- **Multiple Algorithms**: REINFORCE, DQN, PPO
-- **Parallel Training**: AsyncVectorEnv support
-- **Experiment Tracking**: Auto directory structure with TensorBoard
+### 🔧 **Modern Development Stack**
+- **[Gymnasium](https://gymnasium.farama.org/)**: Standard RL environment interface ensuring compatibility with the entire RL ecosystem. VibeRL follows Gymnasium's API standards and supports both single and parallel environments through `AsyncVectorEnv` for efficient sampling
+- **[Pydantic](https://docs.pydantic.dev/)**: Runtime type validation using Python type hints that ensures data integrity across actions, transitions, and trajectories
+- **[Pytest](https://docs.pytest.org/)**: Comprehensive testing framework with 50+ unit tests covering all algorithms, environments, and utilities
+- **[TensorBoard](https://www.tensorflow.org/tensorboard)**: Real-time training visualization dashboard showing loss curves, reward trends, and hyperparameter sweeps
+
+### 🤖 **Reinforcement Learning Algorithms**
+- **REINFORCE**: Policy gradient method with Monte Carlo returns
+- **DQN**: Deep Q-Network with experience replay
+- **PPO**: Proximal Policy Optimization with clipping
+
+### Core Framework Features
+- **Type Safety**: Full type annotations throughout
+- **Parallel Training**: AsyncVectorEnv support with configurable `num_envs`
 - **CLI Interface**: Complete training, evaluation, and demo commands
+- **Experiment Management**: Automatic directory structure with TensorBoard logging
 
 ## Architecture
 
