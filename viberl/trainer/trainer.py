@@ -82,7 +82,7 @@ class Trainer:
         if num_envs > 1:
             from viberl.utils.vector_env import create_vector_sampler
 
-            def env_fn():
+            def env_fn() -> gym.Env:
                 return deepcopy(env)
 
             self.vector_sampler = create_vector_sampler(

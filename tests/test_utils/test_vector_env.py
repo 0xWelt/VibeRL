@@ -1,6 +1,6 @@
 """Tests for vector environment utilities."""
 
-from typing import Any, Callable
+from collections.abc import Callable
 from unittest.mock import Mock
 
 import numpy as np
@@ -49,7 +49,7 @@ class TestVectorEnvSampler:
 
         sampler.close()
 
-    def test_single_env_sampling(self, snake_env_fn, mock_agent):
+    def test_single_env_sampling(self, snake_env_fn: Callable[[], Env], mock_agent: Mock) -> None:
         """Test sampling with single environment."""
         sampler = VectorEnvSampler(
             env_fn=snake_env_fn,
@@ -67,7 +67,7 @@ class TestVectorEnvSampler:
 
         sampler.close()
 
-    def test_multi_env_sampling(self, snake_env_fn, mock_agent):
+    def test_multi_env_sampling(self, snake_env_fn: Callable[[], Env], mock_agent: Mock) -> None:
         """Test sampling with multiple environments."""
         sampler = VectorEnvSampler(
             env_fn=snake_env_fn,
@@ -85,7 +85,9 @@ class TestVectorEnvSampler:
 
         sampler.close()
 
-    def test_batch_size_larger_than_envs(self, snake_env_fn, mock_agent):
+    def test_batch_size_larger_than_envs(
+        self, snake_env_fn: Callable[[], Env], mock_agent: Mock
+    ) -> None:
         """Test when batch size is larger than number of environments."""
         sampler = VectorEnvSampler(
             env_fn=snake_env_fn,
@@ -103,7 +105,7 @@ class TestVectorEnvSampler:
 
         sampler.close()
 
-    def test_observation_preprocessing(self):
+    def test_observation_preprocessing(self) -> None:
         """Test observation preprocessing."""
         agent = Mock(spec=Agent)
         agent.act.return_value = Action(action=0, log_prob=0.0)
@@ -126,7 +128,7 @@ class TestVectorEnvSampler:
 
         sampler.close()
 
-    def test_context_manager(self, snake_env_fn, mock_agent):
+    def test_context_manager(self, snake_env_fn: Callable[[], Env], mock_agent: Mock) -> None:
         """Test VectorEnvSampler as context manager."""
         with VectorEnvSampler(
             env_fn=snake_env_fn,
@@ -137,7 +139,7 @@ class TestVectorEnvSampler:
             results = sampler.collect_trajectory_batch(1)
             assert len(results) == 1
 
-    def test_create_vector_sampler(self, snake_env_fn, mock_agent):
+    def test_create_vector_sampler(self, snake_env_fn: Callable[[], Env], mock_agent: Mock) -> None:
         """Test create_vector_sampler factory function."""
         sampler = create_vector_sampler(
             env_fn=snake_env_fn,
@@ -157,7 +159,7 @@ class TestVectorEnvSampler:
 class TestVectorEnvIntegration:
     """Integration tests for vector environment sampling."""
 
-    def test_real_agent_with_vector_env(self):
+    def test_real_agent_with_vector_env(self) -> None:
         """Test with real agent implementation."""
         from viberl.agents import REINFORCEAgent
 
@@ -171,7 +173,7 @@ class TestVectorEnvIntegration:
             num_hidden_layers=1,
         )
 
-        def env_fn():
+        def env_fn() -> SnakeGameEnv:
             return SnakeGameEnv(grid_size=5)
 
         sampler = VectorEnvSampler(
@@ -195,11 +197,11 @@ class TestVectorEnvIntegration:
 
         sampler.close()
 
-    def test_performance_comparison(self):
+    def test_performance_comparison(self) -> None:
         """Test performance comparison between sequential and parallel sampling."""
         import time
 
-        def env_fn():
+        def env_fn() -> SnakeGameEnv:
             return SnakeGameEnv(grid_size=4)
 
         agent = Mock(spec=Agent)
