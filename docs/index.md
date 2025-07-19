@@ -113,6 +113,10 @@ ruff check viberl/ --fix
 mkdocs serve
 ```
 
+### Modern Development Stack
+
+**[Gymnasium](https://gymnasium.farama.org/)** - Standard RL environment interface that ensures compatibility with the entire RL ecosystem. VibeRL environments are implemented using Gymnasium's API standards, supporting both single and parallel environments through `AsyncVectorEnv` for efficient sampling.
+
 ## Citation
 
 ```bibtex
