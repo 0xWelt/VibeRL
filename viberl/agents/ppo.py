@@ -199,10 +199,18 @@ class PPOAgent(Agent):
         if not all_states:
             return {}
 
-        # Convert to tensors
+        # Convert to tensors with proper stacking
         states_tensor = torch.FloatTensor(np.array(all_states)).to(self.device)
         actions_tensor = torch.LongTensor(all_actions).to(self.device)
         old_log_probs_tensor = torch.FloatTensor(all_log_probs).to(self.device)
+
+        # Ensure proper tensor shapes and handle edge cases
+        if states_tensor.dim() == 1:
+            states_tensor = states_tensor.unsqueeze(0)
+        if actions_tensor.dim() == 0:
+            actions_tensor = actions_tensor.unsqueeze(0)
+        if old_log_probs_tensor.dim() == 0:
+            old_log_probs_tensor = old_log_probs_tensor.unsqueeze(0)
 
         # Compute advantages and returns
         advantages, returns = self._compute_gae(all_rewards, all_values, all_dones)
@@ -217,8 +225,11 @@ class PPOAgent(Agent):
         else:
             advantages_tensor = advantages_tensor - advantages_tensor.mean()
 
-        # Create dataset
+        # Create dataset with validation
         dataset_size = len(all_states)
+        if dataset_size == 0:
+            return {}
+
         indices = np.arange(dataset_size)
 
         metrics = {
@@ -243,11 +254,10 @@ class PPOAgent(Agent):
                 batch_advantages = advantages_tensor[batch_indices]
                 batch_returns = returns_tensor[batch_indices]
 
-                # Forward pass
-                action_probs = self.policy_network(batch_states)
-                # Ensure action_probs are valid probabilities
-                action_probs = torch.clamp(action_probs, 1e-8, 1 - 1e-8)
-                action_probs = action_probs / action_probs.sum(dim=1, keepdim=True)
+                # Forward pass with numerical stability
+                action_logits = self.policy_network(batch_states)
+                action_probs = torch.softmax(action_logits, dim=-1)
+                action_probs = torch.clamp(action_probs, 1e-8, 1.0)  # Ensure non-zero probabilities
 
                 values = self.value_network(batch_states).squeeze(-1)
 

@@ -173,10 +173,16 @@ class REINFORCEAgent(Agent):
         if not all_states:
             return {}
 
-        # Convert to tensors
+        # Convert to tensors with proper handling
         states_tensor = torch.FloatTensor(np.array(all_states))
         actions_tensor = torch.LongTensor(all_actions)
         returns_tensor = torch.FloatTensor(all_returns)
+
+        # Ensure proper tensor dimensions
+        if states_tensor.dim() == 1 and len(all_states) > 0 and hasattr(all_states[0], '__len__'):
+            states_tensor = states_tensor.view(-1, len(all_states[0]))
+        if actions_tensor.dim() == 0:
+            actions_tensor = actions_tensor.unsqueeze(0)
 
         # Get action probabilities
         action_probs = self.policy_network(states_tensor)

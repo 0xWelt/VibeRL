@@ -174,8 +174,9 @@ class DQNAgent(Agent):
         loss.backward()
         self.optimizer.step()
 
-        # Update target network
-        self._update_target_network()
+        # Update target network periodically
+        if len(self.memory) % self.target_update == 0:
+            self._update_target_network()
 
         # Decay epsilon
         self.epsilon = max(self.epsilon_end, self.epsilon * self.epsilon_decay)
