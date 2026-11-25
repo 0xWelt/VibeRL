@@ -1,4 +1,4 @@
-# CLAUDE.md
+# AGENTS.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -11,7 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 3. After you have done your changes:
    1.  Make sure `pytest -n 8` passes. If it doesn't, fix the issues and run again.
    2.  Make sure `pre-commit run --all` passes. If it doesn't, fix the issues and run again.
-   3.  Check if `CLAUDE.md, README.md, pyproject.toml` are up to date, change them according to the changes you made.
+   3.  Check if `AGENTS.md, README.md, pyproject.toml` are up to date, change them according to the changes you made.
 4. When creating a git commit:
    1. Scan all newly-added and modified files; if any of them shouldn't be committed, update .gitignore to exclude them, then run `git add .` to stage all changes.
    2. Always create a new commit, do not use `git commit --amend` to modify the previous commit.
